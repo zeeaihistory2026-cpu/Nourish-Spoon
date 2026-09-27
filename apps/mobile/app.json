@@ -26,6 +26,10 @@
     "web": {
       "favicon": "./assets/nourish_spoon_logo.png",
       "bundler": "metro"
-    }
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
   }
 }
