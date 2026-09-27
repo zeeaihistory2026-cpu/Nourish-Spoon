@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Nourish Spoon",
+    "slug": "nourish-spoon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/nourish_spoon_logo.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/nourish_spoon_logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF9EC"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nourishspoon.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/nourish_spoon_logo.png",
+        "backgroundColor": "#FFF9EC"
+      },
+      "package": "com.nourishspoon.app"
+    },
+    "web": {
+      "favicon": "./assets/nourish_spoon_logo.png",
+      "bundler": "metro"
+    }
+  }
+}

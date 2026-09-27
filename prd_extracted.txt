@@ -1,0 +1,533 @@
+PRODUCT REQUIREMENTS DOCUMENT
+Nourish Spoon
+Mobile App + Admin Dashboard
+Customer mobile commerce experience with centralized content, product, review, delivery, payment and operational management.
+Product
+Nourish Spoon
+Platforms
+iOS, Android, Web Admin Dashboard
+Mobile
+React Native + Expo + TypeScript
+Admin
+Next.js + TypeScript + Tailwind CSS
+Backend
+Supabase + PostgreSQL
+Version 1.0  |  September 2026
+1. Product Overview
+Nourish Spoon is a premium Pakistani food brand centered on handcrafted Panjeeri and Date & Nuts Energy Balls. The mobile application must preserve the website’s brand identity, content hierarchy and WhatsApp-first ordering model while improving discoverability, product education and repeat engagement. The admin dashboard must act as the operational control center for all app-managed content and settings.
+Item
+Requirement
+Primary objective
+Deliver a polished, mobile-first shopping and brand experience that mirrors Nourish Spoon’s existing website and business flow.
+Business model
+Product discovery and WhatsApp-assisted ordering, with optional native cart/checkout added later.
+Primary users
+Customers in Pakistan, Nourish Spoon administrators and staff.
+Core principle
+App content must be dynamic and controlled from the admin dashboard rather than hard-coded.
+2. Goals and Success Criteria
+Keep mobile app content, pricing, reviews, product information and business policies aligned with the live Nourish Spoon website.
+Make the primary buying path fast: discover product, select size, review details, initiate WhatsApp order.
+Allow admins to update products, pricing, variants, content, reviews, FAQ, delivery, payment and appearance without app releases.
+Provide a scalable technical foundation for native checkout, payment gateways, loyalty and push notifications later.
+Maintain strong accessibility, readable typography, responsive layouts and consistent light/dark themes.
+3. Scope
+3.1 MVP
+Splash and onboarding
+Home
+Products catalog
+Product detail pages
+Ingredients and nutrition information
+WhatsApp ordering
+Reviews
+About / founder story
+FAQ
+Contact & More
+Light/Dark theme
+Admin dashboard
+Product/content/review/FAQ/delivery/payment/settings management
+3.2 Post-MVP
+Native checkout
+Online payment gateway
+Customer accounts
+Order tracking
+Push notifications
+Coupons and promotions engine
+Inventory automation
+Loyalty program
+Advanced analytics
+4. User Roles
+Item
+Requirement
+Customer
+Browse products, select sizes, inspect ingredients/nutrition, read reviews, save favorites, initiate WhatsApp orders, review delivery/payment information, read FAQs, contact the brand, switch theme.
+Super Admin
+Full system access, staff roles, app settings, product/content/payment/delivery management and reports.
+Admin
+General operational access excluding sensitive role/security controls.
+Order Manager
+Order operations, customer/order details and status changes.
+Content Manager
+Products, banners, FAQ, reviews, About content and app copy.
+5. Information Architecture
+Primary mobile bottom navigation:
+Home
+Products
+Reviews
+About
+More
+Primary customer flow: Splash → Onboarding → Home → Products → Product Detail → Select Weight → Order on WhatsApp.
+6. Mobile App Functional Requirements
+6.1 Splash Screen
+Show Nourish Spoon logo and “Crafted with Love”.
+Use brand-aligned botanical/natural visuals.
+Show concise brand proposition: Handcrafted Nutrition, Real Ingredients, Pure Love.
+Automatically route after a short load state.
+Respect stored theme preference.
+6.2 Onboarding
+Up to three slides.
+Support Skip, Next and Get Started.
+Persist onboarding completion locally.
+Suggested messages: “Real Ingredients. Real Nutrition.”, “Freshly Made in Small Batches”, “Natural Goodness Delivered to You”.
+6.3 Home Screen
+Header with logo, navigation/menu and optional notifications.
+Delivery banner highlighting Sargodha same-day delivery and nationwide delivery availability.
+Hero with primary “Order on WhatsApp” CTA and secondary “Explore Products” CTA.
+Trust markers such as No Preservatives, 100% Natural, Small Batch and Airtight Packed.
+Signature product cards.
+Why Choose Nourish Spoon content.
+Customer review preview.
+Prominent WhatsApp CTA.
+6.4 Products Screen
+Search bar.
+Category filters: All, Energy Balls, Panjeeri.
+Product cards with image, favorite, name, rating, review count, short description, 250g/500g price selectors.
+Primary action: Order on WhatsApp.
+Secondary action: View Product.
+Optional tertiary cart icon when native cart is enabled.
+Button hierarchy must keep WhatsApp visually dominant, with View Product and cart secondary.
+6.5 Date & Nuts Energy Balls
+Item
+Requirement
+Rating
+4.9; 48 verified reviews
+250g
+Regular Rs. 2,199; sale Rs. 1,999
+500g
+Rs. 3,899
+Positioning
+Naturally sweetened, nutrient-dense, no refined sugar, no artificial preservatives/additives.
+Ingredients: Premium Dates, Almonds, Walnuts, Cashews, Raisins, Figs, Coconut, Pure Desi Ghee, Cardamom, Lotus Seeds, Pumpkin Seeds, Sunflower Seeds, White Sesame Seeds.
+6.6 Homemade Panjeeri
+Item
+Requirement
+Rating
+4.9; 62 verified reviews
+250g
+Regular Rs. 1,648; sale Rs. 1,499
+500g
+Rs. 2,899
+Positioning
+Traditional family recipe made with pure desi ghee, healthy fats, protein and essential nutrients.
+Ingredients: Almonds, Walnuts, Cashews, Raisins, Dry Dates, Cardamom, Coconut, Semolina (Suji), Pure Desi Ghee, Lotus Seeds, Pumpkin Seeds, Sunflower Seeds.
+6.7 Nutrition
+Nutrition must be database-driven per product. Current website example values per 100g:
+Nutrient
+Per 100g
+Energy
+550 kcal
+Healthy Fats
+35g
+Protein
+15g
+Carbohydrates
+40g
+Dietary Fiber
+9.8g
+Natural Sugar
+25g
+6.8 Product Detail UX
+Large product imagery.
+Rating and verified review count.
+Size selectors with selected-state clarity.
+Sale and regular pricing where applicable.
+Ingredients grid/list.
+Nutrition facts.
+Benefits.
+Storage guidance.
+Perfect For / suitability section.
+Related products.
+Sticky or persistent WhatsApp order CTA.
+6.9 WhatsApp Ordering
+Customer selects product, size and quantity.
+Collect customer name, phone, city and delivery address.
+Support gift-order toggle and optional personalized message.
+Generate a prefilled WhatsApp message containing order details.
+Open WhatsApp for final confirmation and payment details.
+Example: Hello Nourish Spoon, I would like to place an order. Product: Date & Nuts Energy Balls. Size: 250g. Quantity: 2. Name: Ali Raza. City: Sargodha. Address: ...
+6.10 Cart and Native Checkout
+Cart must be feature-flagged from admin settings.
+When native cart is OFF, WhatsApp remains the only transactional flow.
+When ON, enable Add to Cart, Cart and Checkout screens.
+Cart fields: product, variant, quantity, price, remove, subtotal, delivery and total.
+6.11 Payment
+Bank Transfer
+EasyPaisa
+JazzCash
+Current rule: advance payment only.
+Cash on Delivery remains disabled unless explicitly enabled later by admin.
+6.12 Delivery
+Same-day delivery in Sargodha.
+TCS nationwide delivery, typically 2–3 working days.
+Foodpanda in Sargodha.
+Self Pickup in Sargodha.
+Delivery methods and copy must be admin-editable.
+6.13 Reviews
+Filters: All, Energy Balls, Panjeeri.
+Fields: customer, verified purchase, product, rating, comment, screenshot, date, helpful count.
+Admin can approve, hide, delete and feature reviews.
+6.14 About / Our Story
+Founder: Tayyaba, Nourish Spoon, Sargodha, Pakistan.
+Sections: Founder Message, Our Story, Mission, How We Make It, Values.
+Process: Source Premium Ingredients → Prepare Fresh → Pack Airtight → Deliver to You.
+Values: Quality First, Honest Nutrition, Made with Love, Family First, Natural Always, Transparent.
+6.15 FAQ
+Categories: General, Products, Ordering, Delivery, Gifting.
+Expandable accordion interaction.
+Admin-controlled questions, answers, order and visibility.
+Persistent WhatsApp help CTA.
+6.16 Contact & More
+Item
+Requirement
+WhatsApp / Phone
++92 304 6721962
+Email
+info@nourishspoon.com
+Location
+Sargodha, Punjab, Pakistan
+Business hours
+Monday–Saturday, 8am–11pm
+Additional items
+FAQ, About, Delivery Info, Payment Info, Instagram, Appearance
+6.17 Appearance and Dark Mode
+Theme options: System, Light, Dark.
+Store preference locally and/or in profile once accounts exist.
+All reusable components consume shared design tokens, not page-specific colors.
+Token
+Light
+Dark
+Primary
+#0D5428
+#77A76A
+Dark Green
+#073B21
+#0C1B12
+Background
+#FFF9EC
+#0C1B12
+Surface
+#FFFFFF
+#14291C
+Gold
+#C99B36
+#D4AA52
+Text
+#10271A
+#F7F1E5
+7. Admin Dashboard Requirements
+The admin dashboard must manage all dynamic application content, operational settings and customer-facing data. It is the single source of truth for app-managed content.
+7.1 Sidebar Navigation
+Dashboard
+Orders
+Products
+Customers
+Reviews
+FAQ
+Contact Inquiries
+Banners & Content
+Delivery & Locations
+Payments
+Notifications
+Appearance
+Reports
+Admins & Staff
+Settings
+7.2 Dashboard Home
+KPIs: Total Orders, Revenue, Customers, Reviews, Repeat Orders.
+Charts: Sales Overview, Revenue, Orders by Status, Top Products.
+Tables: Recent Orders, Recent Reviews.
+Quick Actions: Add Product, Manage FAQ, Publish Banner, Send Notification, Export Report.
+Date-range filtering and global search.
+7.3 Product Management
+Product name and slug
+Short and full description
+Category
+Featured and gallery images
+250g / 500g variants
+Regular and sale price
+Stock and active status
+Ingredients
+Nutrition facts
+Benefits
+Storage
+Perfect For
+SEO title and meta description
+Draft, publish, disable, delete and preview actions
+7.4 Order Management
+Statuses: Pending, Confirmed, Preparing, Out for Delivery, Delivered, Cancelled.
+Order detail: ID, customer, phone, address, items, amount, payment, delivery, notes, status and timeline.
+Status update audit trail.
+Search, filters and date ranges.
+7.5 Customer Management
+Customer directory and search.
+View order history, total spend and contact details.
+Customer notes.
+Future support for segmentation and notifications.
+7.6 Review Management
+Review moderation queue.
+Approve, hide, feature and delete.
+View attached screenshots.
+Filter by product, rating, status and date.
+7.7 Content Management
+Home hero and promotional banners.
+About / founder story.
+FAQ categories and entries.
+Contact information and business hours.
+Trust markers and supporting copy.
+App promotional messages.
+7.8 Banner Management
+Image
+Heading
+Subheading
+CTA label
+CTA URL / deep link
+Start date
+End date
+Active state
+Preview
+7.9 Payment and Delivery Management
+Enable/disable payment methods.
+Edit labels, instructions and account details.
+Enable/disable delivery methods.
+Edit delivery locations, lead times, fees and descriptions.
+Maintain Sargodha same-day, TCS nationwide, Foodpanda and self-pickup settings.
+7.10 Notifications
+Prepare infrastructure for New Product, Promotion, Order Update, Delivery Update and Announcement notifications.
+Target All Users, Specific Customer, Previous Customers or Selected Segment after account/push support is enabled.
+7.11 Appearance
+Manage light/dark design tokens where appropriate.
+Control promotional imagery and brand surfaces.
+Preview app theme before publishing configuration changes.
+7.12 Reports
+Orders by period
+Revenue by period
+Top products and variants
+Delivery method distribution
+Payment method distribution
+Review/rating trends
+CSV export and future PDF export
+7.13 Admins & Staff
+Role-based access control.
+Roles: Super Admin, Admin, Order Manager, Content Manager.
+Invite, disable and edit permissions.
+Audit critical changes.
+8. Technical Architecture
+Item
+Requirement
+Mobile
+React Native + Expo + TypeScript
+Navigation
+Expo Router
+Styling
+NativeWind
+State
+Zustand
+Server state
+TanStack Query
+Backend
+Supabase
+Database
+PostgreSQL
+Storage
+Supabase Storage
+Auth
+Supabase Auth
+Admin
+Next.js + TypeScript + Tailwind CSS
+Forms
+React Hook Form + Zod
+Charts
+Recharts
+Notifications
+Expo Notifications
+Monitoring
+Sentry
+Deployment
+Vercel for admin web application
+8.1 Architecture Flow
+Admin Dashboard  →  Supabase / PostgreSQL  →  Mobile App
+Changes made in the admin dashboard, such as a price change, product image update, FAQ edit or delivery setting, must be reflected in the app through backend data rather than code changes.
+8.2 Repository Structure
+nourish-spoon/  apps/    mobile/    admin/  packages/    ui/    types/    validation/    utils/  supabase/    migrations/    seed/    functions/
+8.3 Suggested Mobile Route Structure
+app/  (tabs)/    index.tsx    products.tsx    reviews.tsx    about.tsx    more.tsx  product/[slug].tsx  order/index.tsx  faq.tsx  delivery.tsx  appearance.tsx
+9. Data Model
+profiles
+products
+product_variants
+product_images
+ingredients
+product_ingredients
+nutrition_facts
+orders
+order_items
+reviews
+faqs
+banners
+payment_methods
+delivery_methods
+notifications
+contact_messages
+favorites
+app_settings
+admins
+9.1 Key Table Fields
+Item
+Requirement
+products
+id, name, slug, short_description, description, featured_image, rating, review_count, active, created_at, updated_at
+product_variants
+id, product_id, weight, regular_price, sale_price, stock, active
+ingredients
+id, name, image, description
+nutrition_facts
+id, product_id, label, value, unit, sort_order
+orders
+id, customer_name, phone, city, address, payment_method_id, delivery_method_id, status, total, created_at
+reviews
+id, product_id, customer_name, rating, comment, screenshot_url, verified, helpful_count, status, created_at
+app_settings
+key, value, scope, updated_at
+10. Non-Functional Requirements
+10.1 Performance
+Lazy-load non-critical images.
+Compress images and use efficient formats where supported.
+Cache API responses with TanStack Query.
+Paginate reviews and admin order lists.
+Use skeleton loaders for perceived performance.
+Minimize startup network requests.
+Use optimistic updates for appropriate admin operations.
+10.2 Accessibility
+Readable type scale and sufficient color contrast.
+Minimum touch target sizes appropriate for mobile platforms.
+Semantic labels for icons and controls.
+Support Dynamic Type/font scaling where practical.
+Do not communicate status using color alone.
+10.3 Security
+Supabase Row Level Security.
+Role-based admin permissions.
+Secure environment variables.
+Server-side validation for privileged actions.
+Zod validation on forms.
+Rate limiting for contact/inquiry endpoints where applicable.
+Image/file validation.
+Secure authentication sessions.
+Audit logs for critical admin actions.
+10.4 Reliability
+Graceful empty/error states.
+Retry transient network failures.
+Offline-friendly cached catalog where practical.
+Sentry monitoring for production crashes and errors.
+11. Design System Requirements
+Visual language must closely match Nourish Spoon website: warm cream surfaces, deep natural green, restrained gold accents, botanical motifs and premium food photography.
+Use an elegant display face for major headings and a highly readable sans-serif for body/UI labels.
+Avoid excessive decorative elements inside transactional flows.
+Primary CTA uses deep green; gold is an accent, not the primary action color.
+Consistent border radius, spacing scale and elevation tokens across mobile and admin.
+Dark mode should preserve hierarchy and warmth rather than simply invert colors.
+12. Content Governance
+Website and app should share the same factual product content.
+Do not invent new health claims or unsupported product benefits.
+Prices, review counts and business policies must be admin-managed and treated as volatile data.
+Contact details and business hours must be managed centrally.
+Legal/health-sensitive copy should support disclaimers where appropriate.
+13. MVP Acceptance Criteria
+Item
+Requirement
+Brand fidelity
+Mobile app and admin UI use the approved Nourish Spoon palette, typography hierarchy and visual language.
+Products
+Both current products load dynamically with correct variants, pricing, content and images.
+Ordering
+WhatsApp order flow correctly generates product, size, quantity and customer details.
+Admin sync
+Product/content/settings changes made in admin appear in the mobile app without a new release.
+Reviews
+Approved reviews render correctly; hidden/unapproved reviews do not.
+Themes
+Light and dark themes work across all reusable screens/components.
+FAQ/content
+FAQ, About and Contact content is manageable through admin.
+Security
+Admin routes are authenticated and role-restricted.
+Quality
+No major layout clipping, broken navigation or inaccessible primary actions on supported phone sizes.
+14. Recommended Delivery Phases
+Foundation: monorepo, Supabase project, database schema, design tokens, authentication and CI/CD.
+Mobile shell: splash, onboarding, navigation, home and theme system.
+Commerce catalog: products, variants, details, ingredients, nutrition and favorites.
+WhatsApp ordering: order form, prefilled message generation and business rules.
+Content: reviews, About, FAQ, contact and delivery/payment information.
+Admin: dashboard, products, content, reviews, delivery, payments and app settings.
+QA: responsive testing, theme testing, accessibility, performance and release preparation.
+Post-MVP: native checkout, payments, customer accounts, tracking, push, loyalty and advanced analytics.
+15. Product Decisions and Constraints
+WhatsApp is the MVP transactional priority because it matches the current website and operational model.
+Do not overbuild native checkout before the business explicitly adopts that process.
+Product data must not be hard-coded into the app.
+A cart icon may be present only if the feature is enabled or clearly planned; otherwise omit it to avoid misleading users.
+Admin is the authoritative source for volatile data such as prices, availability, review visibility, delivery options and promotional banners.
+16. Future Expansion
+Online payment gateway integration
+Customer login and saved addresses
+Real-time order tracking
+Push notification campaigns
+Discount/coupon engine
+Inventory alerts and stock automation
+Subscriptions / repeat purchase flows
+Loyalty and rewards
+Gift bundles
+Advanced cohort and retention analytics
+Multi-city delivery rules
+Appendix A. Current Brand/Business Reference
+Item
+Requirement
+Brand
+Nourish Spoon
+Tagline
+Crafted with Love
+Current flagship products
+Date & Nuts Energy Balls; Homemade Panjeeri
+Current ordering model
+WhatsApp-first
+Local delivery
+Same-day in Sargodha
+Nationwide delivery
+TCS, typically 2–3 working days
+Payment model
+Advance payment via Bank Transfer, EasyPaisa or JazzCash
+Location
+Sargodha, Punjab, Pakistan
+WhatsApp / Phone
++92 304 6721962
+Email
+info@nourishspoon.com
+Appendix B. Definition of Done
+UI matches approved designs and design tokens.
+All dynamic content comes from backend/admin.
+All primary user flows are tested on Android and iOS target sizes.
+Dark mode has no contrast or legibility regressions.
+WhatsApp order payload is accurate.
+Admin permissions are enforced.
+Production error monitoring is configured.
+App and admin pass final functional QA.
