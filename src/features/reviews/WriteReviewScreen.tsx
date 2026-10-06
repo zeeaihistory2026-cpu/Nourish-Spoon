@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { z } from 'zod';
 
@@ -32,6 +33,7 @@ type WriteReviewFormData = z.infer<typeof writeReviewSchema>;
 export function WriteReviewScreen() {
   const route = useRoute<RouteProp<ProductsStackParamList, 'WriteReview'>>();
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
+  const tabBarHeight = useBottomTabBarHeight();
   const [submitError, setSubmitError] = useState('');
   const [verified, setVerified] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -71,7 +73,7 @@ export function WriteReviewScreen() {
     <Screen>
       <AppHeader variant="title" title="Write a Review" onBack />
 
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 16 }]} keyboardShouldPersistTaps="handled">
         {submitted ? (
           <View style={styles.success}>
             <View style={styles.successIcon}>

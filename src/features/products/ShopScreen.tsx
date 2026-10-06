@@ -1,8 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -21,8 +19,6 @@ import { asProduct } from './lib/productFactory';
 // The two cards match the demo catalogue's products and prices exactly.
 export function ShopScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
   const addItem = useCartStore((store) => store.addItem);
   const productIds = useWishlistStore((store) => store.productIds);
   const toggleWishlist = useWishlistStore((store) => store.toggle);
@@ -46,9 +42,9 @@ export function ShopScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right']}>
       <StatusBar style="dark" />
-      <View style={[styles.artworkWrap, { paddingTop: insets.top, paddingBottom: tabBarHeight }]}>
+      <View style={styles.artworkWrap}>
         <Image
           source={BRAND.fullProductsImage}
           style={styles.artwork}
