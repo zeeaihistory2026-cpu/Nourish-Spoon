@@ -100,7 +100,11 @@ export function LoginScreen() {
               onChangeText={field.onChange}
               autoCapitalize="none"
               keyboardType="email-address"
+              textContentType="emailAddress"
+              autoComplete="email"
+              returnKeyType="next"
               placeholder=""
+              accessibilityLabel="Email address"
               style={styles.inputText}
             />
           </View>
@@ -117,7 +121,11 @@ export function LoginScreen() {
               value={field.value}
               onChangeText={field.onChange}
               secureTextEntry
+              textContentType="password"
+              autoComplete="password"
+              returnKeyType="done"
               placeholder=""
+              accessibilityLabel="Password"
               style={styles.inputText}
             />
           </View>

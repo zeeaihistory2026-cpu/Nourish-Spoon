@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { RootNavigator } from '../navigation/RootNavigator';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { SplashScreen } from '../../features/splash/SplashScreen';
+import { ToastHost } from '../../components/ui/ToastHost';
 import { useAppFonts, FONT_FAMILY, colors } from '../../theme';
 
 const MIN_SPLASH_MS = 1200;
@@ -60,6 +61,7 @@ export function AppProviders() {
         <NavigationContainer theme={navigationTheme}>
           <StatusBar style={statusBarStyle} />
           <RootNavigator />
+          <ToastHost />
         </NavigationContainer>
       </SplashGate>
     </AuthProvider>

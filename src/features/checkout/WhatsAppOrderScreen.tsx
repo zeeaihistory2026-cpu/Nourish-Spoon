@@ -73,7 +73,7 @@ export function WhatsAppOrderScreen() {
       return;
     }
     const lines = [
-      `*New Order â€” ${BRAND.name}*`,
+      `*New Order — ${BRAND.name}*`,
       ``,
       `Product: ${selectedProduct.name}`,
       `Size: ${variant.label}`,
@@ -148,7 +148,7 @@ export function WhatsAppOrderScreen() {
 
         <FieldLabel>Select Size</FieldLabel>
         <SelectField
-          value={`${variant.label} â€“ ${formatPrice(variant.price)}`}
+          value={`${variant.label} – ${formatPrice(variant.price)}`}
           onPress={() => setVariantPickerOpen(true)}
         />
 
@@ -315,7 +315,7 @@ export function WhatsAppOrderScreen() {
                 }}
               >
                 <AppText variant="body" color="text">
-                  {entry.label} â€“ {formatPrice(entry.price)}
+                  {entry.label} – {formatPrice(entry.price)}
                 </AppText>
                 {index === variantIndex ? (
                   <Check size={18} color={colors.greenMid} strokeWidth={2.4} />

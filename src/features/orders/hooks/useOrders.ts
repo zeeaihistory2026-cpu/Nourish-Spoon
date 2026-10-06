@@ -66,9 +66,13 @@ export function useOrder(orderId: string) {
         }
       });
     // Live status updates while the tracking screen is open.
-    const unsubscribe = watchOrder(orderId, (updated) => {
+    const unsubscribe = watchOrder(orderId, (updated, error) => {
       if (!cancelled) {
-        setOrder(updated);
+        if (error) {
+          setState('error');
+        } else {
+          setOrder(updated);
+        }
       }
     });
     return () => {

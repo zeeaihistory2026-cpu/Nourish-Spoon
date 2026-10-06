@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { ProductsStackParamList } from '../../app/navigation/navigationTypes';
 import { Screen } from '../../components/ui/Screen';
+import { toast } from '../../components/ui/toastStore';
 import { trackAddToCart } from '../../services/analytics/events';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
@@ -39,6 +40,7 @@ export function ShopScreen() {
   const addToCart = (product: typeof dateNuts) => {
     addItem(product, product.variants[0], 1);
     trackAddToCart(product.id, 1, product.price);
+    toast('Added to cart');
   };
 
   return (

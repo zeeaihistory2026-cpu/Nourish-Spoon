@@ -7,6 +7,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Screen } from '../../components/ui/Screen';
+import { toast } from '../../components/ui/toastStore';
 import { DrawerMenu } from '../../components/common/DrawerMenu';
 import { trackAddToCart } from '../../services/analytics/events';
 import { useCartStore } from '../../store/cartStore';
@@ -43,6 +44,7 @@ export function HomeScreen() {
     const product = asProduct(productId, name, price, image);
     addItem(product, product.variants[0], 1);
     trackAddToCart(productId, 1, price);
+    toast('Added to cart');
   };
 
   const openProduct = (productId: string) => {
@@ -175,17 +177,17 @@ const styles = StyleSheet.create({
   },
   menuZone: {
     position: 'absolute',
-    top: '8.03%',
+    top: '7.44%',
     left: '5.4%',
     width: '8%',
-    height: '3.61%',
+    height: '4.8%',
   },
   bellZone: {
     position: 'absolute',
-    top: '8.03%',
+    top: '7.44%',
     left: '87.5%',
     width: '8.5%',
-    height: '3.61%',
+    height: '4.8%',
   },
   bannerZone: {
     position: 'absolute',

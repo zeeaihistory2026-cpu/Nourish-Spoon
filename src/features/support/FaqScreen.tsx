@@ -13,10 +13,10 @@ import { FONT_FAMILY, colors, radius, shadows } from '../../theme';
 import { openWhatsApp } from '../../utils/whatsapp';
 
 const QUICK_FACTS = [
-  { icon: 'ðŸ’¬', top: 'Fast Replies', bottom: 'via WhatsApp' },
-  { icon: 'ðŸšš', top: 'Sargodha', bottom: 'Same-Day Delivery' },
-  { icon: 'ðŸƒ', top: '100%', bottom: 'Natural' },
-  { icon: 'ðŸ“¦', top: 'Nationwide', bottom: '2â€“3 Days' },
+  { icon: '💬', top: 'Fast Replies', bottom: 'via WhatsApp' },
+  { icon: '🚚', top: 'Sargodha', bottom: 'Same-Day Delivery' },
+  { icon: '🍃', top: '100%', bottom: 'Natural' },
+  { icon: '📦', top: 'Nationwide', bottom: '2–3 Days' },
 ];
 
 const FILTERS = ['General', 'Products', 'Ordering', 'Delivery', 'Gifting'];
@@ -32,37 +32,37 @@ const FAQS: FaqEntry[] = [
     category: 'General',
     question: 'What is Nourish Spoon?',
     answer:
-      'Nourish Spoon is a home-grown brand offering premium Panjeeri, Date & Nut Energy Balls and healthy traditional recipes made with pure, natural ingredients â€” crafted with love for your familyâ€™s well-being.',
+      'Nourish Spoon is a home-grown brand offering premium Panjeeri, Date & Nut Energy Balls and healthy traditional recipes made with pure, natural ingredients — crafted with love for your family’s well-being.',
   },
   {
     category: 'Products',
     question: 'Are your products 100% natural?',
     answer:
-      'Yes. Every jar is made with pure desi ghee, premium nuts and dates â€” no preservatives, no refined sugar and nothing artificial, ever.',
+      'Yes. Every jar is made with pure desi ghee, premium nuts and dates — no preservatives, no refined sugar and nothing artificial, ever.',
   },
   {
     category: 'Ordering',
     question: 'How do I place an order?',
     answer:
-      'Add items to your cart and check out in the app, or tap â€œOrder on WhatsAppâ€ on any product to order directly with our team.',
+      'Add items to your cart and check out in the app, or tap “Order on WhatsApp” on any product to order directly with our team.',
   },
   {
     category: 'Ordering',
     question: 'What payment methods do you accept?',
     answer:
-      'We accept advance payment via Bank Transfer, EasyPaisa and JazzCash. Orders are confirmed after advance payment â€” we do not offer Cash on Delivery.',
+      'We accept advance payment via Bank Transfer, EasyPaisa and JazzCash. Orders are confirmed after advance payment — we do not offer Cash on Delivery.',
   },
   {
     category: 'Delivery',
     question: 'Do you ship across Pakistan?',
     answer:
-      'We offer same-day delivery within Sargodha and nationwide delivery via TCS in 2â€“3 working days. Foodpanda delivery is also available in Sargodha.',
+      'We offer same-day delivery within Sargodha and nationwide delivery via TCS in 2–3 working days. Foodpanda delivery is also available in Sargodha.',
   },
   {
     category: 'Gifting',
     question: 'Do you offer gift packaging?',
     answer:
-      'Yes! Select â€œThis is a gift orderâ€ at checkout and add a personalized message â€” weâ€™ll pack it beautifully for your loved ones.',
+      'Yes! Select “This is a gift order” at checkout and add a personalized message — we’ll pack it beautifully for your loved ones.',
   },
 ];
 
@@ -149,7 +149,7 @@ export function FaqScreen() {
           <View style={styles.askScrim} />
           <View style={styles.askContent}>
             <View style={styles.askIcon}>
-              <AppText style={{ color: colors.white, fontSize: 20 }}>ðŸ’¬</AppText>
+              <AppText style={{ color: colors.white, fontSize: 20 }}>💬</AppText>
             </View>
             <View style={styles.askBody}>
               <AppText variant="small" color="text">
@@ -162,7 +162,7 @@ export function FaqScreen() {
               </AppText>
             </View>
             <View style={styles.askChevron}>
-              <AppText style={{ color: colors.white, fontSize: 15 }}>â€º</AppText>
+              <AppText style={{ color: colors.white, fontSize: 15 }}>›</AppText>
             </View>
           </View>
         </Pressable>
