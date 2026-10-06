@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { ProductsStackParamList } from '../../app/navigation/navigationTypes';
@@ -16,6 +17,7 @@ import { useProductReviews } from './hooks/useReviews';
 
 export function ProductReviewsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
+  const tabBarHeight = useBottomTabBarHeight();
   const route = useRoute<RouteProp<ProductsStackParamList, 'ProductReviews'>>();
   const { productId } = route.params;
 
@@ -35,7 +37,7 @@ export function ProductReviewsScreen() {
       <FlatList
         data={reviews}
         keyExtractor={(review) => review.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <ReviewCard review={item} />}
         ListHeaderComponent={

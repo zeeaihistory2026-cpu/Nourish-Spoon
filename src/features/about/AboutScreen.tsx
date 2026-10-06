@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { AppHeader } from '../../components/common/AppHeader';
 import { DecorativeLeaves } from '../../components/common/DecorativeLeaves';
@@ -71,11 +72,12 @@ const VALUES = [
 ];
 
 export function AboutScreen() {
+  const tabBarHeight = useBottomTabBarHeight();
   return (
     <Screen>
       <AppHeader variant="title" title="Our Story" leaves onBack />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <Image
             source={BRAND.storyImage}
