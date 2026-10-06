@@ -21,11 +21,21 @@ to connect your Firebase project. ~10 minutes.
    ```bash
    firebase deploy --only firestore:rules
    ```
-6. **Deploy the Cloud Functions** (order/review transactions, role claims):
-   ```bash
-   cd functions && npm install && cd ..
-   firebase deploy --only functions
-   ```
+## Cloud Functions (optional — requires Blaze plan)
+
+The `functions/` folder contains server-side order transactions, verified
+reviews, and admin role claims. These need the Blaze (pay-as-you-go) plan
+to deploy. **The app runs fine without them** on the free Spark plan:
+
+| Feature | Without functions | With functions |
+|---|---|---|
+| Orders | Created client-side, validated by security rules | Server re-prices from catalogue, decrements stock |
+| Reviews | Created unverified | `verifiedPurchase` badge for real buyers |
+| Push notifications | Device tokens register, nothing sends | Order status notifications |
+| Admin roles | N/A (no admin UI in app) | `setUserRole` grants staff/admin claims |
+
+To deploy later: upgrade to Blaze in Project Settings → Usage and billing,
+then `firebase deploy --only functions`.
 
 ## What you do in this repo
 
