@@ -9,7 +9,7 @@ coverage/
 /ios/
 
 # Firebase config files are provisioned per environment, never committed
-google-services.json
+# google-services.json (temporarily enabled for EAS build)
 GoogleService-Info.plist
 serviceAccountKey.json
 .firebaserc

@@ -311,9 +311,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   cartButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: colors.greenDark,
     alignItems: 'center',
     justifyContent: 'center',

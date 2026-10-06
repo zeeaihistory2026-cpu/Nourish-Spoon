@@ -71,7 +71,7 @@ export function CartScreen() {
                       }}
                       accessibilityRole="button"
                       accessibilityLabel={`Remove ${item.name} from cart`}
-                      hitSlop={14}
+                      hitSlop={15}
                     >
                       <Trash2 size={15} color={colors.chevron} strokeWidth={2} />
                     </Pressable>

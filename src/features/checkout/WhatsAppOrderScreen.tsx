@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Image } from 'expo-image';
 import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { z } from 'zod';
@@ -35,7 +35,7 @@ type WhatsAppOrderFormData = z.infer<typeof whatsappOrderSchema>;
 export function WhatsAppOrderScreen() {
   const route = useRoute<RouteProp<ProductsStackParamList, 'WhatsAppOrder'>>();
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const { product } = useProduct(route.params.productId);
   const { items: allProducts } = useProducts({});
 
@@ -73,7 +73,7 @@ export function WhatsAppOrderScreen() {
       return;
     }
     const lines = [
-      `*New Order â€” ${BRAND.name}*`,
+      `*New Order — ${BRAND.name}*`,
       ``,
       `Product: ${selectedProduct.name}`,
       `Size: ${variant.label}`,
@@ -103,7 +103,7 @@ export function WhatsAppOrderScreen() {
       <AppHeader variant="title" title="Order on WhatsApp" onBack leaves />
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 8) + 104 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 92 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -148,7 +148,7 @@ export function WhatsAppOrderScreen() {
 
         <FieldLabel>Select Size</FieldLabel>
         <SelectField
-          value={`${variant.label} â€“ ${formatPrice(variant.price)}`}
+          value={`${variant.label} – ${formatPrice(variant.price)}`}
           onPress={() => setVariantPickerOpen(true)}
         />
 
@@ -268,7 +268,7 @@ export function WhatsAppOrderScreen() {
         </View>
       </ScrollView>
 
-      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 8) + 10 }]}>
+      <View style={[styles.bottomBar, { bottom: tabBarHeight, paddingBottom: 12 }]}>
         <WhatsAppCTA label="Send Order on WhatsApp" onPress={onSubmit} />
       </View>
 
@@ -315,7 +315,7 @@ export function WhatsAppOrderScreen() {
                 }}
               >
                 <AppText variant="body" color="text">
-                  {entry.label} â€“ {formatPrice(entry.price)}
+                  {entry.label} – {formatPrice(entry.price)}
                 </AppText>
                 {index === variantIndex ? (
                   <Check size={18} color={colors.greenMid} strokeWidth={2.4} />
