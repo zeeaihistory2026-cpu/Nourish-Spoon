@@ -48,6 +48,7 @@ export function OnboardingScreen() {
       <View style={styles.artworkScreen}>
         <StatusBar style="dark" />
         <Image
+        pointerEvents="none"
           source={BRAND.fullOnboardingImage}
           style={styles.artwork}
           contentFit="cover"
@@ -111,6 +112,7 @@ export function OnboardingScreen() {
       </View>
 
       <Image
+        pointerEvents="none"
         source={BRAND.bowlImage}
         style={styles.photo}
         contentFit="cover"

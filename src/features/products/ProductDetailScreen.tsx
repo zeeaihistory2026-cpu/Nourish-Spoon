@@ -40,7 +40,8 @@ function ArtworkDetail({ artwork, productId }: { artwork: number; productId: str
         showsVerticalScrollIndicator={false}
       >
       <View style={styles.artworkWrap}>
-        <Image source={artwork} style={styles.artwork} contentFit="contain" transition={250} />
+        <Image
+        pointerEvents="none" source={artwork} style={styles.artwork} contentFit="contain" transition={250} />
 
         {/* Back circle (top-left) */}
         <Pressable

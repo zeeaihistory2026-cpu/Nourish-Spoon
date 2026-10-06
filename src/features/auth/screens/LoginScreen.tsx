@@ -75,6 +75,7 @@ export function LoginScreen() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <Image
+        pointerEvents="none"
         source={BRAND.fullLoginImage}
         style={styles.artwork}
         contentFit="cover"

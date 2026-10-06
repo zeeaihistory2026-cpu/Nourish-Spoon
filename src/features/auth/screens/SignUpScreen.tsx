@@ -87,6 +87,7 @@ export function SignUpScreen() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <Image
+        pointerEvents="none"
         source={BRAND.fullSignupImage}
         style={styles.artwork}
         contentFit="cover"

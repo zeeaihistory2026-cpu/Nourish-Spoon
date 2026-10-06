@@ -64,6 +64,7 @@ export function HomeScreen() {
       >
       <View style={styles.artworkWrap}>
         <Image
+        pointerEvents="none"
           source={BRAND.fullHomeImage}
           style={styles.artwork}
           contentFit="contain" contentPosition="top"

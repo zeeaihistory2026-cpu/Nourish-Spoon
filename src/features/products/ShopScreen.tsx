@@ -48,6 +48,7 @@ export function ShopScreen() {
       <StatusBar style="dark" />
       <View style={styles.artworkWrap}>
         <Image
+        pointerEvents="none"
           source={BRAND.fullProductsImage}
           style={styles.artwork}
           contentFit="contain" contentPosition="top"
