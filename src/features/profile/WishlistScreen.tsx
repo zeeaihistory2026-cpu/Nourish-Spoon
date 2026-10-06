@@ -69,12 +69,12 @@ export function WishlistScreen() {
             <ProductCard
               product={item}
               onPress={() =>
-                (navigation.navigate as unknown as (
-                  name: string,
-                  params?: object
-                ) => void)('Products', {
-                  screen: 'ProductDetail',
-                  params: { productId: item.id },
+                navigation.navigate('Main', {
+                  screen: 'Products',
+                  params: {
+                    screen: 'ProductDetail',
+                    params: { productId: item.id },
+                  },
                 })
               }
               onAddToCart={(variant) => {

@@ -14,6 +14,10 @@ import { colors } from '../../theme';
 export function OrderSuccessScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'OrderSuccess'>>();
+  // Deep links may arrive without params — guard instead of crashing.
+  const orderNumber = route.params?.orderNumber ?? '—';
+  const orderId = route.params?.orderId;
+  const total = route.params?.total ?? 0;
 
   return (
     <Screen>
@@ -34,7 +38,7 @@ export function OrderSuccessScreen() {
           <View style={styles.orderNumber}>
             <Package size={14} color={colors.greenMid} strokeWidth={2} />
             <AppText variant="captionMedium" color="greenMid">
-              {route.params.orderNumber} · {formatPrice(route.params.total)}
+              {orderNumber} · {formatPrice(total)}
             </AppText>
           </View>
 
@@ -46,7 +50,9 @@ export function OrderSuccessScreen() {
               variant="green"
               onPress={() =>
                 navigation.dispatch(
-                  StackActions.replace('OrderDetail', { orderId: route.params.orderId })
+                  orderId
+                    ? StackActions.replace('OrderDetail', { orderId })
+                    : StackActions.replace('Orders')
                 )
               }
             />

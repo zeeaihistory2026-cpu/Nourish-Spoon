@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Banknote, ChevronRight, CreditCard, Landmark, MapPin, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -66,6 +66,7 @@ export function CheckoutScreen() {
       return;
     }
     if (!uid) {
+      setLoadingAddresses(false);
       return;
     }
     setLoadingAddresses(true);
@@ -148,7 +149,11 @@ export function CheckoutScreen() {
         // TEMPORARY client-side ordering until the server function is deployed.
         order = await placeOrderClientSide(
           uid,
-          items.map((item) => ({ productId: item.productId, qty: item.qty })),
+          items.map((item) => ({
+            productId: item.productId,
+            variantLabel: item.variantLabel,
+            qty: item.qty,
+          })),
           {
             label: selectedAddress.label,
             fullName: selectedAddress.fullName,
@@ -187,6 +192,10 @@ export function CheckoutScreen() {
     <Screen>
       <AppHeader variant="title" title="Checkout" onBack />
 
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <SectionHeader title="Delivery Address" />
         {loadingAddresses ? (
@@ -347,6 +356,7 @@ export function CheckoutScreen() {
           </AppText>
         ) : null}
       </ScrollView>
+      </KeyboardAvoidingView>
 
       <BottomBar>
         <View style={styles.total}>
@@ -413,6 +423,9 @@ function PaymentOption({
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   content: {
     paddingHorizontal: 18,
     paddingBottom: 28,
@@ -446,9 +459,12 @@ const styles = StyleSheet.create({
   addAddress: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 7,
     marginTop: 10,
     alignSelf: 'flex-start',
+    minHeight: 44,
+    paddingHorizontal: 4,
   },
   form: {
     marginTop: 10,

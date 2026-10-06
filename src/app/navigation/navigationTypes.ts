@@ -42,8 +42,8 @@ export type MainTabParamList = {
 export type ProductsStackParamList = {
   ProductsList: { query?: string } | undefined;
   ProductDetail: { productId: string };
-  ProductReviews: { productId: string; productName: string };
-  WriteReview: { productId: string; productName: string };
+  ProductReviews: { productId: string; productName?: string };
+  WriteReview: { productId: string; productName?: string };
   WhatsAppOrder: { productId: string };
 };
 

@@ -87,6 +87,7 @@ export function SignUpScreen() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <Image
+        pointerEvents="none"
         source={BRAND.fullSignupImage}
         style={styles.artwork}
         contentFit="cover"
@@ -228,6 +229,8 @@ const styles = StyleSheet.create({
     height: '4.2%',
   },
   fieldInput: {
+    left: '27%',
+    width: '60%',
     height: '4.2%',
   },
   emailInput: {

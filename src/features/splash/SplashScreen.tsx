@@ -14,6 +14,7 @@ export function SplashScreen() {
       <StatusBar style="dark" />
       <View style={styles.artworkWrap}>
         <Image
+        pointerEvents="none"
           source={BRAND.fullSplashImage}
           style={styles.art}
           contentFit="contain"

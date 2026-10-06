@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
 import { useState } from 'react';
@@ -7,6 +7,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Screen } from '../../components/ui/Screen';
+import { toast } from '../../components/ui/toastStore';
 import { DrawerMenu } from '../../components/common/DrawerMenu';
 import { trackAddToCart } from '../../services/analytics/events';
 import { useCartStore } from '../../store/cartStore';
@@ -22,8 +23,8 @@ import { asProduct } from '../products/lib/productFactory';
 // View All, and each product card (card, heart, cart) — so it stays
 // pixel-identical while remaining fully functional. The products shown are
 // the demo catalogue's two signature items, matching the design.
-const DATE_NUTS_ID = 'demo-date-nut-balls';
-const PANJEERI_ID = 'demo-homemade-panjeeri';
+const DATE_NUTS_ID = 'date-nut-balls';
+const PANJEERI_ID = 'homemade-panjeeri';
 
 export function HomeScreen() {
   // Composite: tab routes for in-tab navigation, root routes for screens like
@@ -43,6 +44,7 @@ export function HomeScreen() {
     const product = asProduct(productId, name, price, image);
     addItem(product, product.variants[0], 1);
     trackAddToCart(productId, 1, price);
+    toast('Added to cart');
   };
 
   const openProduct = (productId: string) => {
@@ -55,8 +57,14 @@ export function HomeScreen() {
   return (
     <Screen edges={['left', 'right']}>
       <StatusBar style="dark" />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.artworkWrap}>
         <Image
+        pointerEvents="none"
           source={BRAND.fullHomeImage}
           style={styles.artwork}
           contentFit="contain" contentPosition="top"
@@ -146,6 +154,7 @@ export function HomeScreen() {
           style={styles.card2CartZone}
         />
       </View>
+      </ScrollView>
 
       <DrawerMenu visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </Screen>
@@ -153,8 +162,15 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  artworkWrap: {
+  scroll: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  artworkWrap: {
+    width: '100%',
+    aspectRatio: 803 / 1900,
   },
   artwork: {
     width: '100%',
@@ -162,86 +178,86 @@ const styles = StyleSheet.create({
   },
   menuZone: {
     position: 'absolute',
-    top: '5.4%',
+    top: '7.44%',
     left: '5.4%',
     width: '8%',
-    height: '4%',
+    height: '4.8%',
   },
   bellZone: {
     position: 'absolute',
-    top: '5.4%',
+    top: '7.44%',
     left: '87.5%',
     width: '8.5%',
-    height: '4%',
+    height: '4.8%',
   },
   bannerZone: {
     position: 'absolute',
-    top: '14.2%',
+    top: '15.98%',
     left: '3.7%',
     width: '92.4%',
-    height: '5.4%',
+    height: '4.87%',
   },
   heroWaZone: {
     position: 'absolute',
-    top: '46.4%',
+    top: '45.04%',
     left: '5.6%',
     width: '49%',
-    height: '4.6%',
+    height: '4.15%',
   },
   exploreZone: {
     position: 'absolute',
-    top: '51.5%',
+    top: '49.64%',
     left: '5.6%',
     width: '50%',
-    height: '3.8%',
+    height: '3.43%',
   },
   viewAllZone: {
     position: 'absolute',
-    top: '67.2%',
+    top: '63.81%',
     left: '76.5%',
     width: '19.5%',
-    height: '2.8%',
+    height: '2.53%',
   },
   card1Zone: {
     position: 'absolute',
-    top: '70.6%',
+    top: '66.88%',
     left: '3.7%',
     width: '44.8%',
-    height: '22.6%',
+    height: '20.4%',
   },
   card1HeartZone: {
     position: 'absolute',
-    top: '71.3%',
+    top: '67.52%',
     left: '38.6%',
     width: '7.2%',
-    height: '3.6%',
+    height: '3.25%',
   },
   card1CartZone: {
     position: 'absolute',
-    top: '87.4%',
+    top: '82.05%',
     left: '34%',
     width: '10%',
-    height: '4.8%',
+    height: '4.33%',
   },
   card2Zone: {
     position: 'absolute',
-    top: '70.6%',
+    top: '66.88%',
     left: '50.9%',
     width: '44.8%',
-    height: '22.6%',
+    height: '20.4%',
   },
   card2HeartZone: {
     position: 'absolute',
-    top: '71.3%',
+    top: '67.52%',
     left: '85.7%',
     width: '7.2%',
-    height: '3.6%',
+    height: '3.25%',
   },
   card2CartZone: {
     position: 'absolute',
-    top: '87.4%',
+    top: '82.05%',
     left: '81.1%',
     width: '10%',
-    height: '4.8%',
+    height: '4.33%',
   },
 });
