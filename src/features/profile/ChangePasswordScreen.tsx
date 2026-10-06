@@ -99,7 +99,7 @@ export function ChangePasswordScreen() {
           />
 
           {status === 'saved' ? (
-            <AppText variant="small" color="greenLight" style={styles.status}>
+            <AppText variant="small" color="greenMid" style={styles.status}>
               Password updated.
             </AppText>
           ) : null}

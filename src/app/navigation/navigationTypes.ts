@@ -1,10 +1,10 @@
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { NavigatorScreenParams } from '@react-navigation/native';
 
 export type RootStackParamList = {
   Onboarding: undefined;
   Auth: undefined;
-  Main: undefined;
+  Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Cart: undefined;
   Checkout: undefined;
   OrderSuccess: { orderId: string; orderNumber: string; total: number };
@@ -28,7 +28,10 @@ export type AuthStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
-  Products: { query?: string } | undefined;
+  // The Products tab hosts its own stack; nested navigation uses the
+  // NavigatorScreenParams pattern so `navigate('Products', { screen, params })`
+  // typechecks without casts.
+  Products: NavigatorScreenParams<ProductsStackParamList> | undefined;
   Reviews: undefined;
   About: undefined;
   More: undefined;
@@ -45,22 +48,3 @@ export type ProductsStackParamList = {
 };
 
 export type RootNavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-export type RootScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
-  RootStackParamList,
-  Screen
->;
-
-export type AuthScreenProps<Screen extends keyof AuthStackParamList> = NativeStackScreenProps<
-  AuthStackParamList,
-  Screen
->;
-
-export type MainTabScreenProps<Screen extends keyof MainTabParamList> = BottomTabScreenProps<
-  MainTabParamList,
-  Screen
->;
-
-export type ProductsStackScreenProps<
-  Screen extends keyof ProductsStackParamList
-> = NativeStackScreenProps<ProductsStackParamList, Screen>;

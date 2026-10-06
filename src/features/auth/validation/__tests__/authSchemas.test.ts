@@ -25,6 +25,7 @@ describe('signUpSchema', () => {
     fullName: 'Amina Khan',
     email: 'amina@nourish.pk',
     password: 'craftedlove',
+    confirmPassword: 'craftedlove',
     phone: '+923000000000',
     acceptTerms: true,
   };

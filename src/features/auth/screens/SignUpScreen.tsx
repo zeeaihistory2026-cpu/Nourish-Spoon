@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { z } from 'zod';
 
+import { AppText } from '../../../components/ui/AppText';
 import type { AuthStackParamList } from '../../../app/navigation/navigationTypes';
 import { AnalyticsEvent, trackEvent } from '../../../services/analytics/events';
 import { signUpEmail } from '../../../services/firebase/auth';
@@ -25,6 +26,9 @@ const signupArtworkSchema = z.object({
   phone: z
     .union([z.literal(''), z.string().regex(/^(\+?92|0)?\d{10}$/, 'Enter a valid Pakistani mobile number')])
     .optional(),
+}).refine((values) => values.password === values.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 });
 
 type SignUpValues = z.infer<typeof signupArtworkSchema>;
@@ -50,6 +54,17 @@ export function SignUpScreen() {
     },
   });
 
+  const showFormError = () => {
+    const first = formState.errors.fullName?.message
+      ?? formState.errors.email?.message
+      ?? formState.errors.password?.message
+      ?? formState.errors.confirmPassword?.message
+      ?? formState.errors.phone?.message;
+    setSubmitError(first ?? 'Please check the highlighted fields.');
+  };
+
+  // `showFormError` is the onInvalid callback: without it, validation failures
+  // are silent and the button appears to do nothing.
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError('');
     setSubmitting(true);
@@ -66,16 +81,7 @@ export function SignUpScreen() {
       setSubmitError(getFriendlyError(error));
       setSubmitting(false);
     }
-  });
-
-  const showFormError = () => {
-    const first = formState.errors.fullName?.message
-      ?? formState.errors.email?.message
-      ?? formState.errors.password?.message
-      ?? formState.errors.confirmPassword?.message
-      ?? formState.errors.phone?.message;
-    setSubmitError(first ?? 'Please check the highlighted fields.');
-  };
+  }, showFormError);
 
   return (
     <View style={styles.screen}>
@@ -190,8 +196,6 @@ export function SignUpScreen() {
     </View>
   );
 }
-
-import { AppText } from '../../../components/ui/AppText';
 
 const styles = StyleSheet.create({
   screen: {

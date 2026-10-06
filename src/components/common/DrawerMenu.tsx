@@ -2,23 +2,28 @@ import { ChevronRight, Cog, Heart, HelpCircle, Home, LogOut, MapPin, Package, Ph
 import { Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Avatar } from '../../../components/ui/Avatar';
-import { AppText } from '../../../components/ui/AppText';
-import { Divider } from '../../../components/ui/Divider';
-import { useAuthStore } from '../../../store/authStore';
-import { APP_VERSION, BRAND } from '../../../constants';
-import { DEMO_MODE } from '../../../demo/demo';
-import { signOutUser } from '../../../services/firebase/auth';
-import { colors, shadows } from '../../../theme';
-import type { RootStackParamList } from '../../../app/navigation/navigationTypes';
+import { Avatar } from '../ui/Avatar';
+import { AppText } from '../ui/AppText';
+import { Divider } from '../ui/Divider';
+import { useAuthStore } from '../../store/authStore';
+import { APP_VERSION, BRAND } from '../../constants';
+import { DEMO_MODE } from '../../demo/demo';
+import { signOutUser } from '../../services/firebase/auth';
+import { colors, shadows } from '../../theme';
+import type { RootStackParamList } from '../../app/navigation/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { openWhatsApp } from '../../../utils/whatsapp';
+import { openWhatsApp } from '../../utils/whatsapp';
+
+type DrawerRoute = Extract<
+  keyof RootStackParamList,
+  'Orders' | 'Wishlist' | 'EditProfile' | 'Addresses' | 'Settings' | 'Notifications'
+>;
 
 interface DrawerItem {
   label: string;
   icon: LucideIcon;
-  route?: keyof RootStackParamList;
+  route?: DrawerRoute;
   active?: boolean;
 }
 
@@ -65,7 +70,7 @@ export function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   const handleItem = (item: DrawerItem) => {
     onClose();
     if (item.label === 'Help & FAQ') {
-      void openWhatsApp('Hi Nourish Spoon! I have a question.');
+      navigation.navigate('Faq');
       return;
     }
     if (item.label === 'Contact Us') {
@@ -73,8 +78,7 @@ export function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
       return;
     }
     if (item.route) {
-      // Item routes come from a fixed config, so the dynamic name is safe here.
-      navigation.navigate(item.route as never);
+      navigation.navigate(item.route);
     }
   };
 

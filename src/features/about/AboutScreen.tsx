@@ -1,4 +1,4 @@
-﻿import {
+import {
   ChevronRight,
   Heart,
   Package,
@@ -10,14 +10,12 @@
   Leaf,
 } from 'lucide-react-native';
 import { Image } from 'expo-image';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppHeader } from '../../components/common/AppHeader';
 import { DecorativeLeaves } from '../../components/common/DecorativeLeaves';
 import { Screen } from '../../components/ui/Screen';
 import { AppText } from '../../components/ui/AppText';
-import { DrawerMenu } from '../profile/components/DrawerMenu';
 import { BRAND } from '../../constants';
 import { FONT_FAMILY, colors, radius, shadows } from '../../theme';
 
@@ -56,7 +54,7 @@ const VALUES = [
     body: 'Real ingredients. No shortcuts. No refined sugar.',
   },
   {
-    icon: <Heart size={22} color="#E5484D" strokeWidth={1.8} />,
+    icon: <Heart size={22} color={colors.danger} strokeWidth={1.8} />,
     title: 'Made\nwith Love',
     body: 'Crafted with care, just like our family recipes.',
   },
@@ -73,11 +71,9 @@ const VALUES = [
 ];
 
 export function AboutScreen() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
   return (
     <Screen>
-      <AppHeader variant="title" title="Our Story" leaves onMenu={() => setDrawerOpen(true)} />
+      <AppHeader variant="title" title="Our Story" leaves onBack />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
@@ -88,11 +84,11 @@ export function AboutScreen() {
             transition={250}
           />
           <View style={styles.quoteCard}>
-            <AppText style={styles.quoteMark}>â€œ</AppText>
+            <AppText style={styles.quoteMark}>“</AppText>
             <AppText style={styles.quote}>
               We make every jar as if it's going to our own family.
             </AppText>
-            <AppText style={styles.quoteClose}>â€</AppText>
+            <AppText style={styles.quoteClose}>”</AppText>
             <View style={styles.quoteRule} />
             <AppText variant="bodySemibold" color="greenDark">
               Tayyaba
@@ -107,7 +103,7 @@ export function AboutScreen() {
           A Story of Family, Food &amp; Purpose
         </AppText>
         <AppText variant="body" color="text" style={styles.storyBody}>
-          Nourish Spoon was born from recipes passed down from my mother and grandmother â€”
+          Nourish Spoon was born from recipes passed down from my mother and grandmother —
           timeless traditions made with real, natural ingredients. What started in our home
           kitchen in Sargodha has grown into a mission to share the same warmth, nourishment and
           goodness with families across Pakistan. Every jar carries a piece of our family's love,
@@ -153,8 +149,6 @@ export function AboutScreen() {
           ))}
         </View>
       </ScrollView>
-
-      <DrawerMenu visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </Screen>
   );
 }

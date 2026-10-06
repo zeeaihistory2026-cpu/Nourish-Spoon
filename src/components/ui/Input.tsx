@@ -23,6 +23,7 @@ export function Input({
 }: InputProps) {
   const [hidden, setHidden] = useState(Boolean(secureTextEntry));
   const hasError = Boolean(error);
+  const multiline = Boolean(rest.multiline);
 
   return (
     <View style={containerStyle}>
@@ -34,6 +35,7 @@ export function Input({
       <View
         style={[
           styles.field,
+          multiline && styles.fieldMultiline,
           hasError && { borderColor: colors.danger, borderWidth: 1.5 },
         ]}
       >
@@ -42,7 +44,7 @@ export function Input({
           {...rest}
           secureTextEntry={hidden}
           placeholderTextColor={colors.placeholder}
-          style={[styles.input, style]}
+          style={[styles.input, multiline && styles.inputMultiline, style]}
         />
         {secureTextEntry ? (
           <Pressable
@@ -93,6 +95,15 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     color: colors.text,
     padding: 0,
+  },
+  inputMultiline: {
+    textAlignVertical: 'top',
+  },
+  fieldMultiline: {
+    height: 'auto',
+    minHeight: 120,
+    alignItems: 'flex-start',
+    paddingVertical: 14,
   },
   error: {
     marginTop: 6,

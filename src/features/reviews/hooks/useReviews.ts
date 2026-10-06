@@ -5,6 +5,7 @@ import type { Review, ReviewStats } from '../../../types/review';
 import { DEMO_MODE, DEMO_REVIEWS, useDemoStore } from '../../../demo/demo';
 import { ratingSummary } from '../../../utils/reviewMath';
 import {
+  EMPTY_STATS,
   fetchProductReviews,
   fetchRecentReviews,
   fetchReviewStats,
@@ -75,11 +76,7 @@ export function useRecentReviews(limitValue = 10) {
 
 export function useReviewStats() {
   const demoReviews = useDemoStore((state) => state.reviews);
-  const [stats, setStats] = useState<ReviewStats>({
-    average: 0,
-    count: 0,
-    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-  });
+  const [stats, setStats] = useState<ReviewStats>(EMPTY_STATS);
   const [state, setState] = useState<LoadState>('loading');
 
   const load = useCallback(async () => {

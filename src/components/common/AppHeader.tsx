@@ -1,9 +1,11 @@
 import { Bell, ChevronLeft, Menu, Search } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { AppText } from '../ui/AppText';
 import { colors } from '../../theme';
+import type { RootNavigationProp } from '../../app/navigation/navigationTypes';
 import { LogoBlock } from './LogoBlock';
 import { DecorativeLeaves } from './DecorativeLeaves';
 
@@ -11,8 +13,9 @@ interface AppHeaderProps {
   variant?: 'home' | 'title';
   title?: string;
   showSearch?: boolean;
-  /** `true` fires the default menu behaviour; pass a function for custom handling. */
+  /** Pass a function for custom handling; `true` renders the button with no-op. */
   onMenu?: boolean | (() => void);
+  /** `true` fires the default back behaviour (`navigation.goBack()`); pass a function for custom handling. */
   onBack?: boolean | (() => void);
   onSearch?: () => void;
   rightIcon?: ReactNode;
@@ -33,10 +36,20 @@ export function AppHeader({
   rightAccessibilityLabel,
   leaves = false,
 }: AppHeaderProps) {
+  const navigation = useNavigation<RootNavigationProp>();
   const showBack = onBack !== undefined && onBack !== false;
   const handleBack = () => {
     if (typeof onBack === 'function') {
       onBack();
+    } else if (onBack === true) {
+      // Bare `onBack` (the common call-site pattern) falls back to goBack(),
+      // so the rendered chevron is never a dead button.
+      navigation.goBack();
+    }
+  };
+  const handleMenu = () => {
+    if (typeof onMenu === 'function') {
+      onMenu();
     }
   };
 
@@ -59,6 +72,7 @@ export function AppHeader({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Notifications"
+          onPress={() => navigation.navigate('Notifications')}
           hitSlop={8}
           style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.6 }]}
         >
@@ -83,6 +97,16 @@ export function AppHeader({
           style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.6 }]}
         >
           <ChevronLeft size={26} color={colors.greenDark} strokeWidth={2.4} />
+        </Pressable>
+      ) : onMenu ? (
+        <Pressable
+          onPress={handleMenu}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+          hitSlop={8}
+          style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.6 }]}
+        >
+          <Menu size={26} color={colors.greenDark} strokeWidth={2.2} />
         </Pressable>
       ) : (
         <View style={styles.iconSpacer} />
@@ -154,7 +178,7 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 5,
-    backgroundColor: '#E5484D',
+    backgroundColor: colors.danger,
     borderWidth: 1.5,
     borderColor: colors.cream,
   },

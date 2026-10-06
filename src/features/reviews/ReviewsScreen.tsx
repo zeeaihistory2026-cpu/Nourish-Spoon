@@ -13,7 +13,7 @@ import { Screen } from '../../components/ui/Screen';
 import { AppText } from '../../components/ui/AppText';
 import { STAR_ICON } from '../../components/common/icons';
 import { useRecentReviews, useReviewStats } from './hooks/useReviews';
-import { DrawerMenu } from '../profile/components/DrawerMenu';
+import { DrawerMenu } from '../../components/common/DrawerMenu';
 import { colors } from '../../theme';
 
 const FILTERS = ['All', 'Energy Balls', 'Panjeeri'];

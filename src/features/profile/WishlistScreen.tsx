@@ -2,9 +2,8 @@ import { Heart } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import type { RootStackParamList } from '../../app/navigation/navigationTypes';
+import type { RootNavigationProp } from '../../app/navigation/navigationTypes';
 import { AppHeader } from '../../components/common/AppHeader';
 import { ProductCard } from '../../components/common/ProductCard';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -18,7 +17,7 @@ import { colors } from '../../theme';
 import type { Product } from '../../types/product';
 
 export function WishlistScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<RootNavigationProp>();
   const productIds = useWishlistStore((state) => state.productIds);
   const addItem = useCartStore((store) => store.addItem);
 
@@ -66,22 +65,24 @@ export function WishlistScreen() {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <ProductCard
-            product={item}
-            onPress={() =>
-              (navigation.navigate as unknown as (
-                name: string,
-                params?: object
-              ) => void)('Products', {
-                screen: 'ProductDetail',
-                params: { productId: item.id },
-              })
-            }
-            onAddToCart={(variant) => {
-              addItem(item, variant, 1);
-              trackAddToCart(item.id, 1, variant.price);
-            }}
-          />
+          <View style={styles.itemWrap}>
+            <ProductCard
+              product={item}
+              onPress={() =>
+                (navigation.navigate as unknown as (
+                  name: string,
+                  params?: object
+                ) => void)('Products', {
+                  screen: 'ProductDetail',
+                  params: { productId: item.id },
+                })
+              }
+              onAddToCart={(variant) => {
+                addItem(item, variant, 1);
+                trackAddToCart(item.id, 1, variant.price);
+              }}
+            />
+          </View>
         )}
         ListEmptyComponent={
           loading ? (
@@ -92,7 +93,7 @@ export function WishlistScreen() {
               title="Your wishlist is empty"
               message="Tap the heart on any product to save it for later."
               actionLabel="Browse Products"
-              onAction={() => navigation.goBack()}
+              onAction={() => navigation.navigate('Main', { screen: 'Products' })}
             />
           )
         }
@@ -108,5 +109,8 @@ const styles = StyleSheet.create({
   },
   column: {
     gap: 12,
+  },
+  itemWrap: {
+    flex: 1,
   },
 });

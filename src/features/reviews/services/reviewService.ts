@@ -16,7 +16,7 @@ import { db } from '../../../services/firebase/config';
 import { docsToEntities } from '../../../services/firebase/firestore';
 import type { Review, ReviewStats } from '../../../types';
 
-const EMPTY_STATS: ReviewStats = {
+export const EMPTY_STATS: ReviewStats = {
   average: 0,
   count: 0,
   distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
@@ -47,9 +47,9 @@ export async function fetchReviewStats(): Promise<ReviewStats> {
     return EMPTY_STATS;
   }
   const data = snapshot.data() as {
-    average?: unknown;
-    count?: unknown;
-    distribution?: Record<string, unknown> | null;
+    average?: number;
+    count?: number;
+    distribution?: Record<string, number> | null;
   };
   const distribution = data.distribution ?? {};
   const bucket = (stars: number) => {

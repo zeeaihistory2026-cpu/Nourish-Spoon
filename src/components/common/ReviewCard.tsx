@@ -1,4 +1,4 @@
-﻿import { BadgeCheck, ThumbsUp } from 'lucide-react-native';
+import { BadgeCheck, ThumbsUp } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -17,17 +17,32 @@ interface ReviewCardProps {
   review: Review;
 }
 
+const AVATAR_COLORS = [
+  colors.greenDark,
+  colors.greenMid,
+  colors.greenLight,
+  colors.gold,
+  colors.goldDark,
+  colors.verified,
+  colors.whatsappDark,
+  colors.danger,
+];
+
+function avatarColorFor(name: string): string {
+  let hash = 0;
+  for (let index = 0; index < name.length; index += 1) {
+    hash = (hash * 31 + name.charCodeAt(index)) | 0;
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] ?? colors.greenMid;
+}
+
 export function ReviewCard({ review }: ReviewCardProps) {
   const [helpful, setHelpful] = useState(false);
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        {review.userName === 'Misbah' || review.userName === 'ShahJehan' ? (
-          <Avatar name={review.userName} size="sm" color="#C9917E" />
-        ) : (
-          <Avatar name={review.userName} size="sm" />
-        )}
+        <Avatar name={review.userName} size="sm" color={avatarColorFor(review.userName)} />
         <View style={styles.who}>
           <View style={styles.nameRow}>
             <AppText variant="bodySemibold" color="greenDark">
@@ -44,7 +59,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
           </View>
           <View style={styles.locationRow}>
             <AppText variant="small" color="textMid">
-              ðŸ“ {review.city ?? 'Pakistan'}
+              📍 {review.city ?? 'Pakistan'}
             </AppText>
           </View>
         </View>
@@ -91,15 +106,11 @@ export function ReviewCard({ review }: ReviewCardProps) {
               </AppText>
             </View>
           </View>
-          <Pressable
-            style={({ pressed }) => [styles.screenshotButton, pressed && { opacity: 0.85 }]}
-            accessibilityRole="button"
-            accessibilityLabel="View screenshot"
-          >
+          <View style={styles.screenshotButton}>
             <AppText variant="captionMedium" color="greenDark">
-              ðŸ‘ View Screenshot
+              👁 View Screenshot
             </AppText>
-          </Pressable>
+          </View>
         </View>
       ) : null}
 
@@ -118,7 +129,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
         <Pressable
           onPress={() =>
             void openWhatsApp(
-              `Loved this review of ${BRAND.name}! "${review.comment}" â€” ${review.productName}`
+              `Loved this review of ${BRAND.name}! "${review.comment}" — ${review.productName}`
             )
           }
           accessibilityRole="button"

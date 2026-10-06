@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   User,
 } from 'lucide-react-native';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -19,13 +19,13 @@ import type { RootStackParamList } from '../../app/navigation/navigationTypes';
 import { AppHeader } from '../../components/common/AppHeader';
 import { ListRow } from '../../components/common/ListRow';
 import { SectionHeader } from '../../components/common/SectionHeader';
-import { Toggle } from '../../components/common/Toggle';
+import { Toggle } from '../../components/ui/Toggle';
 import { Screen } from '../../components/ui/Screen';
 import { AppText } from '../../components/ui/AppText';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { signOutUser } from '../../services/firebase/auth';
-import { APP_VERSION, BRAND } from '../../constants';
+import { APP_VERSION, BRAND, SUPPORT } from '../../constants';
 import { colors, radius, shadows } from '../../theme';
 import { openWhatsApp } from '../../utils/whatsapp';
 
@@ -103,7 +103,7 @@ export function SettingsScreen() {
             icon={<HelpCircle size={19} color={colors.greenMid} strokeWidth={2} />}
             label="Help & FAQ"
             chevron
-            onPress={() => void openWhatsApp(`Hi ${BRAND.name}! I have a question.`)}
+            onPress={() => navigation.navigate('Faq')}
           />
           <ListRow
             icon={<PhoneCall size={19} color={colors.greenMid} strokeWidth={2} />}
@@ -115,7 +115,7 @@ export function SettingsScreen() {
             icon={<ShieldCheck size={19} color={colors.greenMid} strokeWidth={2} />}
             label="Privacy Policy"
             chevron
-            onPress={() => void openWhatsApp(`Hi ${BRAND.name}! Please share your Privacy Policy.`)}
+            onPress={() => void Linking.openURL(SUPPORT.privacyUrl).catch(() => undefined)}
           />
         </View>
 

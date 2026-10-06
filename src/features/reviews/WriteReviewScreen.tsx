@@ -1,4 +1,4 @@
-﻿import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, Star } from 'lucide-react-native';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   starButton: {
-    padding: 2,
+    padding: 5,
   },
   commentInput: {
     marginTop: 18,

@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { AppText } from '../../../components/ui/AppText';
 import type { AuthStackParamList } from '../../../app/navigation/navigationTypes';
 import { AnalyticsEvent, trackEvent } from '../../../services/analytics/events';
 import { signInEmail } from '../../../services/firebase/auth';
@@ -49,6 +50,13 @@ export function LoginScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const showFormError = () => {
+    const first = formState.errors.email?.message ?? formState.errors.password?.message;
+    setSubmitError(first ?? 'Please check your email and password.');
+  };
+
+  // `showFormError` is the onInvalid callback: without it, validation failures
+  // are silent and the button appears to do nothing.
   const onSubmit = handleSubmit(async (values: LoginFormData) => {
     setSubmitError('');
     setSubmitting(true);
@@ -61,12 +69,7 @@ export function LoginScreen() {
       setSubmitError(getFriendlyError(error));
       setSubmitting(false);
     }
-  });
-
-  const showFormError = () => {
-    const first = formState.errors.email?.message ?? formState.errors.password?.message;
-    setSubmitError(first ?? 'Please check your email and password.');
-  };
+  }, showFormError);
 
   return (
     <View style={styles.screen}>
@@ -172,8 +175,6 @@ export function LoginScreen() {
     </View>
   );
 }
-
-import { AppText } from '../../../components/ui/AppText';
 
 const styles = StyleSheet.create({
   screen: {

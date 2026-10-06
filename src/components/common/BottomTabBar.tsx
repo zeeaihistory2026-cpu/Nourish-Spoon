@@ -45,7 +45,7 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           }
         };
 
-        const tint = focused ? colors.greenDark : '#5B6B60';
+        const tint = focused ? colors.greenDark : colors.textMid;
 
         return (
           <Pressable
@@ -77,6 +77,8 @@ const styles = StyleSheet.create({
   tabbar: {
     flexDirection: 'row',
     backgroundColor: colors.cream,
+    borderTopWidth: 1,
+    borderColor: colors.border,
     paddingTop: 10,
     paddingHorizontal: 6,
   },

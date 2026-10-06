@@ -119,7 +119,7 @@ export function EditProfileScreen() {
           />
 
           {status === 'saved' ? (
-            <AppText variant="small" color="greenLight" style={styles.status}>
+            <AppText variant="small" color="greenMid" style={styles.status}>
               Profile saved.
             </AppText>
           ) : null}

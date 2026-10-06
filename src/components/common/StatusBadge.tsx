@@ -13,7 +13,8 @@ const LABELS: Record<OrderStatus, string> = {
 };
 
 const TONES: Record<OrderStatus, { background: string; color: string }> = {
-  placed: { background: 'rgba(82, 183, 136, 0.14)', color: colors.greenMid },
+  // "Placed" is neutral: the order is confirmed, not yet on its way.
+  placed: { background: colors.trackBg, color: colors.textMid },
   packed: { background: 'rgba(82, 183, 136, 0.14)', color: colors.greenMid },
   out_for_delivery: { background: colors.goldBg, color: colors.goldDark },
   delivered: { background: 'rgba(82, 183, 136, 0.14)', color: colors.greenMid },

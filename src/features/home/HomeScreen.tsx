@@ -2,19 +2,20 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
 import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Screen } from '../../components/ui/Screen';
-import { DrawerMenu } from '../profile/components/DrawerMenu';
+import { DrawerMenu } from '../../components/common/DrawerMenu';
 import { trackAddToCart } from '../../services/analytics/events';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { BRAND } from '../../constants';
 import { colors } from '../../theme';
 import { openWhatsApp } from '../../utils/whatsapp';
-import type { MainTabParamList } from '../../app/navigation/navigationTypes';
-import { asProduct } from '../products/components/productFactory';
+import type { MainTabParamList, RootStackParamList } from '../../app/navigation/navigationTypes';
+import { asProduct } from '../products/lib/productFactory';
 
 // Home is the brand's exact reference artwork. Invisible tap zones sit over
 // every interactive element — menu, bell, delivery banner, both hero CTAs,
@@ -25,7 +26,14 @@ const DATE_NUTS_ID = 'demo-date-nut-balls';
 const PANJEERI_ID = 'demo-homemade-panjeeri';
 
 export function HomeScreen() {
-  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+  // Composite: tab routes for in-tab navigation, root routes for screens like
+  // Notifications that live on the root stack above the tabs.
+  const navigation = useNavigation<
+    CompositeNavigationProp<
+      BottomTabNavigationProp<MainTabParamList>,
+      NativeStackNavigationProp<RootStackParamList>
+    >
+  >();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const addItem = useCartStore((store) => store.addItem);
   const productIds = useWishlistStore((store) => store.productIds);
@@ -38,7 +46,7 @@ export function HomeScreen() {
   };
 
   const openProduct = (productId: string) => {
-    (navigation.navigate as unknown as (name: string, params?: object) => void)('Products', {
+    navigation.navigate('Products', {
       screen: 'ProductDetail',
       params: { productId },
     });
@@ -64,7 +72,7 @@ export function HomeScreen() {
         />
         {/* Bell (top-right) */}
         <Pressable
-          onPress={() => navigation.navigate('More')}
+          onPress={() => navigation.navigate('Notifications')}
           accessibilityRole="button"
           accessibilityLabel="Notifications"
           style={styles.bellZone}

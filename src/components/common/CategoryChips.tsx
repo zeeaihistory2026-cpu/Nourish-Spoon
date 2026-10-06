@@ -42,6 +42,8 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   chip: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 999,

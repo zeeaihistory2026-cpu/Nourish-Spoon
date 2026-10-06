@@ -1,6 +1,6 @@
-﻿import { Image } from 'expo-image';
+import { Image } from 'expo-image';
 import { MapPin, Package } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -50,9 +50,12 @@ export function OrderDetailScreen() {
 
   return (
     <Screen>
-      <AppHeader variant="title" title="Order" onBack />
+      <AppHeader variant="title" title={`Order ${order.orderNumber}`} onBack />
 
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.card}>
           <View style={styles.topRow}>
             <AppText variant="cardTitle" style={styles.orderId}>
@@ -61,7 +64,7 @@ export function OrderDetailScreen() {
             <StatusBadge status={order.orderStatus} />
           </View>
           <AppText variant="smallLight" color="textLight">
-            Placed {formatDate(order.createdAt)} Â· {PAYMENT_METHOD_LABELS[order.paymentMethod]}
+            Placed {formatDate(order.createdAt)} · {PAYMENT_METHOD_LABELS[order.paymentMethod]}
           </AppText>
           <OrderTimeline status={order.orderStatus} />
         </View>
@@ -83,11 +86,11 @@ export function OrderDetailScreen() {
                 {item.name}
               </AppText>
               <AppText variant="smallLight" color="textLight">
-                {item.weight} Â· {formatPrice(item.price)} each
+                {item.weight} · {formatPrice(item.price)} each
               </AppText>
             </View>
             <AppText variant="cardTitleSmall" color="textMid">
-              Ã— {item.qty}
+              × {item.qty}
             </AppText>
           </View>
         ))}
@@ -99,10 +102,10 @@ export function OrderDetailScreen() {
           </View>
           <View style={styles.addressBody}>
             <AppText variant="cardTitleSmall" color="text">
-              {order.shippingAddress.label} â€” {order.shippingAddress.fullName}
+              {order.shippingAddress.label} — {order.shippingAddress.fullName}
             </AppText>
             <AppText variant="small" color="textLight">
-              {order.shippingAddress.line1}, {order.shippingAddress.city} Â·{' '}
+              {order.shippingAddress.line1}, {order.shippingAddress.city} ·{' '}
               {order.shippingAddress.phone}
             </AppText>
           </View>
@@ -135,7 +138,7 @@ export function OrderDetailScreen() {
             </AppText>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Banknote, ChevronRight, CreditCard, Landmark, MapPin, Plus } from 'lucide-react-native';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StackActions, useNavigation } from '@react-navigation/native';
@@ -38,6 +38,7 @@ export function CheckoutScreen() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [addressError, setAddressError] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [placing, setPlacing] = useState(false);
@@ -55,44 +56,37 @@ export function CheckoutScreen() {
     defaultValues: { label: '', fullName: '', phone: '', line1: '', city: '' },
   });
 
-  useEffect(() => {
+  const loadAddresses = useCallback(async () => {
     if (DEMO_MODE) {
       // Demo mode keeps a single built-in address; nothing is fetched.
       setAddresses([{ ...DEMO_ADDRESS, id: 'demo-address', isDefault: true }]);
       setSelectedId('demo-address');
+      setAddressError(false);
       setLoadingAddresses(false);
       return;
     }
     if (!uid) {
       return;
     }
-    let cancelled = false;
-    void (async () => {
-      setLoadingAddresses(true);
-      try {
-        const list = await fetchAddresses(uid);
-        if (cancelled) {
-          return;
-        }
-        setAddresses(list);
-        setSelectedId(
-          (current) =>
-            current ?? list.find((address) => address.isDefault)?.id ?? list[0]?.id ?? null
-        );
-      } catch {
-        if (!cancelled) {
-          setAddresses([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingAddresses(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    setLoadingAddresses(true);
+    setAddressError(false);
+    try {
+      const list = await fetchAddresses(uid);
+      setAddresses(list);
+      setSelectedId(
+        (current) =>
+          current ?? list.find((address) => address.isDefault)?.id ?? list[0]?.id ?? null
+      );
+    } catch {
+      setAddressError(true);
+    } finally {
+      setLoadingAddresses(false);
+    }
   }, [uid]);
+
+  useEffect(() => {
+    void loadAddresses();
+  }, [loadAddresses]);
 
   const selectedAddress = addresses.find((address) => address.id === selectedId) ?? null;
 
@@ -199,6 +193,14 @@ export function CheckoutScreen() {
           <AppText variant="small" color="textLight">
             Loading addresses…
           </AppText>
+        ) : addressError ? (
+          <EmptyState
+            icon={<MapPin size={30} color={colors.goldDark} strokeWidth={1.8} />}
+            title="Couldn't load addresses"
+            message="Please check your connection and try again."
+            actionLabel="Retry"
+            onAction={() => void loadAddresses()}
+          />
         ) : (
           <>
             {addresses.map((address) => {

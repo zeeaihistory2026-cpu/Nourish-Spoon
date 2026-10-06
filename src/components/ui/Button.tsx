@@ -8,7 +8,8 @@ import { colors, radius, shadows } from '../../theme';
 type ButtonVariant = 'primary' | 'green' | 'outline' | 'whatsapp';
 
 const GRADIENTS: Record<Exclude<ButtonVariant, 'outline'>, [string, string]> = {
-  primary: ['#C9A84C', '#A6862A'],
+  // Deep gold gradient: white labels pass 4.5:1 on both stops (4.81 / 6.67).
+  primary: ['#877021', '#6F5A14'],
   green: ['#2D6A4F', '#1B4332'],
   whatsapp: ['#25D366', '#1EB457'],
 };

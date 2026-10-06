@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -31,37 +31,36 @@ const COMMON_BENEFITS: Product['benefits'] = [
   { icon: 'sprout', label: '100%\nNatural' },
 ];
 
-export const DEMO_BENEFITS: Product['benefits'] = COMMON_BENEFITS;
 
 const BALLS_INGREDIENTS: Ingredient[] = [
-  { name: 'Dates', emoji: 'ðŸ«˜' },
-  { name: 'Almonds', emoji: 'ðŸŒ°' },
-  { name: 'Walnuts', emoji: 'ðŸŒ°' },
-  { name: 'Cashews', emoji: 'ðŸ¥œ' },
-  { name: 'Raisins', emoji: 'ðŸ‡' },
-  { name: 'Figs', emoji: 'ðŸ«’' },
-  { name: 'Coconut', emoji: 'ðŸ¥¥' },
-  { name: 'Desi Ghee', emoji: 'ðŸ§ˆ' },
-  { name: 'Cardamom', emoji: 'ðŸŒ¿' },
-  { name: 'Lotus Seeds', emoji: 'ðŸ¤' },
-  { name: 'Pumpkin Seeds', emoji: 'ðŸŽƒ' },
-  { name: 'Sunflower Seeds', emoji: 'ðŸŒ»' },
-  { name: 'White Sesame Seeds', emoji: 'ðŸŒ¾' },
+  { name: 'Dates', emoji: '🫘' },
+  { name: 'Almonds', emoji: '🌰' },
+  { name: 'Walnuts', emoji: '🌰' },
+  { name: 'Cashews', emoji: '🥜' },
+  { name: 'Raisins', emoji: '🍇' },
+  { name: 'Figs', emoji: '🫒' },
+  { name: 'Coconut', emoji: '🥥' },
+  { name: 'Desi Ghee', emoji: '🧈' },
+  { name: 'Cardamom', emoji: '🌿' },
+  { name: 'Lotus Seeds', emoji: '🤍' },
+  { name: 'Pumpkin Seeds', emoji: '🎃' },
+  { name: 'Sunflower Seeds', emoji: '🌻' },
+  { name: 'White Sesame Seeds', emoji: '🌾' },
 ];
 
 const PANJEERI_INGREDIENTS: Ingredient[] = [
-  { name: 'Almonds', emoji: 'ðŸŒ°' },
-  { name: 'Walnuts', emoji: 'ðŸŒ°' },
-  { name: 'Cashews', emoji: 'ðŸ¥œ' },
-  { name: 'Raisins', emoji: 'ðŸ‡' },
-  { name: 'Dry Dates', emoji: 'ðŸ«˜' },
-  { name: 'Cardamom', emoji: 'ðŸŒ¿' },
-  { name: 'Coconut', emoji: 'ðŸ¥¥' },
-  { name: 'Semolina (Suji)', emoji: 'ðŸŒ¾' },
-  { name: 'Pure Desi Ghee', emoji: 'ðŸ§ˆ' },
-  { name: 'Lotus Seeds (Makhana)', emoji: 'ðŸ¤' },
-  { name: 'Pumpkin Seeds', emoji: 'ðŸŽƒ' },
-  { name: 'Sunflower Seeds', emoji: 'ðŸŒ»' },
+  { name: 'Almonds', emoji: '🌰' },
+  { name: 'Walnuts', emoji: '🌰' },
+  { name: 'Cashews', emoji: '🥜' },
+  { name: 'Raisins', emoji: '🍇' },
+  { name: 'Dry Dates', emoji: '🫘' },
+  { name: 'Cardamom', emoji: '🌿' },
+  { name: 'Coconut', emoji: '🥥' },
+  { name: 'Semolina (Suji)', emoji: '🌾' },
+  { name: 'Pure Desi Ghee', emoji: '🧈' },
+  { name: 'Lotus Seeds (Makhana)', emoji: '🤍' },
+  { name: 'Pumpkin Seeds', emoji: '🎃' },
+  { name: 'Sunflower Seeds', emoji: '🌻' },
 ];
 
 function demoProduct(
@@ -151,10 +150,10 @@ export const DEMO_REVIEWS: Review[] = [
     userName: 'Misbah',
     city: 'Pakistan',
     rating: 5,
-    comment: 'Bht acha ha! JazakAllah mamâ€¦',
+    comment: 'Bht acha ha! JazakAllah mam…',
     verifiedPurchase: true,
     createdAt: fakeTimestamp(Date.now() - 14 * 24 * 60 * 60 * 1000),
-    screenshot: { text: 'Bht acha ha! JazakAllah mam â¤ï¸', time: '7:24 PM' },
+    screenshot: { text: 'Bht acha ha! JazakAllah mam ❤️', time: '7:24 PM' },
   },
   {
     id: 'demo-review-2',
