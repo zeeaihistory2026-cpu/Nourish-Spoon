@@ -76,7 +76,7 @@ export function LoginScreen() {
       <StatusBar style="dark" />
       <Image
         source={BRAND.fullLoginImage}
-        style={[styles.artwork, { marginTop: insets.top }]}
+        style={styles.artwork}
         contentFit="cover"
         transition={250}
       />

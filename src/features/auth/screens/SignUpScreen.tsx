@@ -88,7 +88,7 @@ export function SignUpScreen() {
       <StatusBar style="dark" />
       <Image
         source={BRAND.fullSignupImage}
-        style={[styles.artwork, { marginTop: insets.top }]}
+        style={styles.artwork}
         contentFit="cover"
         transition={250}
       />

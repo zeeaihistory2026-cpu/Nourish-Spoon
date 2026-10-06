@@ -53,7 +53,7 @@ export function HomeScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right']}>
       <StatusBar style="dark" />
       <View style={styles.artworkWrap}>
         <Image

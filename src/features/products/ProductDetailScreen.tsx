@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -29,14 +28,13 @@ export function ProductDetailScreen() {
 
 function ArtworkDetail({ artwork, productId }: { artwork: number; productId: string }) {
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
-  const insets = useSafeAreaInsets();
   const wishlisted = useWishlistStore((store) => store.productIds.includes(productId));
   const toggleWishlist = useWishlistStore((store) => store.toggle);
 
   return (
     <View style={styles.screen}>
       <StatusBar style="dark" />
-      <View style={[styles.artworkWrap, { paddingTop: insets.top }]}>
+      <View style={styles.artworkWrap}>
         <Image source={artwork} style={styles.artwork} contentFit="contain" transition={250} />
 
         {/* Back circle (top-left) */}

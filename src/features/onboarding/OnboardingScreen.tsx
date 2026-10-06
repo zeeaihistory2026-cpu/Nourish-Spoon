@@ -49,7 +49,7 @@ export function OnboardingScreen() {
         <StatusBar style="dark" />
         <Image
           source={BRAND.fullOnboardingImage}
-          style={[styles.artwork, { marginTop: insets.top }]}
+          style={styles.artwork}
           contentFit="cover"
           transition={250}
         />
