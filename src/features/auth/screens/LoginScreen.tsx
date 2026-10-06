@@ -225,10 +225,10 @@ const styles = StyleSheet.create({
   },
   forgotZone: {
     position: 'absolute',
-    top: '56.6%',
+    top: '55.75%',
     left: '54%',
     width: '34%',
-    height: '3.8%',
+    height: '5.5%',
   },
   signInZone: {
     position: 'absolute',
@@ -239,24 +239,24 @@ const styles = StyleSheet.create({
   },
   googleZone: {
     position: 'absolute',
-    top: '72.4%',
+    top: '72.0%',
     left: '9.1%',
     width: '39.6%',
-    height: '4.4%',
+    height: '5.2%',
   },
   appleZone: {
     position: 'absolute',
-    top: '72.4%',
+    top: '72.0%',
     left: '51.2%',
     width: '39.6%',
-    height: '4.4%',
+    height: '5.2%',
   },
   signUpZone: {
     position: 'absolute',
-    top: '80.8%',
+    top: '79.95%',
     left: '20%',
     width: '60%',
-    height: '3.8%',
+    height: '5.5%',
   },
   statusStrip: {
     position: 'absolute',
