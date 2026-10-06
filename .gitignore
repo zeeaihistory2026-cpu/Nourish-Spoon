@@ -1,0 +1,22 @@
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+
+# Expo prebuild output (managed workflow)
+/android/
+/ios/
+
+# Firebase config files are provisioned per environment, never committed
+google-services.json
+GoogleService-Info.plist
+serviceAccountKey.json
+.firebaserc
+
+.env
+.env.*
+
+npm-debug.*
+*.orig
+.DS_Store

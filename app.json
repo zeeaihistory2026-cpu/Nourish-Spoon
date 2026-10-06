@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Nourish Spoon",
+    "slug": "nourish-spoon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "nourishspoon",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.nourishspoon.app",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.nourishspoon.app",
+      "googleServicesFile": "./google-services.json",
+      "permissions": ["POST_NOTIFICATIONS"]
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
+    ]
+  }
+}

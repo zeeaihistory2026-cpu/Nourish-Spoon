@@ -1,0 +1,131 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Role claims are set server-side only (see functions/setUserRole).
+    function hasRole(role) {
+      return signedIn() && request.auth.token[role] == true;
+    }
+
+    function unchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
+
+    // ---------- users ----------
+    match /users/{uid} {
+      allow read: if isOwner(uid) || hasRole('staff');
+
+      // New profiles may only be created by their owner, and only as customers.
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'customer';
+
+      // Owners may edit their identity fields but never their role.
+      allow update: if isOwner(uid)
+        && unchanged('role')
+        && unchanged('createdAt')
+        && request.resource.data.uid == uid;
+
+      allow delete: if false;
+
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /wishlist/{itemId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /devices/{deviceId} {
+        allow read: if isOwner(uid);
+        // Registration happens right after sign-in; the doc id is the FCM token itself.
+        allow create, update: if isOwner(uid)
+          && request.resource.data.token == deviceId;
+        allow delete: if isOwner(uid);
+      }
+    }
+
+    // ---------- catalogue (public read, admin write) ----------
+    match /products/{productId} {
+      allow read: if true;
+      // Stock is decremented by the createOrder transaction; never by a client write.
+      allow write: if hasRole('admin');
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if hasRole('admin');
+    }
+
+    match /coupons/{couponId} {
+      allow read: if signedIn();
+      allow write: if hasRole('admin');
+    }
+
+    // ---------- orders ----------
+    match /orders/{orderId} {
+      allow read: if signedIn()
+        && (resource.data.userId == request.auth.uid || hasRole('staff'));
+
+      // TEMPORARY: clients place their own orders until the createOrder Cloud
+      // Function is deployed (requires the Blaze plan). This write is limited
+      // to the owner's own userId with sane status fields — the server-side
+      // transaction re-prices from the products collection and is authoritative
+      // once the function is live and this rule returns to `false`.
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.orderStatus == 'placed'
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.total is number
+        && request.resource.data.subtotal is number
+        && request.resource.data.deliveryFee is number;
+
+      // Customers cannot move an order along or edit totals; staff use setOrderStatus.
+      allow update: if false;
+      allow delete: if hasRole('admin');
+    }
+
+    // ---------- reviews ----------
+    match /reviews/{reviewId} {
+      allow read: if true;
+      // TEMPORARY: clients create their own reviews unverified until the
+      // createReview Cloud Function is deployed; only that function can set
+      // verifiedPurchase (the create rule below forbids it).
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.verifiedPurchase == false
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
+      allow update: if hasRole('staff');
+      allow delete: if hasRole('admin');
+    }
+
+    // ---------- notifications ----------
+    match /notifications/{notificationId} {
+      allow read: if signedIn()
+        && resource.data.recipientUid == request.auth.uid;
+      // Created by Cloud Functions; the recipient may only flip read -> true.
+      allow create: if false;
+      allow update: if signedIn()
+        && resource.data.recipientUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read'])
+        && request.resource.data.read == true;
+      allow delete: if signedIn() && resource.data.recipientUid == request.auth.uid;
+    }
+
+    // ---------- everything else (meta counters, admin data) ----------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
