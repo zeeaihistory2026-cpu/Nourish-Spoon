@@ -56,6 +56,16 @@ All fixes below are functional, not visual — pixel fidelity to the canonical m
 - **Product detail** still lacks in-app Add to Cart (only WhatsApp order) and renders Energy Balls artwork for unknown IDs instead of an error state.
 - **No error boundary** around the navigation tree; **no deep-linking config**; screen analytics only fire on tab changes.
 
+## Follow-up fixes (post-review, 2026-10-06)
+
+- **Full-bleed artwork screens:** Splash, Onboarding, Login, SignUp, Home and
+  Product Detail now render edge-to-edge under the status bar, exactly like the
+  approved mockups. Previously they were pushed below the notch, which doubled
+  the baked-in status bar and broke pixel fidelity.
+- **Bottom tab bar:** removed the green Products badge; plain tinted icons like
+  the mockups. Bottom safe-area padding was already correct.
+- Branch `ux-audit-fixes` pushed to GitHub.
+
 ## Verification
 
 - `tsc --noEmit`: **clean, 0 errors** (strict mode).
