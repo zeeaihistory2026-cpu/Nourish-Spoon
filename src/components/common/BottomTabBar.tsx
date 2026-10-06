@@ -45,7 +45,7 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           }
         };
 
-        const tint = focused ? colors.greenDark : '#5B6B60';
+        const tint = focused ? colors.greenDark : colors.textMid;
 
         return (
           <Pressable
@@ -56,13 +56,7 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             onPress={onPress}
             style={styles.tab}
           >
-            {route.name === 'Products' && focused ? (
-              <View style={styles.productsBadge}>
-                <Icon size={20} color={colors.white} strokeWidth={2} />
-              </View>
-            ) : (
-              <Icon size={22} color={tint} strokeWidth={1.9} />
-            )}
+            <Icon size={22} color={tint} strokeWidth={focused ? 2.2 : 1.9} />
             <AppText variant="tab" style={{ color: tint }}>
               {typeof label === 'string' ? label : route.name}
             </AppText>
@@ -77,6 +71,8 @@ const styles = StyleSheet.create({
   tabbar: {
     flexDirection: 'row',
     backgroundColor: colors.cream,
+    borderTopWidth: 1,
+    borderColor: colors.border,
     paddingTop: 10,
     paddingHorizontal: 6,
   },
@@ -84,13 +80,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: 3,
-  },
-  productsBadge: {
-    width: 34,
-    height: 26,
-    borderRadius: 9,
-    backgroundColor: colors.greenDark,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

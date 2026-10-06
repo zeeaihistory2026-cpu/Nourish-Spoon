@@ -1,11 +1,10 @@
-﻿import { Image } from 'expo-image';
-import { Package } from 'lucide-react-native';
+import { Image } from 'expo-image';
+import { ChevronRight, Package } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import type { RootStackParamList } from '../../app/navigation/navigationTypes';
+import type { RootNavigationProp } from '../../app/navigation/navigationTypes';
 import { AppHeader } from '../../components/common/AppHeader';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -19,7 +18,7 @@ import { formatPrice } from '../../utils/currency';
 import type { Order } from '../../types/order';
 
 export function OrdersScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<RootNavigationProp>();
   const { orders, state, refresh } = useOrders();
 
   useFocusEffect(() => {
@@ -66,7 +65,7 @@ export function OrdersScreen() {
                 <AppText variant="cardTitleSmall" color="text" numberOfLines={1}>
                   {item.items[0]?.name}
                   {item.items.length > 1 ? ` +${item.items.length - 1} more` : ''}
-                  {item.items.length === 1 ? ` Ã— ${item.items[0]?.qty}` : ''}
+                  {item.items.length === 1 ? ` × ${item.items[0]?.qty}` : ''}
                 </AppText>
                 <AppText variant="smallLight" color="textLight">
                   {dateLabel(item)}
@@ -77,9 +76,7 @@ export function OrdersScreen() {
               <AppText variant="cardTitle" color="goldDark">
                 {formatPrice(item.total)}
               </AppText>
-              <AppText variant="captionMedium" color="greenMid">
-                {item.orderStatus === 'delivered' ? 'Buy Again' : 'Track Order'}
-              </AppText>
+              <ChevronRight size={18} color={colors.chevron} strokeWidth={2} />
             </View>
           </Pressable>
         )}
@@ -100,7 +97,7 @@ export function OrdersScreen() {
               title="No orders yet"
               message="Your handcrafted orders will appear here."
               actionLabel="Browse Products"
-              onAction={() => navigation.goBack()}
+              onAction={() => navigation.navigate('Main', { screen: 'Products' })}
             />
           )
         }

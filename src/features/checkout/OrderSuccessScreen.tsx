@@ -1,5 +1,5 @@
 import { Check, Package } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { StackActions, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -16,52 +16,62 @@ export function OrderSuccessScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'OrderSuccess'>>();
 
   return (
-    <Screen centered>
-      <View style={styles.body}>
-        <View style={styles.icon}>
-          <Check size={44} color={colors.goldDark} strokeWidth={2.4} />
-        </View>
-        <AppText variant="authTitle" color="greenDark" style={styles.title}>
-          Order Placed!
-        </AppText>
-        <AppText variant="body" color="textMid" style={styles.message}>
-          Thank you for ordering. Your handcrafted goodness is being packed with love.
-        </AppText>
-        <View style={styles.orderNumber}>
-          <Package size={14} color={colors.greenMid} strokeWidth={2} />
-          <AppText variant="captionMedium" color="greenMid">
-            {route.params.orderNumber} · {formatPrice(route.params.total)}
+    <Screen>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.body}>
+          <View style={styles.icon}>
+            <Check size={44} color={colors.goldDark} strokeWidth={2.4} />
+          </View>
+          <AppText variant="authTitle" color="greenDark" style={styles.title}>
+            Order Placed!
           </AppText>
-        </View>
+          <AppText variant="body" color="textMid" style={styles.message}>
+            Thank you for ordering. Your handcrafted goodness is being packed with love.
+          </AppText>
+          <View style={styles.orderNumber}>
+            <Package size={14} color={colors.greenMid} strokeWidth={2} />
+            <AppText variant="captionMedium" color="greenMid">
+              {route.params.orderNumber} · {formatPrice(route.params.total)}
+            </AppText>
+          </View>
 
-        <OrderTimeline status="placed" />
+          <OrderTimeline status="placed" />
 
-        <View style={styles.actions}>
-          <Button
-            label="Track Order"
-            variant="green"
-            onPress={() =>
-              navigation.dispatch(
-                StackActions.replace('OrderDetail', { orderId: route.params.orderId })
-              )
-            }
-          />
-          <Button
-            label="Continue Shopping"
-            variant="outline"
-            onPress={() => navigation.dispatch(StackActions.popToTop())}
-          />
+          <View style={styles.actions}>
+            <Button
+              label="Track Order"
+              variant="green"
+              onPress={() =>
+                navigation.dispatch(
+                  StackActions.replace('OrderDetail', { orderId: route.params.orderId })
+                )
+              }
+            />
+            <Button
+              label="Continue Shopping"
+              variant="outline"
+              onPress={() => navigation.dispatch(StackActions.popToTop())}
+            />
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   body: {
     width: '100%',
     alignItems: 'center',
     paddingHorizontal: 30,
+    paddingVertical: 24,
   },
   icon: {
     width: 96,

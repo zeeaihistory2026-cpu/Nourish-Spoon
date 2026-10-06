@@ -12,7 +12,7 @@ const SIZES: Record<AvatarSize, { box: number; font: number }> = {
   xl: { box: 76, font: 24 },
 };
 
-export function initialsOf(name: string): string {
+function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
     return '?';

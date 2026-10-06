@@ -1,4 +1,4 @@
-﻿import { Minus, Plus } from 'lucide-react-native';
+import { Minus, Plus } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';

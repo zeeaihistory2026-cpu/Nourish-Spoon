@@ -1,4 +1,4 @@
-﻿import { FileText, Heart, ShoppingCart } from 'lucide-react-native';
+import { FileText, Heart, ShoppingCart } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -37,6 +37,10 @@ export function ProductCard({
     (min, entry) => Math.min(min, entry.price),
     product.variants[0]?.price ?? product.price
   );
+  const cheapestVariant =
+    product.variants.find((entry) => entry.price === minPrice) ??
+    product.variants[0] ??
+    null;
 
   return (
     <Pressable
@@ -65,6 +69,7 @@ export function ProductCard({
             }}
             accessibilityRole="button"
             accessibilityLabel={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            hitSlop={5}
             style={({ pressed }) => [styles.heartButton, pressed && { opacity: 0.85 }]}
           >
             <Heart
@@ -136,7 +141,7 @@ export function ProductCard({
             <AppText variant="priceFrom" color="greenDark">
               {layout === 'list'
                 ? formatPrice(minPrice)
-                : `${product.variants[0]?.label ?? ''} Â· ${formatPrice(minPrice)}`}
+                : `${cheapestVariant?.label ?? ''} · ${formatPrice(minPrice)}`}
             </AppText>
           </View>
           {layout === 'grid' && onAddToCart && variant ? (

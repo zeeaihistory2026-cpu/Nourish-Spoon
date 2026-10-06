@@ -1,11 +1,10 @@
-﻿import { Image } from 'expo-image';
+import { Image } from 'expo-image';
 import { ShoppingBag, Trash2 } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-import type { MainTabParamList, RootNavigationProp } from '../../app/navigation/navigationTypes';
+import type { RootNavigationProp } from '../../app/navigation/navigationTypes';
 import { AppHeader } from '../../components/common/AppHeader';
 import { BottomBar } from '../../components/common/BottomBar';
 import { QtyStepper } from '../../components/common/QtyStepper';
@@ -21,7 +20,6 @@ import { formatPrice } from '../../utils/currency';
 
 export function CartScreen() {
   const navigation = useNavigation<RootNavigationProp>();
-  const tabNavigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const items = useCartStore((store) => store.items);
   const increment = useCartStore((store) => store.increment);
   const decrement = useCartStore((store) => store.decrement);
@@ -40,14 +38,14 @@ export function CartScreen() {
             title="Your cart is empty"
             message="Looks like you haven't added anything yet."
             actionLabel="Browse Products"
-            onAction={() => tabNavigation.navigate('Products')}
+            onAction={() => navigation.navigate('Main', { screen: 'Products' })}
           />
         </View>
       ) : (
         <>
           <FlatList
             data={items}
-            keyExtractor={(item) => item.productId}
+            keyExtractor={(item) => cartItemKey(item.productId, item.variantLabel)}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
@@ -73,7 +71,7 @@ export function CartScreen() {
                       }}
                       accessibilityRole="button"
                       accessibilityLabel={`Remove ${item.name} from cart`}
-                      hitSlop={6}
+                      hitSlop={14}
                     >
                       <Trash2 size={15} color={colors.chevron} strokeWidth={2} />
                     </Pressable>
@@ -89,7 +87,6 @@ export function CartScreen() {
                   value={item.qty}
                   onDecrement={() => decrement(cartItemKey(item.productId, item.variantLabel))}
                   onIncrement={() => increment(cartItemKey(item.productId, item.variantLabel))}
-                  height={34}
                 />
               </View>
             )}

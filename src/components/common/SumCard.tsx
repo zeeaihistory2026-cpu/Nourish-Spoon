@@ -25,7 +25,7 @@ export function SumCard({ subtotal, deliveryFee }: SumCardProps) {
           Delivery
         </AppText>
         {deliveryFee === 0 ? (
-          <AppText variant="captionMedium" color="greenLight">
+          <AppText variant="captionMedium" color="greenMid">
             FREE
           </AppText>
         ) : (

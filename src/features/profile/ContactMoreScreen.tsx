@@ -1,4 +1,4 @@
-﻿import {
+import {
   ChevronRight,
   Clock,
   Info,
@@ -12,7 +12,7 @@ import { useState, type ReactNode, type ReactElement } from 'react';
 
 import { AppHeader } from '../../components/common/AppHeader';
 import { DecorativeLeaves } from '../../components/common/DecorativeLeaves';
-import { DrawerMenu } from './components/DrawerMenu';
+import { DrawerMenu } from '../../components/common/DrawerMenu';
 import { Screen } from '../../components/ui/Screen';
 import { AppText } from '../../components/ui/AppText';
 import { WhatsAppIcon } from '../../components/ui/BrandIcons';
@@ -33,7 +33,6 @@ interface ContactRow {
 }
 
 export function ContactMoreScreen({ navigation }: { navigation: { navigate: (name: string, params?: object) => void } }) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const contactRows: ContactRow[] = [
@@ -71,13 +70,13 @@ export function ContactMoreScreen({ navigation }: { navigation: { navigate: (nam
       key: 'hours',
       icon: <Clock size={21} color={colors.greenDark} strokeWidth={1.9} />,
       title: 'Business Hours',
-      subtitle: 'Monday â€“ Saturday, 8am â€“ 11pm',
+      subtitle: 'Monday – Saturday, 8am – 11pm',
     },
     {
       key: 'instagram',
       icon: (
         <View style={styles.instaBadge}>
-          <AppText style={{ fontSize: 17 }}>ðŸ“¸</AppText>
+          <AppText style={{ fontSize: 17 }}>📸</AppText>
         </View>
       ),
       title: 'Follow on Instagram',
@@ -145,7 +144,7 @@ export function ContactMoreScreen({ navigation }: { navigation: { navigate: (nam
         <AppText style={styles.sectionTitle}>More</AppText>
         <View style={styles.card}>
           <MoreRow
-            icon={<AppText style={{ fontSize: 16 }}>â“</AppText>}
+            icon={<AppText style={{ fontSize: 16 }}>❓</AppText>}
             title="FAQ"
             subtitle="Get answers to common questions"
             onPress={() => navigation.navigate('Faq')}
@@ -164,49 +163,6 @@ export function ContactMoreScreen({ navigation }: { navigation: { navigate: (nam
           />
         </View>
 
-        <AppText style={styles.sectionTitle}>Appearance</AppText>
-        <View style={styles.card}>
-          <View style={styles.appearanceRow}>
-            <View style={[styles.rowIcon, { backgroundColor: colors.goldBg }]}>
-              <AppText style={{ fontSize: 16 }}>â˜€ï¸</AppText>
-            </View>
-            <View style={styles.rowBody}>
-              <AppText variant="bodySemibold" color="greenDark">
-                Appearance
-              </AppText>
-              <AppText variant="small" color="textMid">
-                Choose your preferred app theme.
-              </AppText>
-            </View>
-            <View style={styles.themePill}>
-              <Pressable
-                onPress={() => setTheme('light')}
-                accessibilityRole="button"
-                accessibilityState={{ selected: theme === 'light' }}
-                style={[styles.themeOption, theme === 'light' && styles.themeOptionOn]}
-              >
-                <AppText variant="micro" style={{ color: theme === 'light' ? colors.white : colors.textMid }}>
-                  â˜€ Light
-                </AppText>
-              </Pressable>
-              <Pressable
-                onPress={() => setTheme('dark')}
-                accessibilityRole="button"
-                accessibilityState={{ selected: theme === 'dark' }}
-                style={[styles.themeOption, theme === 'dark' && styles.themeOptionOn]}
-              >
-                <AppText variant="micro" style={{ color: theme === 'dark' ? colors.white : colors.textMid }}>
-                  â˜¾ Dark
-                </AppText>
-              </Pressable>
-            </View>
-          </View>
-          {theme === 'dark' ? (
-            <AppText variant="microRegular" color="textMid" style={styles.darkNote}>
-              Dark theme is coming in the next release â€” your choice is saved.
-            </AppText>
-          ) : null}
-        </View>
       </ScrollView>
 
       <DrawerMenu visible={drawerOpen} onClose={() => setDrawerOpen(false)} />
@@ -215,7 +171,7 @@ export function ContactMoreScreen({ navigation }: { navigation: { navigate: (nam
 }
 
 function MessageCircleFallback() {
-  return <AppText style={{ fontSize: 17 }}>ðŸ’¬</AppText>;
+  return <AppText style={{ fontSize: 17 }}>💬</AppText>;
 }
 
 function MoreRow({
@@ -329,32 +285,5 @@ const styles = StyleSheet.create({
   },
   rowBody: {
     flex: 1,
-  },
-  appearanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 14,
-  },
-  themePill: {
-    flexDirection: 'row',
-    backgroundColor: colors.cream,
-    borderRadius: radius.pill,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  themeOption: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-  },
-  themeOptionOn: {
-    backgroundColor: colors.greenDark,
-  },
-  darkNote: {
-    paddingHorizontal: 14,
-    paddingBottom: 10,
   },
 });

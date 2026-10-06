@@ -13,7 +13,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { BRAND } from '../../constants';
 import { colors } from '../../theme';
-import { asProduct } from './components/productFactory';
+import { asProduct } from './lib/productFactory';
 
 // Products is the brand's exact reference artwork. Invisible tap zones sit
 // over each card's actions — Order on WhatsApp, View Product, cart and
