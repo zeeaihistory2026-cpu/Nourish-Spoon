@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { MapPin, Package } from 'lucide-react-native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -88,6 +88,26 @@ export function OrderDetailScreen() {
               <AppText variant="smallLight" color="textLight">
                 {item.weight} · {formatPrice(item.price)} each
               </AppText>
+              {order.orderStatus === 'delivered' ? (
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate('Main', {
+                      screen: 'Products',
+                      params: {
+                        screen: 'WriteReview',
+                        params: { productId: item.productId, productName: item.name },
+                      },
+                    })
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel={`Write a review for ${item.name}`}
+                  style={({ pressed }) => [styles.reviewButton, pressed && styles.reviewPressed]}
+                >
+                  <AppText variant="smallMedium" color="goldDark">
+                    Write a Review
+                  </AppText>
+                </Pressable>
+              ) : null}
             </View>
             <AppText variant="cardTitleSmall" color="textMid">
               × {item.qty}
@@ -191,6 +211,20 @@ const styles = StyleSheet.create({
   },
   itemMid: {
     flex: 1,
+  },
+  reviewButton: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.goldDark,
+    minHeight: 32,
+    justifyContent: 'center',
+  },
+  reviewPressed: {
+    opacity: 0.7,
   },
   addressCard: {
     flexDirection: 'row',
