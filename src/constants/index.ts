@@ -13,7 +13,7 @@ import fullOnboardingImage from '../assets/brand/full-onboarding.jpg';
 import fullSignupImage from '../assets/brand/full-signup.jpg';
 import fullLoginImage from '../assets/brand/full-login.jpg';
 import fullHomeImage from '../assets/brand/full-home.jpg';
-import fullProductsImage from '../assets/brand/full-products.jpg';
+import fullProductsImage from '../assets/brand/full-products-v2.jpg';
 import fullDetailBallsImage from '../assets/brand/full-detail-balls.jpg';
 import fullDetailPanjeeriImage from '../assets/brand/full-detail-panjeeri.jpg';
 
