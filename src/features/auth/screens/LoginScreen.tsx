@@ -219,6 +219,7 @@ const styles = StyleSheet.create({
     height: '4.8%',
   },
   inputText: {
+    flex: 1,
     color: colors.text,
     fontSize: 14.5,
     paddingVertical: 0,
