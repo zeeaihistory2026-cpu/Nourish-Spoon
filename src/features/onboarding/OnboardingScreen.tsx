@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
 import { useState } from 'react';
+import { Leaf, ShoppingBasket, Sprout } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '../../components/ui/Screen';
@@ -27,9 +28,9 @@ const SLIDES = [
 ];
 
 const TILES = [
-  { icon: '🍃', top: '100%', bottom: 'Natural\nIngredients' },
-  { icon: '🤲', top: 'Handcrafted', bottom: 'Family Recipes' },
-  { icon: '🧺', top: 'Small Batch', bottom: 'Freshness' },
+  { Icon: Leaf, top: '100%', bottom: 'Natural\nIngredients' },
+  { Icon: Sprout, top: 'Handcrafted', bottom: 'Family Recipes' },
+  { Icon: ShoppingBasket, top: 'Small Batch', bottom: 'Freshness' },
 ];
 
 export function OnboardingScreen() {
@@ -84,14 +85,14 @@ export function OnboardingScreen() {
         accessibilityLabel="Skip onboarding"
         style={styles.skip}
       >
-        <AppText variant="bodySemibold" color="textMid">
+        <AppText variant="bodySemibold" color="text">
           Skip
         </AppText>
       </Pressable>
 
       <View style={styles.body}>
         <AppText style={styles.title}>{slide.title}</AppText>
-        <AppText variant="body" color="textMid" style={styles.paragraph}>
+        <AppText variant="body" color="text" style={styles.paragraph}>
           {slide.body}
         </AppText>
 
@@ -99,7 +100,7 @@ export function OnboardingScreen() {
           {TILES.map((tile) => (
             <View key={tile.top} style={styles.tile}>
               <View style={styles.tileIcon}>
-                <AppText style={{ fontSize: 22 }}>{tile.icon}</AppText>
+                <tile.Icon size={28} color={colors.greenDark} strokeWidth={1.8} />
               </View>
               <AppText variant="microRegular" color="text" style={styles.tileLabel}>
                 {tile.top}
