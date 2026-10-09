@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { z } from 'zod';
@@ -34,6 +34,7 @@ export function EditProfileScreen() {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { isSubmitting, isDirty },
   } = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
@@ -43,6 +44,16 @@ export function EditProfileScreen() {
       city: profile?.city ?? '',
     },
   });
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        fullName: profile.fullName ?? '',
+        phone: profile.phone ?? '',
+        city: profile.city ?? '',
+      });
+    }
+  }, [profile, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
     if (!uid) {

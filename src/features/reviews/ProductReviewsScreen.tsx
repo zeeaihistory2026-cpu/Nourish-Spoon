@@ -19,9 +19,9 @@ export function ProductReviewsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const tabBarHeight = useBottomTabBarHeight();
   const route = useRoute<RouteProp<ProductsStackParamList, 'ProductReviews'>>();
-  const { productId } = route.params;
+  const productId = route.params?.productId;
 
-  const { reviews, state, refresh } = useProductReviews(productId);
+  const { reviews, state, refresh } = useProductReviews(productId ?? '');
   const summary = useMemo(() => ratingSummary(reviews), [reviews]);
 
   useFocusEffect(
@@ -29,6 +29,21 @@ export function ProductReviewsScreen() {
       void refresh();
     }, [refresh])
   );
+
+  if (!productId) {
+    return (
+      <Screen>
+        <AppHeader variant="title" title="Reviews" onBack />
+        <EmptyState
+          icon={STAR_ICON}
+          title="Reviews unavailable"
+          message="We couldn't load reviews for this product."
+          actionLabel="Go Back"
+          onAction={() => navigation.goBack()}
+        />
+      </Screen>
+    );
+  }
 
   return (
     <Screen>

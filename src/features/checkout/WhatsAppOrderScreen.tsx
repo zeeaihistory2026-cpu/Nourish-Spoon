@@ -34,7 +34,6 @@ type WhatsAppOrderFormData = z.infer<typeof whatsappOrderSchema>;
 
 export function WhatsAppOrderScreen() {
   const route = useRoute<RouteProp<ProductsStackParamList, 'WhatsAppOrder'>>();
-  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const tabBarHeight = useBottomTabBarHeight();
   const { product } = useProduct(route.params.productId);
   const { items: allProducts } = useProducts({});
@@ -109,7 +108,7 @@ export function WhatsAppOrderScreen() {
       >
         <View style={styles.summaryCard}>
           <Image
-            source={selectedProduct.images[0] ?? ''}
+            source={selectedProduct.images[0] ?? BRAND.energyBallsImage}
             style={styles.summaryImage}
             contentFit="cover"
             transition={150}
@@ -121,7 +120,7 @@ export function WhatsAppOrderScreen() {
             <View style={styles.ratingRow}>
               <Stars rating={selectedProduct.rating} size={12} />
               <AppText variant="microRegular" color="textMid">
-                {selectedProduct.rating.toFixed(1)} ({selectedProduct.reviewCount} reviews)
+                {(selectedProduct.rating ?? 0).toFixed(1)} ({selectedProduct.reviewCount ?? 0} reviews)
               </AppText>
             </View>
             <AppText variant="caption" color="textMid">
@@ -474,6 +473,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inputText: {
+    flex: 1,
     color: colors.text,
     fontSize: 14.5,
   },

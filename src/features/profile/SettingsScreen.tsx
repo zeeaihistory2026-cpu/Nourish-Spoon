@@ -6,7 +6,6 @@ import {
   Mail,
   MapPin,
   Package,
-  Pencil,
   PhoneCall,
   ShieldCheck,
   User,
@@ -41,7 +40,7 @@ export function SettingsScreen() {
   const confirmLogout = () => {
     Alert.alert('Log Out', 'Are you sure you want to sign out?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Log Out', style: 'destructive', onPress: () => void signOutUser() },
+      { text: 'Log Out', style: 'destructive', onPress: () => signOutUser().catch(() => Alert.alert('Could not sign out', 'Please check your connection and try again.')) },
     ]);
   };
 

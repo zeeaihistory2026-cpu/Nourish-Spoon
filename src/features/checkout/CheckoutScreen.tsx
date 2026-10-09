@@ -93,6 +93,7 @@ export function CheckoutScreen() {
 
   const onAddAddress = handleSubmit(async (values) => {
     if (!uid) {
+      Alert.alert('Please sign in', 'Sign in to save a delivery address.');
       return;
     }
     try {

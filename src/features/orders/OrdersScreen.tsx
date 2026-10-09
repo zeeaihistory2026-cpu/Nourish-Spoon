@@ -5,6 +5,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import type { RootNavigationProp } from '../../app/navigation/navigationTypes';
+import { BRAND } from '../../constants';
 import { AppHeader } from '../../components/common/AppHeader';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -55,7 +56,7 @@ export function OrdersScreen() {
             <View style={styles.cardMid}>
               <View style={styles.thumb}>
                 <Image
-                  source={item.items[0]?.image ?? ''}
+                  source={item.items[0]?.image ?? BRAND.energyBallsImage}
                   style={styles.thumbImage}
                   contentFit="contain"
                   transition={150}
@@ -63,7 +64,7 @@ export function OrdersScreen() {
               </View>
               <View style={styles.midText}>
                 <AppText variant="cardTitleSmall" color="text" numberOfLines={1}>
-                  {item.items[0]?.name}
+                  {item.items[0]?.name ?? 'Order items'}
                   {item.items.length > 1 ? ` +${item.items.length - 1} more` : ''}
                   {item.items.length === 1 ? ` × ${item.items[0]?.qty}` : ''}
                 </AppText>

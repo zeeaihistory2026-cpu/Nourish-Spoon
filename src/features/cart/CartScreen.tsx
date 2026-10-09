@@ -5,6 +5,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import type { RootNavigationProp } from '../../app/navigation/navigationTypes';
+import { BRAND } from '../../constants';
 import { AppHeader } from '../../components/common/AppHeader';
 import { BottomBar } from '../../components/common/BottomBar';
 import { QtyStepper } from '../../components/common/QtyStepper';
@@ -52,7 +53,7 @@ export function CartScreen() {
               <View style={styles.item}>
                 <View style={styles.thumb}>
                   <Image
-                    source={item.image}
+                    source={item.image || BRAND.energyBallsImage}
                     style={styles.thumbImage}
                     contentFit="contain"
                     transition={150}

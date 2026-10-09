@@ -53,17 +53,22 @@ export function WriteReviewScreen() {
       setSubmitError('Please sign in to write a review.');
       return;
     }
+    const productId = route.params?.productId;
+    if (!productId) {
+      setSubmitError('Could not identify the product. Please go back and try again.');
+      return;
+    }
     setSubmitError('');
     try {
       // TEMPORARY client-side submission until the server function is deployed.
       const result = await submitReviewClientSide(uid, {
-        productId: route.params.productId,
+        productId,
         rating: values.rating,
         comment: values.comment.trim(),
       });
       setVerified(result.verifiedPurchase);
       setSubmitted(true);
-      void trackReviewSubmitted(route.params.productId, values.rating);
+      void trackReviewSubmitted(productId, values.rating);
     } catch (error) {
       setSubmitError(getFriendlyError(error));
     }
