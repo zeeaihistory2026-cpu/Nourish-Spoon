@@ -81,3 +81,26 @@ All fixes below are functional, not visual — pixel fidelity to the canonical m
 - Design fidelity: bundled `full-*.jpg` artwork verified pixel-for-pixel against
   the 15 canonical mockups (home, login, products spot-checked); all changes are
   functional, none restyle the approved designs.
+
+## Follow-up: bottom tab bar placement + Products full-bleed (2026-10-06)
+
+- The bottom tab bar is now absolutely positioned over screen content
+  (`BottomTabBar`), so the single real tab bar sits exactly where the
+  mockups show it, covering the tab bar baked into the full-screen
+  artwork. Previously the baked bar and the real bar rendered as two
+  stacked bars, and the Products screen floated the real bar below a
+  dead gap.
+- `ShopScreen` no longer double-applies the top safe-area inset and no
+  longer pads by the tab-bar height; the Products artwork renders
+  full-bleed edge-to-edge like the supplied Products mockup (verified:
+  bundled `full-products.jpg` matches the shared design — same cards,
+  prices Rs. 1,999/3,899 and Rs. 1,499/2,899, same tab order). The
+  invisible tap zones were authored against the full-bleed artwork
+  (card 2 ends at 85.9%, baked tab bar starts ~93%), so this also
+  restores their alignment.
+- Native tab/stack screens (Reviews, About, More, ProductReviews,
+  WriteReview) now clear the overlaid tab bar via
+  `useBottomTabBarHeight()`; WhatsAppOrder's CTA bar is lifted above it.
+- Pushed to `ux-audit-fixes` via the GitHub API as 9e95505 (same tree
+  as local f440025; git-over-HTTPS had no credential helper in this
+  environment).

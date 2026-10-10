@@ -40,13 +40,16 @@ export async function fetchOrder(orderId: string): Promise<Order | null> {
   return docToEntity<Order>(snapshot);
 }
 
-export function watchOrder(orderId: string, onChange: (order: Order | null) => void): () => void {
+export function watchOrder(
+  orderId: string,
+  onChange: (order: Order | null, error?: Error) => void
+): () => void {
   return onSnapshot(
     doc(db, 'orders', orderId),
     (snapshot) => {
       onChange(snapshot.exists() ? docToEntity<Order>(snapshot) : null);
     },
-    () => onChange(null)
+    (error) => onChange(null, error)
   );
 }
 
@@ -67,7 +70,7 @@ export async function fetchOrderCount(uid: string): Promise<number> {
 // computed from server data rather than the cart's cached prices.
 export async function placeOrderClientSide(
   uid: string,
-  items: { productId: string; qty: number }[],
+  items: { productId: string; variantLabel: string; qty: number }[],
   address: AddressSnapshot,
   paymentMethod: PaymentMethod
 ): Promise<PlacedOrder> {
@@ -96,6 +99,7 @@ export async function placeOrderClientSide(
         weight: string;
         images?: string[];
         price: number;
+        variants?: { label: string; price: number }[];
         stock: number;
         isActive: boolean;
       };
@@ -105,13 +109,17 @@ export async function placeOrderClientSide(
       if (product.stock < item.qty) {
         throw new Error(`Only ${Math.max(product.stock, 0)} left of ${product.name}.`);
       }
-      subtotal += product.price * item.qty;
+      // Use the variant price (e.g. 500g) if specified, falling back to the
+      // base product price. This must match what the cart displayed.
+      const unitPrice =
+        product.variants?.find((v) => v.label === item.variantLabel)?.price ?? product.price;
+      subtotal += unitPrice * item.qty;
       lines.push({
         productId: item.productId,
         name: product.name,
-        weight: product.weight,
+        weight: item.variantLabel || product.weight,
         image: product.images?.[0] ?? '',
-        price: product.price,
+        price: unitPrice,
         qty: item.qty,
       });
       tx.update(productSnap.ref, {

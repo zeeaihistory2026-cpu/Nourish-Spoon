@@ -54,7 +54,7 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             accessibilityState={{ selected: focused }}
             accessibilityLabel={typeof label === 'string' ? label : route.name}
             onPress={onPress}
-            style={styles.tab}
+            style={({ pressed }) => [styles.tab, pressed && styles.tabPressed]}
           >
             <Icon size={22} color={tint} strokeWidth={focused ? 2.2 : 1.9} />
             <AppText variant="tab" style={{ color: tint }}>
@@ -69,6 +69,10 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
 const styles = StyleSheet.create({
   tabbar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: 'row',
     backgroundColor: colors.cream,
     borderTopWidth: 1,
@@ -79,6 +83,11 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 3,
+    minHeight: 48,
+  },
+  tabPressed: {
+    opacity: 0.7,
   },
 });

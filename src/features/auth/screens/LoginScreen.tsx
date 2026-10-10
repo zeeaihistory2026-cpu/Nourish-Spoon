@@ -75,6 +75,7 @@ export function LoginScreen() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <Image
+        pointerEvents="none"
         source={BRAND.fullLoginImage}
         style={styles.artwork}
         contentFit="cover"
@@ -100,7 +101,11 @@ export function LoginScreen() {
               onChangeText={field.onChange}
               autoCapitalize="none"
               keyboardType="email-address"
+              textContentType="emailAddress"
+              autoComplete="email"
+              returnKeyType="next"
               placeholder=""
+              accessibilityLabel="Email address"
               style={styles.inputText}
             />
           </View>
@@ -117,7 +122,11 @@ export function LoginScreen() {
               value={field.value}
               onChangeText={field.onChange}
               secureTextEntry
+              textContentType="password"
+              autoComplete="password"
+              returnKeyType="done"
               placeholder=""
+              accessibilityLabel="Password"
               style={styles.inputText}
             />
           </View>
@@ -194,7 +203,7 @@ const styles = StyleSheet.create({
   },
   inputPatch: {
     position: 'absolute',
-    backgroundColor: '#FBF5E6',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
   },
   emailPatch: {
@@ -210,17 +219,19 @@ const styles = StyleSheet.create({
     height: '4.8%',
   },
   inputText: {
+    flex: 1,
     color: colors.text,
     fontSize: 14.5,
     paddingVertical: 0,
     paddingHorizontal: 0,
+    textAlignVertical: 'center',
   },
   forgotZone: {
     position: 'absolute',
-    top: '56.6%',
+    top: '55.75%',
     left: '54%',
     width: '34%',
-    height: '3.8%',
+    height: '5.5%',
   },
   signInZone: {
     position: 'absolute',
@@ -231,24 +242,24 @@ const styles = StyleSheet.create({
   },
   googleZone: {
     position: 'absolute',
-    top: '72.4%',
+    top: '72.0%',
     left: '9.1%',
     width: '39.6%',
-    height: '4.4%',
+    height: '5.2%',
   },
   appleZone: {
     position: 'absolute',
-    top: '72.4%',
+    top: '72.0%',
     left: '51.2%',
     width: '39.6%',
-    height: '4.4%',
+    height: '5.2%',
   },
   signUpZone: {
     position: 'absolute',
-    top: '80.8%',
-    left: '20%',
-    width: '60%',
-    height: '3.8%',
+    top: '78.5%',
+    left: '15%',
+    width: '70%',
+    height: '8%',
   },
   statusStrip: {
     position: 'absolute',

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useBottomTabBarHeight, type BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 import type { MainTabParamList } from '../../app/navigation/navigationTypes';
 import { AppHeader } from '../../components/common/AppHeader';
@@ -20,6 +20,7 @@ const FILTERS = ['All', 'Energy Balls', 'Panjeeri'];
 
 export function ReviewsScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+  const tabBarHeight = useBottomTabBarHeight();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filter, setFilter] = useState('All');
 
@@ -43,7 +44,7 @@ export function ReviewsScreen() {
       <FlatList
         data={filtered}
         keyExtractor={(review) => review.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <ReviewCard review={item} />}
         ListHeaderComponent={

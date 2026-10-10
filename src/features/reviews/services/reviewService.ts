@@ -1,5 +1,4 @@
 import {
-  addDoc,
   collection,
   doc,
   getDoc,
@@ -7,9 +6,9 @@ import {
   limit,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   where,
-  writeBatch,
 } from '@react-native-firebase/firestore';
 
 import { db } from '../../../services/firebase/config';
@@ -66,6 +65,13 @@ export async function fetchReviewStats(): Promise<ReviewStats> {
 // TEMPORARY client-side review submission until the createReview Cloud Function
 // is deployed. The security rules force verifiedPurchase to false on client
 // writes; the function is what grants verified-purchase badges later.
+// TEMPORARY client-side review submission until the createReview Cloud Function
+// is deployed. The security rules force verifiedPurchase to false on client
+// writes; the function is what grants verified-purchase badges later.
+//
+// The rating aggregates are updated inside a transaction so concurrent
+// submissions can't interleave read-modify-write cycles and corrupt the
+// averages (last-write-wins).
 export async function submitReviewClientSide(
   uid: string,
   params: { productId: string; rating: number; comment: string }
@@ -77,13 +83,11 @@ export async function submitReviewClientSide(
   if (!productSnap.exists()) {
     throw new Error('Product not found.');
   }
-  const product = productSnap.data() as { name: string; rating: number; reviewCount: number };
+  const product = productSnap.data() as { name: string };
   const user = userSnap.exists() ? (userSnap.data() as { fullName?: string; city?: string }) : {};
 
-  const newCount = (product.reviewCount ?? 0) + 1;
-  const newAverage = ((product.rating ?? 0) * (product.reviewCount ?? 0) + params.rating) / newCount;
-
-  await addDoc(collection(db, 'reviews'), {
+  const reviewRef = doc(collection(db, 'reviews'));
+  const reviewData = {
     productId: params.productId,
     productName: product.name,
     userId: uid,
@@ -93,28 +97,44 @@ export async function submitReviewClientSide(
     comment: params.comment,
     verifiedPurchase: false,
     createdAt: serverTimestamp(),
+  };
+
+  await runTransaction(db, async (tx) => {
+    const productRef = doc(db, 'products', params.productId);
+    const freshProductSnap = await tx.get(productRef);
+    if (!freshProductSnap.exists()) {
+      throw new Error('Product not found.');
+    }
+    const fresh = freshProductSnap.data() as { rating?: number; reviewCount?: number };
+    const newCount = (fresh.reviewCount ?? 0) + 1;
+    const newAverage = ((fresh.rating ?? 0) * (fresh.reviewCount ?? 0) + params.rating) / newCount;
+
+    tx.set(reviewRef, reviewData);
+    tx.update(productRef, {
+      rating: Math.round(newAverage * 10) / 10,
+      reviewCount: newCount,
+      updatedAt: serverTimestamp(),
+    });
+
+    const statsRef = doc(db, 'meta', 'reviewStats');
+    const statsSnap = await tx.get(statsRef);
+    const stats = statsSnap.exists()
+      ? (statsSnap.data() as { average?: number; count?: number; distribution?: Record<string, number> })
+      : undefined;
+    const statsCount = (stats?.count ?? 0) + 1;
+    const distribution = { ...(stats?.distribution ?? {}) };
+    distribution[String(params.rating)] = (distribution[String(params.rating)] ?? 0) + 1;
+    tx.set(
+      statsRef,
+      {
+        average:
+          Math.round((((stats?.average ?? 0) * (stats?.count ?? 0) + params.rating) / statsCount) * 10) / 10,
+        count: statsCount,
+        distribution,
+      },
+      { merge: true }
+    );
   });
 
-  const batch = writeBatch(db);
-  batch.update(doc(db, 'products', params.productId), {
-    rating: Math.round(newAverage * 10) / 10,
-    reviewCount: newCount,
-    updatedAt: serverTimestamp(),
-  });
-  const statsSnap = await getDoc(doc(db, 'meta', 'reviewStats'));
-  const stats = statsSnap.exists() ? (statsSnap.data() as { average?: number; count?: number; distribution?: Record<string, number> }) : undefined;
-  const statsCount = (stats?.count ?? 0) + 1;
-  const distribution = { ...(stats?.distribution ?? {}) };
-  distribution[String(params.rating)] = (distribution[String(params.rating)] ?? 0) + 1;
-  batch.set(
-    doc(db, 'meta', 'reviewStats'),
-    {
-      average: Math.round((((stats?.average ?? 0) * (stats?.count ?? 0) + params.rating) / statsCount) * 10) / 10,
-      count: statsCount,
-      distribution,
-    },
-    { merge: true }
-  );
-  await batch.commit();
   return { verifiedPurchase: false };
 }

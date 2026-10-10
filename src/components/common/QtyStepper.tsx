@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   button: {
-    width: 42,
+    width: 44,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',

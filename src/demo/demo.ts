@@ -9,11 +9,13 @@ import type { Review } from '../types/review';
 
 /**
  * Demo mode: the full app runs against a bundled catalogue with orders and
- * reviews stored on the phone. Flip to false once a real Firebase project is
- * connected (real google-services.json + rebuild) and everything moves to the
- * backend services unchanged.
+ * reviews stored on the phone. Controlled by the `EXPO_PUBLIC_DEMO_MODE`
+ * environment variable — set it to `'false'` in production builds once a real
+ * Firebase project is connected (real google-services.json + rebuild), and
+ * everything moves to the backend services unchanged. Defaults to `true`
+ * so local development and previews work without configuration.
  */
-export const DEMO_MODE = true;
+export const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE !== 'false';
 
 function fakeTimestamp(ms: number): Timestamp {
   return { seconds: Math.floor(ms / 1000), nanoseconds: 0 } as unknown as Timestamp;

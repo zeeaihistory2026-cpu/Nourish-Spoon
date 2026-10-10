@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { ProductsStackParamList } from '../../app/navigation/navigationTypes';
@@ -16,10 +17,11 @@ import { useProductReviews } from './hooks/useReviews';
 
 export function ProductReviewsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
+  const tabBarHeight = useBottomTabBarHeight();
   const route = useRoute<RouteProp<ProductsStackParamList, 'ProductReviews'>>();
-  const { productId } = route.params;
+  const productId = route.params?.productId;
 
-  const { reviews, state, refresh } = useProductReviews(productId);
+  const { reviews, state, refresh } = useProductReviews(productId ?? '');
   const summary = useMemo(() => ratingSummary(reviews), [reviews]);
 
   useFocusEffect(
@@ -28,6 +30,21 @@ export function ProductReviewsScreen() {
     }, [refresh])
   );
 
+  if (!productId) {
+    return (
+      <Screen>
+        <AppHeader variant="title" title="Reviews" onBack />
+        <EmptyState
+          icon={STAR_ICON}
+          title="Reviews unavailable"
+          message="We couldn't load reviews for this product."
+          actionLabel="Go Back"
+          onAction={() => navigation.goBack()}
+        />
+      </Screen>
+    );
+  }
+
   return (
     <Screen>
       <AppHeader variant="title" title="Reviews" onBack />
@@ -35,7 +52,7 @@ export function ProductReviewsScreen() {
       <FlatList
         data={reviews}
         keyExtractor={(review) => review.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => <ReviewCard review={item} />}
         ListHeaderComponent={

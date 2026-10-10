@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { MapPin, Package } from 'lucide-react-native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -22,7 +22,23 @@ import { formatPrice } from '../../utils/currency';
 export function OrderDetailScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'OrderDetail'>>();
-  const { order, state } = useOrder(route.params.orderId);
+  const orderId = route.params?.orderId;
+  const { order, state } = useOrder(orderId ?? '');
+
+  if (!orderId) {
+    return (
+      <Screen>
+        <AppHeader variant="title" title="Order" onBack />
+        <EmptyState
+          icon={<Package size={30} color={colors.goldDark} strokeWidth={1.8} />}
+          title="Order unavailable"
+          message="We couldn't open this order."
+          actionLabel="Back to Orders"
+          onAction={() => navigation.navigate('Orders')}
+        />
+      </Screen>
+    );
+  }
 
   if (state === 'loading') {
     return (
@@ -64,14 +80,14 @@ export function OrderDetailScreen() {
             <StatusBadge status={order.orderStatus} />
           </View>
           <AppText variant="smallLight" color="textLight">
-            Placed {formatDate(order.createdAt)} · {PAYMENT_METHOD_LABELS[order.paymentMethod]}
+            Placed {formatDate(order.createdAt)} · {PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod}
           </AppText>
           <OrderTimeline status={order.orderStatus} />
         </View>
 
         <SectionHeader title="Items" />
         {order.items.map((item) => (
-          <View key={item.productId} style={styles.itemCard}>
+          <View key={`${item.productId}|${item.weight}`} style={styles.itemCard}>
             <View style={styles.thumb}>
               <Image
                 source={item.image}
@@ -88,6 +104,26 @@ export function OrderDetailScreen() {
               <AppText variant="smallLight" color="textLight">
                 {item.weight} · {formatPrice(item.price)} each
               </AppText>
+              {order.orderStatus === 'delivered' ? (
+                <Pressable
+                  onPress={() =>
+                    navigation.navigate('Main', {
+                      screen: 'Products',
+                      params: {
+                        screen: 'WriteReview',
+                        params: { productId: item.productId, productName: item.name },
+                      },
+                    })
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel={`Write a review for ${item.name}`}
+                  style={({ pressed }) => [styles.reviewButton, pressed && styles.reviewPressed]}
+                >
+                  <AppText variant="smallMedium" color="goldDark">
+                    Write a Review
+                  </AppText>
+                </Pressable>
+              ) : null}
             </View>
             <AppText variant="cardTitleSmall" color="textMid">
               × {item.qty}
@@ -102,11 +138,11 @@ export function OrderDetailScreen() {
           </View>
           <View style={styles.addressBody}>
             <AppText variant="cardTitleSmall" color="text">
-              {order.shippingAddress.label} — {order.shippingAddress.fullName}
+              {order.shippingAddress?.label ?? '—'} — {order.shippingAddress?.fullName ?? '—'}
             </AppText>
             <AppText variant="small" color="textLight">
-              {order.shippingAddress.line1}, {order.shippingAddress.city} ·{' '}
-              {order.shippingAddress.phone}
+              {order.shippingAddress?.line1 ?? '—'}, {order.shippingAddress?.city ?? '—'} ·{' '}
+              {order.shippingAddress?.phone ?? '—'}
             </AppText>
           </View>
         </View>
@@ -191,6 +227,20 @@ const styles = StyleSheet.create({
   },
   itemMid: {
     flex: 1,
+  },
+  reviewButton: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    minHeight: 44,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.goldDark,
+    justifyContent: 'center',
+  },
+  reviewPressed: {
+    opacity: 0.7,
   },
   addressCard: {
     flexDirection: 'row',

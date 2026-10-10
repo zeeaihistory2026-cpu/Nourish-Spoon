@@ -35,6 +35,7 @@ export function AddressesScreen() {
 
   const load = useCallback(async () => {
     if (!uid) {
+      setState('ready');
       return;
     }
     setState('loading');
@@ -168,7 +169,7 @@ export function AddressesScreen() {
                   onPress={() => onDelete(address)}
                   accessibilityRole="button"
                   accessibilityLabel={`Delete ${address.label} address`}
-                  hitSlop={6}
+                  hitSlop={12}
                 >
                   <Trash2 size={16} color={colors.chevron} strokeWidth={2} />
                 </Pressable>

@@ -9,6 +9,7 @@ import {
 import { Image } from 'expo-image';
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useState, type ReactNode, type ReactElement } from 'react';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { AppHeader } from '../../components/common/AppHeader';
 import { DecorativeLeaves } from '../../components/common/DecorativeLeaves';
@@ -32,8 +33,22 @@ interface ContactRow {
   onPress?: () => void;
 }
 
-export function ContactMoreScreen({ navigation }: { navigation: { navigate: (name: string, params?: object) => void } }) {
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import type { MainTabParamList, RootStackParamList } from '../../app/navigation/navigationTypes';
+
+type MoreScreenNavigation = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList, 'More'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
+
+export function ContactMoreScreen() {
+  const navigation = useNavigation<MoreScreenNavigation>();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const tabBarHeight = useBottomTabBarHeight();
 
   const contactRows: ContactRow[] = [
     {
@@ -87,7 +102,7 @@ export function ContactMoreScreen({ navigation }: { navigation: { navigate: (nam
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 16 }]} showsVerticalScrollIndicator={false}>
         <AppHeader variant="title" title="Contact & More" onMenu={() => setDrawerOpen(true)} leaves />
 
         <View style={styles.hero}>

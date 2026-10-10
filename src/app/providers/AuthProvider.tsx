@@ -1,65 +1,54 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { User } from '@react-native-firebase/auth';
+import { useEffect, type ReactNode } from 'react';
 
 import { observeAuth, watchUserProfile } from '../../services/firebase/auth';
 import { useAuthStore } from '../../store/authStore';
-import type { UserProfile } from '../../types';
 
-interface AuthContextValue {
-  initializing: boolean;
-  user: User | null;
-  profile: UserProfile | null;
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
+/**
+ * Subscribes to Firebase Auth and mirrors the session into `useAuthStore`
+ * (the single source of truth). There is no local state here by design —
+ * every consumer reads from the store via `useAuth()` or `useAuthStore`
+ * selectors, so the session can never drift between two copies.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfileState] = useState<UserProfile | null>(null);
-  const setStoreUser = useAuthStore((state) => state.setUser);
-  const setStoreProfile = useAuthStore((state) => state.setProfile);
+  const setUser = useAuthStore((state) => state.setUser);
+  const setProfile = useAuthStore((state) => state.setProfile);
+  const setInitializing = useAuthStore((state) => state.setInitializing);
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
   useEffect(() => {
     const unsubscribe = observeAuth((firebaseUser) => {
-      setUser(firebaseUser);
       if (firebaseUser) {
-        setStoreUser({ uid: firebaseUser.uid, email: firebaseUser.email });
+        setUser(firebaseUser);
       } else {
         clearAuth();
       }
       setInitializing(false);
     });
     return unsubscribe;
-  }, [setStoreUser, clearAuth]);
+  }, [setUser, setInitializing, clearAuth]);
 
-  const uid = user?.uid;
+  const uid = useAuthStore((state) => state.user?.uid);
   useEffect(() => {
     if (!uid) {
-      setProfileState(null);
-      setStoreProfile(null);
+      setProfile(null);
       return;
     }
     const unsubscribe = watchUserProfile(uid, (next) => {
-      setProfileState(next);
-      setStoreProfile(next);
+      setProfile(next);
     });
     return unsubscribe;
-  }, [uid, setStoreProfile]);
+  }, [uid, setProfile]);
 
-  const value = useMemo(
-    () => ({ initializing, user, profile }),
-    [initializing, user, profile]
-  );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <>{children}</>;
 }
 
-export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+/**
+ * Convenience selector for the auth session. Equivalent to reading
+ * `useAuthStore` directly; kept so existing call sites don't churn.
+ */
+export function useAuth() {
+  const initializing = useAuthStore((state) => state.initializing);
+  const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
+  return { initializing, user, profile };
 }

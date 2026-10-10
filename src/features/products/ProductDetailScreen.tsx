@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -14,8 +14,8 @@ import { colors } from '../../theme';
 // wishlist heart and the bottom Order-on-WhatsApp pill. Unknown products
 // fall back to the Energy Balls artwork.
 const ARTWORK_BY_PRODUCT: Record<string, number> = {
-  'demo-date-nut-balls': BRAND.fullDetailBallsImage,
-  'demo-homemade-panjeeri': BRAND.fullDetailPanjeeriImage,
+  'date-nut-balls': BRAND.fullDetailBallsImage,
+  'homemade-panjeeri': BRAND.fullDetailPanjeeriImage,
 };
 
 export function ProductDetailScreen() {
@@ -34,8 +34,14 @@ function ArtworkDetail({ artwork, productId }: { artwork: number; productId: str
   return (
     <View style={styles.screen}>
       <StatusBar style="dark" />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.artworkWrap}>
-        <Image source={artwork} style={styles.artwork} contentFit="contain" transition={250} />
+        <Image
+        pointerEvents="none" source={artwork} style={styles.artwork} contentFit="contain" transition={250} />
 
         {/* Back circle (top-left) */}
         <Pressable
@@ -59,6 +65,7 @@ function ArtworkDetail({ artwork, productId }: { artwork: number; productId: str
           style={styles.waZone}
         />
       </View>
+      </ScrollView>
     </View>
   );
 }
@@ -68,8 +75,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.cream,
   },
-  artworkWrap: {
+  scroll: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  artworkWrap: {
+    width: '100%',
+    aspectRatio: 799 / 1825,
   },
   artwork: {
     width: '100%',
@@ -91,9 +105,9 @@ const styles = StyleSheet.create({
   },
   waZone: {
     position: 'absolute',
-    bottom: '2.8%',
+    top: '82.5%',
     left: '4%',
     width: '92%',
-    height: '5.6%',
+    height: '6.5%',
   },
 });

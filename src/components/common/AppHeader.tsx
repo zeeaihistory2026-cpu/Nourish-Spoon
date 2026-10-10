@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

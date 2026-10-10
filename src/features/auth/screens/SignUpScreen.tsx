@@ -87,6 +87,7 @@ export function SignUpScreen() {
     <View style={styles.screen}>
       <StatusBar style="dark" />
       <Image
+        pointerEvents="none"
         source={BRAND.fullSignupImage}
         style={styles.artwork}
         contentFit="cover"
@@ -218,8 +219,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     color: colors.text,
     fontSize: 14.5,
-    paddingVertical: 0,
+    paddingTop: 45,
+    paddingBottom: 0,
     paddingHorizontal: 0,
+    textAlignVertical: 'top',
   },
   fullNameInput: {
     top: '39.4%',
@@ -228,6 +231,8 @@ const styles = StyleSheet.create({
     height: '4.2%',
   },
   fieldInput: {
+    left: '27%',
+    width: '60%',
     height: '4.2%',
   },
   emailInput: {

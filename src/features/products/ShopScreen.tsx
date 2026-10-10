@@ -1,13 +1,12 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { ProductsStackParamList } from '../../app/navigation/navigationTypes';
 import { Screen } from '../../components/ui/Screen';
+import { toast } from '../../components/ui/toastStore';
 import { trackAddToCart } from '../../services/analytics/events';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
@@ -21,20 +20,18 @@ import { asProduct } from './lib/productFactory';
 // The two cards match the demo catalogue's products and prices exactly.
 export function ShopScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
   const addItem = useCartStore((store) => store.addItem);
   const productIds = useWishlistStore((store) => store.productIds);
   const toggleWishlist = useWishlistStore((store) => store.toggle);
 
   const dateNuts = asProduct(
-    'demo-date-nut-balls',
+    'date-nut-balls',
     'Date & Nuts Energy Balls',
     1999,
     BRAND.energyBallsImage
   );
   const panjeeri = asProduct(
-    'demo-homemade-panjeeri',
+    'homemade-panjeeri',
     'Homemade Panjeeri',
     1499,
     BRAND.panjeeriImage
@@ -43,13 +40,15 @@ export function ShopScreen() {
   const addToCart = (product: typeof dateNuts) => {
     addItem(product, product.variants[0], 1);
     trackAddToCart(product.id, 1, product.price);
+    toast('Added to cart');
   };
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right']}>
       <StatusBar style="dark" />
-      <View style={[styles.artworkWrap, { paddingTop: insets.top, paddingBottom: tabBarHeight }]}>
+      <View style={styles.artworkWrap}>
         <Image
+        pointerEvents="none"
           source={BRAND.fullProductsImage}
           style={styles.artwork}
           contentFit="contain" contentPosition="top"
@@ -127,6 +126,7 @@ export function ShopScreen() {
 const styles = StyleSheet.create({
   artworkWrap: {
     flex: 1,
+    aspectRatio: 799 / 1710,
   },
   artwork: {
     width: '100%',
@@ -134,72 +134,72 @@ const styles = StyleSheet.create({
   },
   card1Zone: {
     position: 'absolute',
-    top: '16%',
-    left: '3.5%',
-    width: '92.5%',
-    height: '31%',
+    top: '17%',
+    left: '4%',
+    width: '92%',
+    height: '25.5%',
   },
   heart1Zone: {
     position: 'absolute',
-    top: '17.4%',
-    left: '82%',
-    width: '12%',
-    height: '5%',
+    top: '17%',
+    left: '86.5%',
+    width: '8.5%',
+    height: '6%',
   },
   wa1Zone: {
     position: 'absolute',
-    top: '47.2%',
+    top: '43.5%',
     left: '6%',
-    width: '49.4%',
-    height: '4.2%',
+    width: '54%',
+    height: '3.5%',
   },
   view1Zone: {
     position: 'absolute',
-    top: '47.2%',
-    left: '57.3%',
-    width: '30%',
-    height: '4.2%',
+    top: '43.5%',
+    left: '62.5%',
+    width: '22.5%',
+    height: '3.5%',
   },
   cart1Zone: {
     position: 'absolute',
-    top: '46.9%',
-    left: '89%',
-    width: '8.5%',
-    height: '4.8%',
+    top: '43.5%',
+    left: '87.5%',
+    width: '7%',
+    height: '3.5%',
   },
   card2Zone: {
     position: 'absolute',
-    top: '55.4%',
-    left: '3.5%',
-    width: '92.5%',
-    height: '30.5%',
+    top: '56%',
+    left: '4%',
+    width: '92%',
+    height: '26%',
   },
   heart2Zone: {
     position: 'absolute',
-    top: '56.8%',
-    left: '82%',
-    width: '12%',
-    height: '5%',
+    top: '56%',
+    left: '86.5%',
+    width: '8.5%',
+    height: '6%',
   },
   wa2Zone: {
     position: 'absolute',
-    top: '86.9%',
+    top: '83.5%',
     left: '6%',
-    width: '49.4%',
-    height: '4.2%',
+    width: '54%',
+    height: '3.5%',
   },
   view2Zone: {
     position: 'absolute',
-    top: '86.9%',
-    left: '57.3%',
-    width: '30%',
-    height: '4.2%',
+    top: '83.5%',
+    left: '62.5%',
+    width: '22.5%',
+    height: '3.5%',
   },
   cart2Zone: {
     position: 'absolute',
-    top: '86.6%',
-    left: '89%',
-    width: '8.5%',
-    height: '4.8%',
+    top: '83.5%',
+    left: '87.5%',
+    width: '7%',
+    height: '3.5%',
   },
 });
