@@ -12,6 +12,7 @@ import { AddProductModal } from '../components/Modals/AddProductModal';
 import { EditOrderStatusModal } from '../components/Modals/EditOrderStatusModal';
 import { AddFAQModal } from '../components/Modals/AddFAQModal';
 import { NotificationModal } from '../components/Modals/NotificationModal';
+import { exportOrders } from '../services/exportReport';
 import { storeService } from '../services/storeService';
 import { Order, OrderStatus } from '@packages/types';
 import { AdminTab } from '../components/Sidebar';
@@ -73,13 +74,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateTab, sea
 
       {/* Row 2: Sales Overview (5 cols) + Orders by Status (3.5 cols) + Top Products (3.5 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        <div className="lg:col-span-5 h-[320px]">
+        <div className="lg:col-span-5 h-[260px]">
           <SalesChart />
         </div>
-        <div className="lg:col-span-3 h-[320px]">
+        <div className="lg:col-span-4 h-[260px]">
           <OrdersDonutChart />
         </div>
-        <div className="lg:col-span-4 h-[320px]">
+        <div className="lg:col-span-3 h-[260px]">
           <TopProducts onViewAll={() => onNavigateTab('products')} />
         </div>
       </div>
@@ -127,8 +128,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateTab, sea
             }}
             onSendNotification={() => setShowNotification(true)}
             onExportReport={() => {
-              showToast('Exporting monthly order reports to CSV...');
-              setTimeout(() => showToast('Report downloaded: Nourish_Spoon_May_2025.csv'), 1000);
+              exportOrders(filteredOrders);
+              showToast('Orders exported to CSV.');
             }}
           />
         </div>
@@ -163,8 +164,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigateTab, sea
       <NotificationModal
         isOpen={showNotification}
         onClose={() => setShowNotification(false)}
-        onSend={({ title, audience }) => {
-          showToast(`Broadcasted "${title}" to ${audience}`);
+        onSend={(notification) => {
+          const drafts = JSON.parse(localStorage.getItem('ns_notification_drafts') || '[]');
+          localStorage.setItem('ns_notification_drafts', JSON.stringify([...drafts, { ...notification, createdAt: new Date().toISOString() }]));
+          showToast('Notification draft saved. Push delivery needs a server connection.');
         }}
       />
     </div>

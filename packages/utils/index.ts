@@ -13,11 +13,11 @@ export function formatPKR(amount: number | null | undefined): string {
 
 /**
  * Format price per 100g
- * e.g. 7.996 -> "Rs. 7.996 per 100g"
+ * e.g. 799.6 -> "Rs. 799.60 per 100g"
  */
 export function formatPer100g(amount: number | null | undefined): string {
   if (!amount) return '';
-  return `Rs. ${Number(amount).toFixed(3)} per 100g`;
+  return `Rs. ${Number(amount).toFixed(2)} per 100g`;
 }
 
 export type WhatsAppOrderParams = {

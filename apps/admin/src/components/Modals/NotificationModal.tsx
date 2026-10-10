@@ -27,7 +27,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, on
       <div className="bg-white dark:bg-[#14291C] rounded-2xl w-full max-w-md p-6 border border-[#E8DFC8] dark:border-[#24422F] shadow-2xl">
         <div className="flex items-center justify-between pb-4 border-b border-[#E8DFC8] dark:border-[#24422F]">
           <h3 className="font-serif text-xl font-bold text-[#10271A] dark:text-[#F7F1E5]">
-            Send App Notification
+            Create Notification Draft
           </h3>
           <button
             onClick={onClose}
@@ -37,6 +37,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, on
           </button>
         </div>
 
+        <p className="mt-3 text-xs text-neutral-500">Drafts are stored in this browser. Push delivery is not connected yet.</p>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-xs">
           <div>
             <label className="block font-semibold text-[#10271A] dark:text-[#F7F1E5] mb-1">
@@ -94,7 +95,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({ isOpen, on
               className="px-5 py-2 rounded-xl bg-[#0D5428] hover:bg-[#073B21] text-white font-bold transition shadow-sm flex items-center space-x-1.5"
             >
               <Send size={14} />
-              <span>Broadcast</span>
+              <span>Save Draft</span>
             </button>
           </div>
         </form>

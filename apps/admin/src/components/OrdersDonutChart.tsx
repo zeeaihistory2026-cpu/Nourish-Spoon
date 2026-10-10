@@ -17,15 +17,15 @@ export const OrdersDonutChart: React.FC = () => {
         Orders by Status
       </h3>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3 min-w-0">
         {/* Donut Chart with center label */}
-        <div className="relative w-44 h-44 shrink-0">
+        <div className="relative w-28 h-28 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={ORDER_STATUS_DATA}
-                innerRadius={50}
-                outerRadius={70}
+                innerRadius={32}
+                outerRadius={48}
                 paddingAngle={2}
                 dataKey="count"
               >
@@ -57,19 +57,19 @@ export const OrdersDonutChart: React.FC = () => {
         </div>
 
         {/* Legend List */}
-        <div className="flex-1 pl-4 space-y-1.5">
+        <div className="flex-1 min-w-0 space-y-1.5">
           {ORDER_STATUS_DATA.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between text-xs">
-              <div className="flex items-center space-x-2">
+            <div key={idx} className="flex items-center justify-between gap-2 text-[10px]">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <span
                   className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-[#3F5447] dark:text-[#C7DACF] truncate max-w-[90px]">
+                <span className="text-[#3F5447] dark:text-[#C7DACF] min-w-0">
                   {item.name}
                 </span>
               </div>
-              <span className="font-semibold text-[#10271A] dark:text-[#F7F1E5]">
+              <span className="shrink-0 whitespace-nowrap font-semibold text-[#10271A] dark:text-[#F7F1E5]">
                 {item.count} <span className="text-[10px] font-normal text-[#7E9687]">({item.percentage})</span>
               </span>
             </div>

@@ -33,7 +33,7 @@ export const SalesChart: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#14291C] rounded-2xl p-5 border border-[#E8DFC8] dark:border-[#24422F] shadow-sm flex flex-col justify-between h-full">
       {/* Chart Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
         <h3 className="font-serif text-lg font-bold text-[#10271A] dark:text-[#F7F1E5]">
           Sales Overview
         </h3>
@@ -63,7 +63,7 @@ export const SalesChart: React.FC = () => {
       </div>
 
       {/* Chart Canvas */}
-      <div className="h-56 w-full">
+      <div className="flex-1 min-h-0 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={SALES_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EFE7D5" opacity={0.5} />

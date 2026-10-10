@@ -18,9 +18,9 @@ export const Header: React.FC<HeaderProps> = ({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="h-20 bg-white dark:bg-[#14291C] border-b border-[#E8DFC8] dark:border-[#24422F] px-8 flex items-center justify-between transition-colors shrink-0">
+    <header className="min-h-20 bg-white dark:bg-[#14291C] border-b border-[#E8DFC8] dark:border-[#24422F] px-4 xl:px-8 py-3 gap-3 flex flex-wrap items-center justify-between transition-colors shrink-0">
       {/* Search Bar */}
-      <div className="relative w-96">
+      <div className="relative w-full sm:w-72 xl:w-96">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8CAE99] dark:text-[#648771]" size={18} />
         <input
           type="text"
@@ -32,9 +32,9 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center space-x-5">
+      <div className="flex items-center gap-3 xl:gap-5 flex-wrap">
         {/* Date Filter Pill */}
-        <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg border border-[#E8DFC8] dark:border-[#2B4B36] bg-[#FFF9EC]/40 dark:bg-[#0D2115] text-xs font-medium text-[#10271A] dark:text-[#F7F1E5] cursor-pointer hover:bg-[#FFF9EC] transition">
+        <div className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg border border-[#E8DFC8] dark:border-[#2B4B36] bg-[#FFF9EC]/40 dark:bg-[#0D2115] text-xs font-medium text-[#10271A] dark:text-[#F7F1E5] hover:bg-[#FFF9EC] transition">
           <Calendar size={14} className="text-[#0D5428] dark:text-[#77A76A]" />
           <span>{dateRange}</span>
           <ChevronDown size={14} className="text-[#8CAE99]" />

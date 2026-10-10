@@ -11,6 +11,8 @@ import { DeliveryLocationsPage } from './pages/DeliveryLocationsPage';
 import { PaymentsPage } from './pages/PaymentsPage';
 import { AppearancePage } from './pages/AppearancePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { exportOrders } from './services/exportReport';
+import { storeService } from './services/storeService';
 import { Users, Mail, Bell, BarChart2, Shield } from 'lucide-react';
 
 export function App() {
@@ -40,6 +42,10 @@ export function App() {
         return <AppearancePage />;
       case 'settings':
         return <SettingsPage />;
+      case 'reports':
+        return <div className="space-y-4"><h2 className="font-serif text-2xl font-bold">Order Reports</h2><p>Export the orders currently stored in this dashboard.</p><button className="bg-[#0D5428] text-white rounded-xl px-5 py-3" onClick={() => exportOrders(storeService.getOrders())}>Download Orders CSV</button></div>;
+      case 'notifications':
+        return <div className="space-y-4"><h2 className="font-serif text-2xl font-bold">Notification Drafts</h2><p className="text-sm">Saved drafts are available below. Push delivery needs a server connection.</p>{JSON.parse(localStorage.getItem('ns_notification_drafts') || '[]').map((draft: any, index: number) => <div key={index} className="rounded-xl border border-[#E8DFC8] p-4"><h3 className="font-bold">{draft.title}</h3><p>{draft.body}</p><p className="text-xs mt-2">{draft.audience}</p></div>)}</div>;
       case 'customers':
         return (
           <div className="space-y-4 max-w-4xl">

@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function admin() { return signedIn() && request.auth.token.admin == true; }
+    match /users/{uid} {
+      allow read: if admin() || (signedIn() && request.auth.uid == uid);
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.uid == uid && request.resource.data.role == 'customer'
+        && request.resource.data.keys().hasOnly(['uid','fullName','email','phone','role','updatedAt']);
+      allow update: if admin() || (signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','phone','updatedAt']));
+      allow delete: if admin();
+    }
+    match /products/{id} { allow read: if true; allow write: if admin(); }
+    match /faqs/{id} { allow read: if true; allow write: if admin(); }
+    match /settings/{id} { allow read: if true; allow write: if admin(); }
+    match /reviews/{id} { allow read: if resource.data.approved == true || admin(); allow write: if admin(); }
+    match /orders/{id} { allow read, write: if admin(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

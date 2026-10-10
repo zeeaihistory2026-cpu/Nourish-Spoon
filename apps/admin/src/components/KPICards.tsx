@@ -67,7 +67,7 @@ export const KPICards: React.FC<KPICardsProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 lg:grid-cols-3 gap-4">
       {cards.map((card, idx) => {
         const Icon = card.icon;
         return (
@@ -85,7 +85,7 @@ export const KPICards: React.FC<KPICardsProps> = ({
               <h3 className="text-lg font-bold text-[#10271A] dark:text-[#F7F1E5] tracking-tight leading-tight mt-0.5 truncate">
                 {card.value}
               </h3>
-              <p className="text-[11px] text-[#0D5428] dark:text-[#77A76A] font-semibold flex items-center space-x-1 mt-0.5">
+              <p className="text-[11px] text-[#0D5428] dark:text-[#77A76A] font-semibold flex flex-wrap items-center gap-x-1 mt-0.5">
                 <span>{card.change}</span>
                 <span className="text-[#889B8D] dark:text-[#708878] font-normal">{card.comparison}</span>
               </p>

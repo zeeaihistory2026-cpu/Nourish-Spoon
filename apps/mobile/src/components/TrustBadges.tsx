@@ -1,35 +1,66 @@
-import { Text } from './DesignPrimitives';
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useMobileStore } from '../services/storeService';
+import { Text } from "./DesignPrimitives";
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useMobileStore } from "../services/storeService";
 
 interface TrustBadgesProps {
-  variant?: 'home' | 'product';
+  variant?: "home" | "product";
 }
 
-export const TrustBadges: React.FC<TrustBadgesProps> = ({ variant = 'home' }) => {
+export const TrustBadges: React.FC<TrustBadgesProps> = ({
+  variant = "home",
+}) => {
   const { theme } = useMobileStore();
 
-  const badges = variant === 'home' ? [
-    { title: 'No\nPreservatives', icon: 'leaf-outline', lib: 'ionicons' },
-    { title: '100%\nNatural', icon: 'sprout-outline', lib: 'material' },
-    { title: 'Small\nBatch', icon: 'flower-outline', lib: 'ionicons' },
-    { title: 'Airtight\nPacked', icon: 'archive-outline', lib: 'ionicons' },
-  ] : [
-    { title: 'Freshly\nMade', icon: 'leaf-outline', lib: 'ionicons' },
-    { title: 'Airtight\nPacked', icon: 'archive-outline', lib: 'ionicons' },
-    { title: 'No\nPreservatives', icon: 'flask-outline', lib: 'ionicons' },
-    { title: '100%\nNatural', icon: 'sprout-outline', lib: 'material' },
-  ];
+  const badges =
+    variant === "home"
+      ? [
+          { title: "No\nPreservatives", icon: "leaf-outline", lib: "ionicons" },
+          { title: "100%\nNatural", icon: "sprout-outline", lib: "material" },
+          { title: "Small\nBatch", icon: "flower-outline", lib: "ionicons" },
+          {
+            title: "Airtight\nPacked",
+            icon: "archive-outline",
+            lib: "ionicons",
+          },
+        ]
+      : [
+          { title: "Freshly\nMade", icon: "leaf-outline", lib: "ionicons" },
+          {
+            title: "Airtight\nPacked",
+            icon: "archive-outline",
+            lib: "ionicons",
+          },
+          {
+            title: "No\nPreservatives",
+            icon: "flask-outline",
+            lib: "ionicons",
+          },
+          { title: "100%\nNatural", icon: "sprout-outline", lib: "material" },
+        ];
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.surfaceWarm, borderColor: theme.border }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.surfaceWarm, borderColor: theme.border },
+      ]}
+    >
       {badges.map((b, i) => (
         <View key={i} style={styles.badgeItem}>
-          <View style={[styles.iconCircle, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            {b.lib === 'material' ? (
-              <MaterialCommunityIcons name={b.icon as any} size={20} color={theme.primary} />
+          <View
+            style={[
+              styles.iconCircle,
+              { backgroundColor: theme.goldWarm, borderColor: theme.goldWarm },
+            ]}
+          >
+            {b.lib === "material" ? (
+              <MaterialCommunityIcons
+                name={b.icon as any}
+                size={20}
+                color={theme.primary}
+              />
             ) : (
               <Ionicons name={b.icon as any} size={19} color={theme.primary} />
             )}
@@ -45,9 +76,9 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({ variant = 'home' }) =>
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
     borderRadius: 20,
     borderWidth: 1,
     paddingVertical: 14,
@@ -55,7 +86,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   badgeItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   iconCircle: {
@@ -63,19 +94,19 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
   },
   badgeTitle: {
-    fontSize: 10,
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 13,
+    fontSize: 11,
+    fontWeight: "400",
+    textAlign: "center",
+    lineHeight: 14,
   },
 });

@@ -1,6 +1,16 @@
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Product, ProductVariant, Order, Review, FAQ, PaymentMethod, DeliveryMethod, BrandIdentity, FounderStory } from '@packages/types';
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  Product,
+  ProductVariant,
+  Order,
+  Review,
+  FAQ,
+  PaymentMethod,
+  DeliveryMethod,
+  BrandIdentity,
+  FounderStory,
+} from "@packages/types";
 import {
   INITIAL_PRODUCTS,
   INITIAL_REVIEWS,
@@ -8,12 +18,12 @@ import {
   INITIAL_PAYMENT_METHODS,
   INITIAL_DELIVERY_METHODS,
   BRAND_IDENTITY,
-  FOUNDER_STORY
-} from './mockData';
-import { LightTheme, DarkTheme, ThemeType } from '../constants/theme';
+  FOUNDER_STORY,
+} from "./mockData";
+import { LightTheme, DarkTheme, ThemeType } from "../constants/theme";
 
 export interface MobileStoreState {
-  themeMode: 'light' | 'dark';
+  themeMode: "light" | "dark";
   theme: ThemeType;
   currentTheme: ThemeType;
   products: Product[];
@@ -34,25 +44,29 @@ export interface MobileStoreState {
     currency: string;
   };
   cart: Array<{ product: Product; variant: ProductVariant; quantity: number }>;
-  
+
   // Actions
   toggleTheme: () => void;
-  setThemeMode: (mode: 'light' | 'dark') => void;
+  setThemeMode: (mode: "light" | "dark") => void;
   selectProduct: (prod: Product) => void;
   selectVariant: (v: ProductVariant) => void;
   toggleFavorite: (productId: string) => void;
-  addToCart: (product: Product, variant: ProductVariant, quantity?: number) => void;
+  addToCart: (
+    product: Product,
+    variant: ProductVariant,
+    quantity?: number,
+  ) => void;
   removeFromCart: (variantId: string) => void;
 }
 
 export const useMobileStore = create<MobileStoreState>((set, get) => ({
-  themeMode: 'light',
+  themeMode: "light",
   theme: LightTheme,
   currentTheme: LightTheme,
   products: INITIAL_PRODUCTS,
   selectedProduct: INITIAL_PRODUCTS[0],
   selectedVariant: INITIAL_PRODUCTS[0].variants[0],
-  favorites: ['c0000000-0000-0000-0000-000000000001'],
+  favorites: ["c0000000-0000-0000-0000-000000000001"],
   reviews: INITIAL_REVIEWS,
   faqs: INITIAL_FAQS,
   paymentMethods: INITIAL_PAYMENT_METHODS,
@@ -64,23 +78,16 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
     contact_email: BRAND_IDENTITY.email,
     business_address: BRAND_IDENTITY.address,
     business_hours: BRAND_IDENTITY.business_hours,
-    currency: 'PKR',
+    currency: "PKR",
   },
   cart: [],
 
-  toggleTheme: () => {
-    const next = get().themeMode === 'light' ? 'dark' : 'light';
-    const activeTheme = next === 'light' ? LightTheme : DarkTheme;
-    set({
-      themeMode: next,
-      theme: activeTheme,
-      currentTheme: activeTheme,
-    });
-  },
+  toggleTheme: () =>
+    get().setThemeMode(get().themeMode === "light" ? "dark" : "light"),
 
-  setThemeMode: (mode: 'light' | 'dark') => {
-    AsyncStorage.setItem('nourish:theme', mode).catch(() => {});
-    const activeTheme = mode === 'light' ? LightTheme : DarkTheme;
+  setThemeMode: (mode: "light" | "dark") => {
+    AsyncStorage.setItem("nourish:theme", mode).catch(() => {});
+    const activeTheme = mode === "light" ? LightTheme : DarkTheme;
     set({
       themeMode: mode,
       theme: activeTheme,
@@ -91,7 +98,7 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
   selectProduct: (prod: Product) => {
     set({
       selectedProduct: prod,
-      selectedVariant: prod.variants[0]
+      selectedVariant: prod.variants[0],
     });
   },
 
@@ -102,7 +109,7 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
   toggleFavorite: (productId: string) => {
     const favs = get().favorites;
     if (favs.includes(productId)) {
-      set({ favorites: favs.filter(id => id !== productId) });
+      set({ favorites: favs.filter((id) => id !== productId) });
     } else {
       set({ favorites: [...favs, productId] });
     }
@@ -110,14 +117,14 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
 
   addToCart: (product: Product, variant: ProductVariant, quantity = 1) => {
     const current = get().cart;
-    const existing = current.find(item => item.variant.id === variant.id);
+    const existing = current.find((item) => item.variant.id === variant.id);
     if (existing) {
       set({
-        cart: current.map(item =>
+        cart: current.map((item) =>
           item.variant.id === variant.id
             ? { ...item, quantity: item.quantity + quantity }
-            : item
-        )
+            : item,
+        ),
       });
     } else {
       set({ cart: [...current, { product, variant, quantity }] });
@@ -125,8 +132,8 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
   },
 
   removeFromCart: (variantId: string) => {
-    set({ cart: get().cart.filter(item => item.variant.id !== variantId) });
-  }
+    set({ cart: get().cart.filter((item) => item.variant.id !== variantId) });
+  },
 }));
 
 // Export alias for convenience
