@@ -219,8 +219,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     color: colors.text,
     fontSize: 14.5,
-    paddingVertical: 0,
+    paddingTop: 45,
+    paddingBottom: 0,
     paddingHorizontal: 0,
+    textAlignVertical: 'top',
   },
   fullNameInput: {
     top: '39.4%',

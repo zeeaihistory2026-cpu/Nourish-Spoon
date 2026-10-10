@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   inputPatch: {
     position: 'absolute',
-    backgroundColor: '#FBF5E6',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
   },
   emailPatch: {
@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     paddingVertical: 0,
     paddingHorizontal: 0,
+    textAlignVertical: 'center',
   },
   forgotZone: {
     position: 'absolute',
