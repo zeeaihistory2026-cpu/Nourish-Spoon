@@ -256,10 +256,10 @@ const styles = StyleSheet.create({
   },
   signUpZone: {
     position: 'absolute',
-    top: '79.95%',
-    left: '20%',
-    width: '60%',
-    height: '5.5%',
+    top: '78.5%',
+    left: '15%',
+    width: '70%',
+    height: '8%',
   },
   statusStrip: {
     position: 'absolute',
