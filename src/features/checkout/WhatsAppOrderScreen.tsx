@@ -40,7 +40,7 @@ export function WhatsAppOrderScreen() {
 
   const [selectedProductId, setSelectedProductId] = useState(route.params.productId);
   const [productPickerOpen, setProductPickerOpen] = useState(false);
-  const [variantIndex, setVariantIndex] = useState(0);
+  const [variantIndex, setVariantIndex] = useState(route.params.variantIndex ?? 0);
   const [variantPickerOpen, setVariantPickerOpen] = useState(false);
   const [qty, setQty] = useState(1);
   const [cityPickerOpen, setCityPickerOpen] = useState(false);

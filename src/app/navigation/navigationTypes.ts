@@ -44,7 +44,7 @@ export type ProductsStackParamList = {
   ProductDetail: { productId: string };
   ProductReviews: { productId: string; productName?: string };
   WriteReview: { productId: string; productName?: string };
-  WhatsAppOrder: { productId: string };
+  WhatsAppOrder: { productId: string; variantIndex?: number };
 };
 
 export type RootNavigationProp = NativeStackNavigationProp<RootStackParamList>;

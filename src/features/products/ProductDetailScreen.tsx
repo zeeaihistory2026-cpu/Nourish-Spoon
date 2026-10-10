@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -30,6 +31,7 @@ function ArtworkDetail({ artwork, productId }: { artwork: number; productId: str
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const wishlisted = useWishlistStore((store) => store.productIds.includes(productId));
   const toggleWishlist = useWishlistStore((store) => store.toggle);
+  const [selectedVariant, setSelectedVariant] = useState(0);
 
   return (
     <View style={styles.screen}>
@@ -57,9 +59,25 @@ function ArtworkDetail({ artwork, productId }: { artwork: number; productId: str
           accessibilityLabel="Toggle wishlist"
           style={styles.heartZone}
         />
+        {/* Variant selector: 250g (left) */}
+        <Pressable
+          onPress={() => setSelectedVariant(0)}
+          accessibilityRole="button"
+          accessibilityLabel="Select 250g"
+          style={styles.variant250Zone}
+        />
+        {/* Variant selector: 500g (right) */}
+        <Pressable
+          onPress={() => setSelectedVariant(1)}
+          accessibilityRole="button"
+          accessibilityLabel="Select 500g"
+          style={styles.variant500Zone}
+        />
+        {/* Selection indicator for 500g (250g is green in artwork by default) */}
+        {selectedVariant === 1 && <View style={styles.variant500Selected} pointerEvents="none" />}
         {/* Order on WhatsApp (bottom pill) */}
         <Pressable
-          onPress={() => navigation.navigate('WhatsAppOrder', { productId })}
+          onPress={() => navigation.navigate('WhatsAppOrder', { productId, variantIndex: selectedVariant })}
           accessibilityRole="button"
           accessibilityLabel="Order on WhatsApp"
           style={styles.waZone}
@@ -102,6 +120,30 @@ const styles = StyleSheet.create({
     right: '4%',
     width: '10%',
     height: '5.2%',
+  },
+  variant250Zone: {
+    position: 'absolute',
+    top: '47.5%',
+    left: '4%',
+    width: '44%',
+    height: '6.5%',
+  },
+  variant500Zone: {
+    position: 'absolute',
+    top: '47.5%',
+    left: '52%',
+    width: '44%',
+    height: '6.5%',
+  },
+  variant500Selected: {
+    position: 'absolute',
+    top: '47.5%',
+    left: '52%',
+    width: '44%',
+    height: '6.5%',
+    borderWidth: 2.5,
+    borderColor: colors.greenDark,
+    borderRadius: 12,
   },
   waZone: {
     position: 'absolute',
