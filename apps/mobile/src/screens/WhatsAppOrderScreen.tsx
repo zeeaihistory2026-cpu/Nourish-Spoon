@@ -1,7 +1,7 @@
+import { Text } from '../components/DesignPrimitives';
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -40,10 +40,10 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
     initialVariant || currentProduct.variants[0]
   );
   const [quantity, setQuantity] = useState(1);
-  const [customerName, setCustomerName] = useState('Ali Raza');
-  const [customerPhone, setCustomerPhone] = useState('+92 300 1234567');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [deliveryCity, setDeliveryCity] = useState('Sargodha');
-  const [deliveryAddress, setDeliveryAddress] = useState('House 12, Street 4, Sargodha');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isGift, setIsGift] = useState(false);
   const [giftMessage, setGiftMessage] = useState('');
 
@@ -64,11 +64,13 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
     setShowSizeDropdown(false);
   };
 
-  const handleSendOrder = () => {
+  const handleSendOrder = async () => {
     if (!customerName.trim() || !customerPhone.trim() || !deliveryAddress.trim()) {
       Alert.alert('Missing Details', 'Please fill in your name, phone number, and delivery address.');
       return;
     }
+
+    if (!/^(?:\+?92|0)?3\d{9}$/.test(customerPhone.replace(/[\s()-]/g, ''))) { Alert.alert('Phone Number', 'Enter a valid Pakistani mobile number, for example 03001234567.'); return; }
 
     const message = generateWhatsAppMessage({
       productName: currentProduct.name,
@@ -85,14 +87,12 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
 
     const url = createWhatsAppUrl(DEFAULT_WHATSAPP_PHONE, message);
 
-    Linking.openURL(url).catch(() => {
-      Alert.alert(
-        'WhatsApp Not Installed',
-        'Could not open WhatsApp. Order details copied to clipboard or please reach out directly to +92 304 6721962.'
-      );
-    });
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Could not open WhatsApp', 'Your order has not been sent. Please try again or contact +92 304 6721962.');
+    }
 
-    onOrderSuccess?.();
   };
 
   return (
@@ -105,6 +105,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
       />
 
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -236,6 +237,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             <TextInput
               value={customerName}
               onChangeText={setCustomerName}
+              accessibilityLabel="Your name"
               placeholder="Full Name"
               placeholderTextColor={theme.textMuted}
               style={[styles.inputBox, { backgroundColor: theme.surface, borderColor: theme.border, color: theme.text }]}
@@ -246,6 +248,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
           <View style={styles.fieldRow}>
             <Text style={[styles.inlineLabel, { color: theme.text }]}>Phone Number</Text>
             <TextInput
+              accessibilityLabel="Phone number"
               value={customerPhone}
               onChangeText={setCustomerPhone}
               placeholder="+92 300 1234567"
@@ -289,6 +292,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
           <View style={styles.fieldRow}>
             <Text style={[styles.inlineLabel, { color: theme.text }]}>Delivery Address</Text>
             <TextInput
+              accessibilityLabel="Delivery address"
               value={deliveryAddress}
               onChangeText={setDeliveryAddress}
               placeholder="House, Street, Area"
@@ -308,12 +312,14 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             />
           </View>
 
-          {isGift && (
+          {(
+
             <View style={styles.giftMessageBox}>
               <Text style={[styles.giftNoteLabel, { color: theme.textSecondary }]}>
                 Personalized message for gift (optional)
               </Text>
               <TextInput
+                editable={isGift}
                 value={giftMessage}
                 onChangeText={setGiftMessage}
                 placeholder="e.g. Best wishes!"
@@ -354,7 +360,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 90,
+    paddingBottom: 12,
   },
   previewCard: {
     flexDirection: 'row',
@@ -366,8 +372,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   previewImage: {
-    width: 90,
-    height: 90,
+    width: 125,
+    height: 102,
     borderRadius: 14,
     marginRight: 12,
   },
@@ -376,7 +382,7 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     fontFamily: 'serif',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
   },
   ratingRow: {
@@ -440,10 +446,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   dropdownMenu: {
-    position: 'absolute',
-    top: 66,
-    left: 0,
-    right: 0,
+    marginTop: 6,
     zIndex: 50,
     borderRadius: 14,
     borderWidth: 1,
@@ -549,10 +552,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderTopWidth: 1,

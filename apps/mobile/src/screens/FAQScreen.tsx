@@ -1,7 +1,7 @@
+import { Text } from '../components/DesignPrimitives';
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -70,7 +70,7 @@ export const FAQScreen: React.FC<FAQScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colors.isDark ? 'light-content' : 'dark-content'} />
 
       {/* Header Bar */}
@@ -232,8 +232,7 @@ export const FAQScreen: React.FC<FAQScreenProps> = ({ navigation }) => {
       </ScrollView>
 
       {/* Bottom Tab Bar */}
-      <BottomTabBar activeTab="More" navigation={navigation} />
-    </SafeAreaView>
+    </View>
   );
 };
 

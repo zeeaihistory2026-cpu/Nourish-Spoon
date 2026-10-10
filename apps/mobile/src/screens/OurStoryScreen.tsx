@@ -1,7 +1,7 @@
+import { Text } from '../components/DesignPrimitives';
 import React from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -80,7 +80,7 @@ export const OurStoryScreen: React.FC<OurStoryScreenProps> = ({ navigation }) =>
   ];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colors.isDark ? 'light-content' : 'dark-content'} />
 
       {/* Header Bar */}
@@ -206,8 +206,7 @@ export const OurStoryScreen: React.FC<OurStoryScreenProps> = ({ navigation }) =>
       </ScrollView>
 
       {/* Bottom Tab Bar */}
-      <BottomTabBar activeTab="About" navigation={navigation} />
-    </SafeAreaView>
+    </View>
   );
 };
 

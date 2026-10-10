@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { Text } from '../components/DesignPrimitives';
+import React, { useState, useRef } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -28,6 +28,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
 }) => {
   const { theme, products, favorites, toggleFavorite, addToCart } = useMobileStore();
   const [selectedCategory, setSelectedCategory] = useState<'All' | 'Energy Balls' | 'Panjeeri'>('All');
+  const searchRef = useRef<TextInput>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({
     'c0000000-0000-0000-0000-000000000001': '250g',
@@ -58,6 +59,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
         showBack
         onBack={onBack}
         rightAction="search"
+        onSearch={() => searchRef.current?.focus()}
       />
 
       <ScrollView
@@ -68,6 +70,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
         <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <Ionicons name="search-outline" size={18} color={theme.textMuted} style={{ marginRight: 8 }} />
           <TextInput
+            ref={searchRef}
+            accessibilityLabel="Search products"
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search products..."
@@ -112,6 +116,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
 
         {/* Product Cards List */}
         <View style={styles.productsList}>
+          {filteredProducts.length === 0 && <Text style={{ color: theme.textSecondary, paddingVertical: 30, textAlign: 'center' }}>No products match your search.</Text>}
           {filteredProducts.map(prod => {
             const isFav = favorites.includes(prod.id);
             const activeWeight = selectedVariants[prod.id] || '250g';
@@ -129,7 +134,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                   style={styles.cardImageWrapper}
                 >
                   <Image
-                    source={prod.name.includes('Energy') ? ASSETS.energyBallsDetailHero : ASSETS.panjeeriDetailHero}
+                    source={prod.name.includes('Energy') ? require('../../assets/design/energy-catalog.jpg') : require('../../assets/design/panjeeri-catalog.jpg')}
                     style={styles.cardImage}
                     resizeMode="cover"
                   />
@@ -232,7 +237,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
 
                     {/* Cart Button */}
                     <TouchableOpacity
-                      onPress={() => addToCart(prod, currentVariant)}
+                      onPress={() => onOpenWhatsAppOrder(prod, currentVariant)}
                       style={[styles.cartSquare, { borderColor: theme.border, backgroundColor: theme.surfaceWarm }]}
                       activeOpacity={0.8}
                     >
@@ -278,7 +283,8 @@ const styles = StyleSheet.create({
   },
   catPill: {
     paddingVertical: 7,
-    paddingHorizontal: 18,
+    flex: 1,
+    paddingHorizontal: 10,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -301,7 +307,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardImageWrapper: {
-    height: 170,
+    aspectRatio: 3.23,
     width: '100%',
     position: 'relative',
   },
@@ -329,7 +335,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontFamily: 'serif',
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: '700',
   },
   ratingRow: {
@@ -343,7 +349,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   ratingScore: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   reviewCount: {
@@ -375,7 +381,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   variantPrice: {
-    fontSize: 14,
+    fontFamily: 'serif',
+    fontSize: 19,
     fontWeight: '800',
     marginTop: 1,
   },
@@ -403,7 +410,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 42,
-    borderRadius: 21,
+    borderRadius: 12,
     shadowColor: '#0D5428',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -412,7 +419,7 @@ const styles = StyleSheet.create({
   },
   whatsappButtonText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   viewProductButton: {
@@ -420,8 +427,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 42,
-    paddingHorizontal: 12,
-    borderRadius: 21,
+    paddingHorizontal: 8,
+    borderRadius: 12,
     borderWidth: 1,
   },
   viewProductText: {

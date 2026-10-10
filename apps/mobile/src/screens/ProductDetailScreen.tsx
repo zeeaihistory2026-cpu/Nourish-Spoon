@@ -1,12 +1,13 @@
+import { Text } from '../components/DesignPrimitives';
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Ionicons, FontAwesome, Feather } from '@expo/vector-icons';
 import { TrustBadges } from '../components/TrustBadges';
@@ -51,6 +52,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
           {/* Top floating circle buttons */}
           <View style={styles.topFloatBar}>
             <TouchableOpacity
+              accessibilityLabel="Go back"
               onPress={onBack}
               style={[styles.floatingCircle, { backgroundColor: theme.surface }]}
               activeOpacity={0.8}
@@ -106,7 +108,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                   style={[
                     styles.variantCard,
                     isSelected
-                      ? { backgroundColor: theme.mode === 'light' ? '#0D5428' : '#143622', borderColor: theme.primary }
+                      ? { backgroundColor: isPanjeeri ? theme.surfaceWarm : theme.primaryDark, borderColor: theme.primary }
                       : { backgroundColor: theme.surface, borderColor: theme.border }
                   ]}
                   activeOpacity={0.85}
@@ -115,7 +117,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                     <Text
                       style={[
                         styles.varWeight,
-                        { color: isSelected ? '#FFFFFF' : theme.textSecondary }
+                        { color: isSelected && !isPanjeeri ? '#FFFFFF' : theme.textSecondary }
                       ]}
                     >
                       {v.weight}
@@ -123,12 +125,12 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                     <Text
                       style={[
                         styles.varPrice,
-                        { color: isSelected ? '#FFFFFF' : theme.text }
+                        { color: isSelected && !isPanjeeri ? '#FFFFFF' : theme.text }
                       ]}
                     >
                       {formatPKR(v.sale_price || v.regular_price)}
                     </Text>
-                    {v.price_per_100g && (
+                    {!isPanjeeri && v.price_per_100g && (
                       <Text
                         style={[
                           styles.varPer100g,
@@ -165,7 +167,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               {isPanjeeri ? 'Key Ingredients' : 'Premium Ingredients'}
             </Text>
-            <TouchableOpacity activeOpacity={0.7} style={styles.knowMoreRow}>
+            <TouchableOpacity onPress={() => Alert.alert('Ingredients & Storage', (prod.description || '') + '\n\n' + prod.storage_instructions)} activeOpacity={0.7} style={styles.knowMoreRow}>
               <Text style={[styles.knowMoreText, { color: theme.primary }]}>
                 {isPanjeeri ? '12 Natural Ingredients' : 'Know More'}
               </Text>
@@ -178,11 +180,11 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             {prod.ingredients?.map((ing) => (
               <View
                 key={ing.id}
-                style={[styles.ingredientItem, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                style={[styles.ingredientItem, { width: isPanjeeri ? '15.3%' : '18.2%', borderWidth: isPanjeeri ? 0 : 1 }, { backgroundColor: theme.surface, borderColor: theme.border }]}
               >
                 <Image
                   source={(ASSETS.ingredients as any)[ing.slug.replace(/-/g, '_')] || ASSETS.ingredients.dates}
-                  style={styles.ingredientImage}
+                  style={[styles.ingredientImage, { width: isPanjeeri ? 42 : 48, height: isPanjeeri ? 42 : 40, borderRadius: isPanjeeri ? 25 : 0 }]}
                   resizeMode="contain"
                 />
                 <Text
@@ -195,33 +197,6 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             ))}
           </View>
 
-          {/* Nutrition Facts Table */}
-          {prod.nutrition_facts && (
-            <View style={[styles.nutritionBox, { backgroundColor: theme.surfaceWarm, borderColor: theme.border }]}>
-              <Text style={[styles.nutritionTitle, { color: theme.text }]}>
-                Nutrition Facts (per 100g)
-              </Text>
-              <View style={styles.nutritionGrid}>
-                {prod.nutrition_facts.map(n => (
-                  <View key={n.id} style={styles.nutritionItem}>
-                    <Text style={[styles.nutritionLabel, { color: theme.textSecondary }]}>{n.label}</Text>
-                    <Text style={[styles.nutritionVal, { color: theme.text }]}>{n.value} {n.unit}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Storage & Suitability */}
-          <View style={[styles.infoCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={styles.infoRow}>
-              <Ionicons name="shield-checkmark-outline" size={18} color={theme.gold} style={{ marginRight: 8 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.infoHead, { color: theme.text }]}>Storage & Shelf Life</Text>
-                <Text style={[styles.infoBody, { color: theme.textSecondary }]}>{prod.storage_instructions}</Text>
-              </View>
-            </View>
-          </View>
         </View>
       </ScrollView>
 
@@ -245,10 +220,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 90,
+    paddingBottom: 8,
   },
   heroContainer: {
-    height: 320,
+    aspectRatio: 1.37,
     width: '100%',
     position: 'relative',
   },
@@ -258,7 +233,7 @@ const styles = StyleSheet.create({
   },
   topFloatBar: {
     position: 'absolute',
-    top: 30,
+    top: 6,
     left: 16,
     right: 16,
     flexDirection: 'row',
@@ -276,12 +251,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   contentBody: {
-    paddingHorizontal: 18,
-    paddingTop: 16,
+    paddingHorizontal: 14,
+    paddingTop: 12,
   },
   productTitle: {
     fontFamily: 'serif',
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '700',
   },
   ratingRow: {
@@ -371,7 +346,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   ingredientItem: {
-    width: (width - 36 - 32) / 5,
+    width: '18.2%',
     borderRadius: 14,
     borderWidth: 1,
     alignItems: 'center',
@@ -437,10 +412,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderTopWidth: 1,

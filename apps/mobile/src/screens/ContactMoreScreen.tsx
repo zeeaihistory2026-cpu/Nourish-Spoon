@@ -1,7 +1,7 @@
+import { Text } from '../components/DesignPrimitives';
 import React from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -63,7 +63,7 @@ export const ContactMoreScreen: React.FC<ContactMoreScreenProps> = ({ navigation
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Header Bar */}
@@ -345,8 +345,7 @@ export const ContactMoreScreen: React.FC<ContactMoreScreenProps> = ({ navigation
       </ScrollView>
 
       {/* Bottom Tab Bar */}
-      <BottomTabBar activeTab="More" navigation={navigation} />
-    </SafeAreaView>
+    </View>
   );
 };
 

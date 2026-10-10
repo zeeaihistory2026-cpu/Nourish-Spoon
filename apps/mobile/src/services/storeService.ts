@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Product, ProductVariant, Order, Review, FAQ, PaymentMethod, DeliveryMethod, BrandIdentity, FounderStory } from '@packages/types';
 import {
   INITIAL_PRODUCTS,
@@ -78,6 +79,7 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
   },
 
   setThemeMode: (mode: 'light' | 'dark') => {
+    AsyncStorage.setItem('nourish:theme', mode).catch(() => {});
     const activeTheme = mode === 'light' ? LightTheme : DarkTheme;
     set({
       themeMode: mode,
