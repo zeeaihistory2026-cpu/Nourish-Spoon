@@ -17,13 +17,13 @@ export function Text({ style, ...props }: TextProps) {
   const bold = Number(flat.fontWeight) >= 600 || flat.fontWeight === "bold";
   const fontFamily = serif
     ? flat.fontStyle === "italic"
-      ? "LibreBaskerville_400Regular_Italic"
+      ? "CormorantGaramond_400Regular_Italic"
       : bold
-        ? "LibreBaskerville_700Bold"
-        : "LibreBaskerville_400Regular"
+        ? "CormorantGaramond_700Bold"
+        : "CormorantGaramond_400Regular"
     : bold
-      ? "Lato_700Bold"
-      : "Lato_400Regular";
+      ? "Jost_700Bold"
+      : "Jost_400Regular";
   return (
     <NativeText
       {...props}
@@ -37,7 +37,7 @@ export function Text({ style, ...props }: TextProps) {
 }
 
 export const ART = {
-  brand: require("../../assets/design/brand.png"),
+  brand: require("../../assets/website/logo-2.jpg"),
   botanical: require("../../assets/design/botanical.png"),
   home: require("../../assets/design/home-food.jpg"),
   splash: require("../../assets/design/splash-food.jpg"),
@@ -45,12 +45,12 @@ export const ART = {
   login: require("../../assets/design/login-food.jpg"),
   contact: require("../../assets/design/contact-food.jpg"),
   founder: require("../../assets/design/founder.jpg"),
-  energyCard: require("../../assets/design/energy-card.jpg"),
-  panjeeriCard: require("../../assets/design/panjeeri-card.jpg"),
-  energyCatalog: require("../../assets/design/energy-catalog.jpg"),
-  panjeeriCatalog: require("../../assets/design/panjeeri-catalog.jpg"),
-  energyDetail: require("../../assets/design/energy-detail.jpg"),
-  panjeeriDetail: require("../../assets/design/panjeeri-detail.jpg"),
+  energyCard: require("../../assets/website/product-1-main.png"),
+  panjeeriCard: require("../../assets/website/product-2-main.png"),
+  energyCatalog: require("../../assets/website/product-1-main.png"),
+  panjeeriCatalog: require("../../assets/website/product-2-main.png"),
+  energyDetail: require("../../assets/website/product-1-main.png"),
+  panjeeriDetail: require("../../assets/website/product-2-main.png"),
   proof: require("../../assets/design/review-proof.png"),
 };
 
@@ -87,46 +87,25 @@ export function Botanical({ full = false }: { full?: boolean }) {
   );
 }
 
-export function Brand({ large = false }: { large?: boolean }) {
+export function Brand({ large = false, website = false }: { large?: boolean; website?: boolean }) {
   const { theme } = useMobileStore();
-  return (
-    <View style={{ alignItems: "center" }}>
-      {theme.isDark ? (
-        <>
-          <Ionicons name="leaf" color={theme.primary} size={large ? 30 : 16} />
-          <Text
-            style={{
-              fontFamily: "serif",
-              fontWeight: "700",
-              color: theme.text,
-              textAlign: "center",
-              fontSize: large ? 38 : 23,
-              lineHeight: large ? 40 : 23,
-            }}
-          >
-            Nourish{"\n"}Spoon
-          </Text>
-          <Text
-            style={{
-              fontFamily: "serif",
-              fontStyle: "italic",
-              color: theme.gold,
-              fontSize: large ? 19 : 13,
-              marginTop: 5,
-            }}
-          >
-            Crafted with Love
-          </Text>
-        </>
-      ) : (
-        <Image
-          source={ART.brand}
-          style={{ width: large ? 176 : 115, height: large ? 146 : 91 }}
-          resizeMode="contain"
-        />
-      )}
+  if (website) return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 7, flexShrink: 1 }}>
+      <Image source={require("../../assets/website/logo-2.jpg")} style={{ width: 38, height: 38, borderRadius: 19 }} />
+      <View>
+        <Text style={{ fontFamily: "serif", fontSize: 22, lineHeight: 25, fontWeight: "700", color: theme.text }}>Nourish Spoon™</Text>
+        <Text style={{ fontFamily: "serif", fontSize: 14, color: theme.gold }}>Crafted with Love</Text>
+      </View>
     </View>
   );
+  return (
+    <View style={{ alignItems: "center" }}>
+      <Image source={ART.brand} style={{ width: large ? 80 : 46, height: large ? 80 : 46, borderRadius: large ? 40 : 23 }} />
+      <Text style={{ fontFamily: "serif", fontSize: large ? 36 : 24, fontWeight: "700", color: theme.text, marginTop: 7 }}>Nourish Spoon™</Text>
+      <Text style={{ fontFamily: "serif", fontSize: large ? 18 : 14, color: theme.gold }}>Crafted with Love</Text>
+    </View>
+  );
+
 }
 
 export function GreenButton({
@@ -136,6 +115,7 @@ export function GreenButton({
   disabled = false,
   style,
 }: any) {
+  const { theme } = useMobileStore();
   return (
     <TouchableOpacity
       accessibilityRole="button"
@@ -144,12 +124,12 @@ export function GreenButton({
       disabled={disabled}
       activeOpacity={0.85}
       style={[
-        { borderRadius: 28, overflow: "hidden", opacity: disabled ? 0.6 : 1 },
+        { borderRadius: 8, overflow: "hidden", opacity: disabled ? 0.6 : 1 },
         style,
       ]}
     >
       <LinearGradient
-        colors={["#365D2F", "#074522"]}
+        colors={whatsapp ? [theme.whatsapp, theme.whatsapp] : ["#1B4332", "#1B4332"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -163,6 +143,9 @@ export function GreenButton({
       >
         {whatsapp && <FontAwesome name="whatsapp" size={25} color="#fff" />}
         <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
           style={{
             color: "#fff",
             fontSize: 16,

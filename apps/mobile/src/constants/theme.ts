@@ -30,20 +30,20 @@ export interface ThemeType {
 export const LightTheme: ThemeType = {
   mode: 'light',
   isDark: false,
-  primary: '#0D5428',          // Deep forest green
-  primaryDark: '#073B21',      // Darker rich green
-  primaryLight: '#1B743C',     // Leaf accent green
-  background: '#FFF9EC',       // Warm parchment cream
+  primary: '#1B4332',          // Website forest green
+  primaryDark: '#1B4332',
+  primaryLight: '#2D6A4F',
+  background: '#FDF6E3',       // Website cream
   surface: '#FFFFFF',          // Clean white
-  surfaceWarm: '#FBF4E4',      // Soft cream container
+  surfaceWarm: '#FAF3E0',
   card: '#FFFFFF',
-  gold: '#C99B36',             // Warm Pakistan brass/gold
-  goldLight: '#E2BB62',
-  goldWarm: '#FFF3D6',
-  accent: '#C99B36',
-  text: '#10271A',             // Deep botanical black-green
-  textSecondary: '#5A6D60',    // Muted green-gray
-  textMuted: '#7E9687',
+  gold: '#C9A84C',
+  goldLight: '#E5C97A',
+  goldWarm: '#FBF0D5',
+  accent: '#C9A84C',
+  text: '#1B4332',
+  textSecondary: '#555555',
+  textMuted: '#888888',
   border: '#E8DFC8',           // Warm cream border
   borderSubtle: '#F0E8D7',
   danger: '#EF4444',

@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Animated,
   AccessibilityInfo,
+  Keyboard,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { onAuthStateChanged } from "firebase/auth";
@@ -27,6 +28,7 @@ import { FAQScreen } from "./src/screens/FAQScreen";
 import { ContactMoreScreen } from "./src/screens/ContactMoreScreen";
 import { AuthScreen } from "./src/screens/AuthScreen";
 import { BottomTabBar, MobileTab } from "./src/components/BottomTabBar";
+import { BurgerMenu, MenuSection } from "./src/components/BurgerMenu";
 import { Product, ProductVariant } from "@packages/types";
 export type ScreenName =
   | "splash"
@@ -44,12 +46,15 @@ type Route = {
     product?: Product;
     initialProduct?: Product;
     initialVariant?: ProductVariant;
+    section?: MenuSection;
   };
 };
 const tabs: ScreenName[] = ["Home", "Products", "Reviews", "About", "More"];
 function MobileApp() {
   const { theme, selectProduct, setThemeMode } = useMobileStore();
   const [routes, setRoutes] = useState<Route[]>([{ name: "splash" }]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const openMenu = () => { Keyboard.dismiss(); setMenuOpen(true); };
   const route = routes[routes.length - 1];
   const screen = route.name;
   const screenOpacity = useRef(new Animated.Value(1)).current;
@@ -70,11 +75,11 @@ function MobileApp() {
   const [ready, setReady] = useState(false);
   const [onboarded, setOnboarded] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
-    LibreBaskerville_400Regular: require("@expo-google-fonts/libre-baskerville/400Regular/LibreBaskerville_400Regular.ttf"),
-    LibreBaskerville_700Bold: require("@expo-google-fonts/libre-baskerville/700Bold/LibreBaskerville_700Bold.ttf"),
-    LibreBaskerville_400Regular_Italic: require("@expo-google-fonts/libre-baskerville/400Regular_Italic/LibreBaskerville_400Regular_Italic.ttf"),
-    Lato_400Regular: require("@expo-google-fonts/lato/400Regular/Lato_400Regular.ttf"),
-    Lato_700Bold: require("@expo-google-fonts/lato/700Bold/Lato_700Bold.ttf"),
+    CormorantGaramond_400Regular: require("@expo-google-fonts/cormorant-garamond/400Regular/CormorantGaramond_400Regular.ttf"),
+    CormorantGaramond_700Bold: require("@expo-google-fonts/cormorant-garamond/700Bold/CormorantGaramond_700Bold.ttf"),
+    CormorantGaramond_400Regular_Italic: require("@expo-google-fonts/cormorant-garamond/400Regular_Italic/CormorantGaramond_400Regular_Italic.ttf"),
+    Jost_400Regular: require("@expo-google-fonts/jost/400Regular/Jost_400Regular.ttf"),
+    Jost_700Bold: require("@expo-google-fonts/jost/700Bold/Jost_700Bold.ttf"),
   });
   useEffect(() => {
     AsyncStorage.multiGet(["nourish:onboarded", "nourish:theme"])
@@ -128,6 +133,7 @@ function MobileApp() {
     goBack,
     push: navigate,
     replace: (name: ScreenName) => setRoutes([{ name }]),
+    openMenu,
   };
   const activeTab: MobileTab =
     screen === "ProductDetail" || screen === "WhatsAppOrder"
@@ -162,6 +168,7 @@ function MobileApp() {
               onSelectProduct={select}
               onOpenWhatsAppOrder={order}
               onOpenDeliveryInfo={() => navigate("PaymentDelivery")}
+              onOpenMenu={openMenu}
             />
           )}
           {screen === "Products" && (
@@ -191,7 +198,7 @@ function MobileApp() {
             />
           )}
           {screen === "PaymentDelivery" && (
-            <PaymentDeliveryScreen onBack={goBack} />
+            <PaymentDeliveryScreen onBack={goBack} initialSection={route.params?.section} />
           )}
           {screen === "FAQ" && <FAQScreen navigation={nav} />}
           {(screen === "Login" || screen === "Signup") && (
@@ -212,6 +219,10 @@ function MobileApp() {
           <BottomTabBar activeTab={activeTab} onSelectTab={navigate} />
         )}
       </KeyboardAvoidingView>
+      <BurgerMenu visible={menuOpen} reduceMotion={reduceMotion} onClose={() => setMenuOpen(false)} onSelect={section => {
+        setMenuOpen(false);
+        navigate("PaymentDelivery", { section });
+      }} />
     </SafeAreaView>
   );
 }

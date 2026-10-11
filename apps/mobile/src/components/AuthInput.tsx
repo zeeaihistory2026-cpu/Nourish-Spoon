@@ -98,7 +98,7 @@ const s = StyleSheet.create({
   icon: { marginRight: 15 },
   content: { minWidth: 0, flex: 1, justifyContent: "center", paddingVertical: 8 },
   label: {
-    fontFamily: "Lato_700Bold",
+    fontFamily: "Jost_700Bold",
     fontSize: 13,
     lineHeight: 17,
     marginBottom: 1,
@@ -106,7 +106,7 @@ const s = StyleSheet.create({
   input: {
     width: "100%",
     minWidth: 0,
-    fontFamily: "Lato_400Regular",
+    fontFamily: "Jost_400Regular",
     fontSize: 14,
     lineHeight: 19,
     paddingHorizontal: 0,

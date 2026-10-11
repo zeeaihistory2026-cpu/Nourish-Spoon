@@ -3,7 +3,7 @@
 > **Crafted with Love • Sargodha, Pakistan**  
 > Premium Handcrafted Panjeeri, Date & Nut Energy Balls, and Traditional Pakistani Superfoods.
 
-This repository contains the **Expo React Native mobile app** and **Vite React admin dashboard**, using the supplied HD screen designs. Mobile email/password accounts and customer profile storage use Firebase. Catalog and admin data remain local; a full rules audit and physical Android testing are still pending. See [DELIVERY.md](DELIVERY.md) for verified behavior, limitations, and APK build instructions.
+This repository contains the **Expo React Native mobile app** and **Vite React admin dashboard**. The mobile app now follows the Nourish Spoon website's logo, Cormorant Garamond/Jost typography, colors, product artwork, and home carousel, while retaining native navigation and account flows. Mobile email/password accounts and customer profile storage use Firebase. Catalog and admin data remain local; a full rules audit and physical Android testing of the latest APK are still pending. See [DELIVERY.md](DELIVERY.md) for verified behavior, limitations, and APK build instructions.
 
 ---
 

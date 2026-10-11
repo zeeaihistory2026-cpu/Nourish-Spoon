@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
-  useWindowDimensions,
 } from "react-native";
 import { Ionicons, FontAwesome, Feather } from "@expo/vector-icons";
 import { Header } from "../components/Header";
@@ -27,7 +26,6 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
   onSelectProduct,
   onOpenWhatsAppOrder,
 }) => {
-  const { width } = useWindowDimensions();
   const { theme, products, favorites, toggleFavorite } = useMobileStore();
   const [selectedCategory, setSelectedCategory] = useState<
     "All" | "Energy Balls" | "Panjeeri"
@@ -179,8 +177,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                   <Image
                     source={
                       prod.name.includes("Energy")
-                        ? require("../../assets/design/energy-catalog.jpg")
-                        : require("../../assets/design/panjeeri-catalog.jpg")
+                        ? require("../../assets/website/product-1-main.png")
+                        : require("../../assets/website/product-2-main.png")
                     }
                     style={styles.cardImage}
                     resizeMode="cover"
@@ -215,7 +213,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                           key={i}
                           name="star"
                           size={13}
-                          color="#C99B36"
+                          color="#C9A84C"
                         />
                       ))}
                     </View>
@@ -306,35 +304,33 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                   </View>
 
                   {/* Actions Row: WhatsApp (Dominant) + View Product + Cart */}
-                  <View
-                    style={[
-                      styles.actionsRow,
-                      width < 380 && { flexWrap: "wrap" },
-                    ]}
-                  >
+                  <View style={styles.actionsRow}>
                     {/* Primary WhatsApp Order CTA */}
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Order ${prod.name} on WhatsApp`}
                       onPress={() => onOpenWhatsAppOrder(prod, currentVariant)}
                       style={[
                         styles.whatsappButton,
-                        { backgroundColor: theme.primary },
-                        width < 380 && { flexBasis: "100%" },
+                        { backgroundColor: "#1B4332" },
                       ]}
                       activeOpacity={0.85}
                     >
                       <FontAwesome
                         name="whatsapp"
-                        size={18}
+                        size={16}
                         color="#FFFFFF"
-                        style={{ marginRight: 6 }}
+                        style={{ marginRight: 4 }}
                       />
-                      <Text style={styles.whatsappButtonText}>
-                        Order on WhatsApp →
+                      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} style={styles.whatsappButtonText}>
+                        WhatsApp
                       </Text>
                     </TouchableOpacity>
 
                     {/* Secondary View Product CTA */}
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`View ${prod.name}`}
                       onPress={() => onSelectProduct(prod)}
                       style={[
                         styles.viewProductButton,
@@ -345,13 +341,10 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                       ]}
                       activeOpacity={0.8}
                     >
-                      <Feather
-                        name="file-text"
-                        size={14}
-                        color={theme.text}
-                        style={{ marginRight: 4 }}
-                      />
                       <Text
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.85}
                         style={[styles.viewProductText, { color: theme.text }]}
                       >
                         View Product
@@ -360,6 +353,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
 
                     {/* Cart Button */}
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Add ${prod.name} to order`}
                       onPress={() => onOpenWhatsAppOrder(prod, currentVariant)}
                       style={[
                         styles.cartSquare,
@@ -407,7 +402,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     minWidth: 0,
-    fontFamily: "Lato_400Regular",
+    fontFamily: "Jost_400Regular",
     flex: 1,
     fontSize: 13,
   },
@@ -443,7 +438,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardImageWrapper: {
-    aspectRatio: 3.23,
+    aspectRatio: 1.5,
     width: "100%",
     position: "relative",
   },
@@ -453,8 +448,8 @@ const styles = StyleSheet.create({
   },
   favCircle: {
     position: "absolute",
-    top: 0,
-    right: 0,
+    bottom: 8,
+    right: 8,
     width: 44,
     height: 44,
     borderRadius: 21,
@@ -544,12 +539,13 @@ const styles = StyleSheet.create({
   },
   whatsappButton: {
     flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     height: 44,
     borderRadius: 12,
-    shadowColor: "#0D5428",
+    shadowColor: "#1B4332",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -559,8 +555,11 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 11,
     fontWeight: "700",
+    flexShrink: 1,
   },
   viewProductButton: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -572,6 +571,7 @@ const styles = StyleSheet.create({
   viewProductText: {
     fontSize: 11.5,
     fontWeight: "600",
+    flexShrink: 1,
   },
   cartSquare: {
     width: 44,

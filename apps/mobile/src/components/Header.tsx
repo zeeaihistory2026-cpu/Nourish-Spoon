@@ -23,8 +23,8 @@ export function Header({
 }: HeaderProps) {
   const { theme } = useMobileStore();
   return (
-    <View style={[styles.header, { height: title ? 65 : 112 }]}>
-      <Botanical />
+    <View style={[styles.header, { height: title ? 65 : 72 }]}>
+      {title && <Botanical />}
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={showBack ? "Go back" : "Open menu"}
@@ -40,7 +40,7 @@ export function Header({
       {title ? (
         <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
       ) : (
-        <Brand />
+        <Brand website />
       )}
       {rightAction === "none" ? (
         <View style={{ width: 40 }} />

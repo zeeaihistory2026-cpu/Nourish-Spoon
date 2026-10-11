@@ -2,9 +2,9 @@
   "expo": {
     "name": "Nourish Spoon",
     "slug": "nourish-spoon",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/design/icon.png",
+    "icon": "./assets/website/logo-2.jpg",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -17,19 +17,21 @@
       "bundleIdentifier": "com.nourishspoon.app"
     },
     "android": {
+      "versionCode": 2,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/design/icon.png",
-        "backgroundColor": "#FFF9EC"
+        "foregroundImage": "./assets/website/logo-2.jpg",
+        "backgroundColor": "#FDF6E3"
       },
       "package": "com.nourishspoon.app"
     },
     "web": {
-      "favicon": "./assets/design/icon.png",
+      "favicon": "./assets/website/logo-2.jpg",
       "bundler": "metro"
     },
     "plugins": [
       "expo-asset",
-      "expo-font"
+      "expo-font",
+      "./plugins/withReleaseSigning"
     ],
     "scheme": "nourishspoon"
   }

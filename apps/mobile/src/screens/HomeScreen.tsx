@@ -7,10 +7,10 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import { HeroCarousel } from "../components/HeroCarousel";
 import { Header } from "../components/Header";
 import { TrustBadges } from "../components/TrustBadges";
-import { Text, ART, Rating, GreenButton } from "../components/DesignPrimitives";
+import { Text, ART, Rating } from "../components/DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 import { formatPKR } from "@packages/utils";
 import { Product } from "@packages/types";
@@ -19,12 +19,14 @@ interface Props {
   onSelectProduct: (p: Product) => void;
   onOpenWhatsAppOrder: (p?: Product) => void;
   onOpenDeliveryInfo: () => void;
+  onOpenMenu: () => void;
 }
 export function HomeScreen({
   onNavigateTab,
   onSelectProduct,
   onOpenWhatsAppOrder,
   onOpenDeliveryInfo,
+  onOpenMenu,
 }: Props) {
   const { theme: c, products, favorites, toggleFavorite } = useMobileStore();
   return (
@@ -33,10 +35,6 @@ export function HomeScreen({
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 20 }}
     >
-      <Header
-        onMenu={() => onNavigateTab("More")}
-        onNotification={() => onNavigateTab("Reviews")}
-      />
       <TouchableOpacity
         accessibilityRole="button"
         onPress={onOpenDeliveryInfo}
@@ -44,74 +42,53 @@ export function HomeScreen({
       >
         <MaterialCommunityIcons
           name="truck-delivery"
-          size={30}
+          size={16}
           color="#F4C55D"
         />
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>
+          <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>
             Same-day delivery in Sargodha
           </Text>
-          <Text style={{ color: "#fff", fontSize: 11, marginTop: 3 }}>
-            Freshly made • Direct to your doorstep
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={22} color="#fff" />
+        <Ionicons name="chevron-forward" size={16} color="#fff" />
       </TouchableOpacity>
+      <Header onMenu={onOpenMenu} onNotification={() => onNavigateTab("Reviews")} />
+      <HeroCarousel />
       <View style={s.hero}>
-        <Image source={ART.home} style={s.heroImage} resizeMode="cover" />
-        <LinearGradient
-          pointerEvents="none"
-          colors={[
-            c.background,
-            c.background,
-            c.isDark ? "#0C1B1280" : "#FFF9EC20",
-            "transparent",
-          ]}
-          locations={[0, 0.4, 0.72, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
-        />
         <View style={s.heroCopy}>
+          <View style={[s.eyebrow, { backgroundColor: c.goldWarm, borderColor: c.gold }]}>
+            <Text style={{ color: c.gold, textAlign: "center", fontSize: 12, fontWeight: "700", letterSpacing: 0.5 }}>🌿 100% Natural · Handcrafted in Pakistan</Text>
+          </View>
           <Text style={[s.heading, { color: c.text }]}>
-            Handcrafted{"\n"}Nutrition.{"\n"}Real Ingredients.{"\n"}
-            <Text
-              style={{
-                color: "#8E5609",
-                fontFamily: "serif",
-                fontWeight: "700",
-              }}
-            >
-              Pure Love.
-            </Text>
+            Handcrafted Nutrition.{"\n"}
+            <Text style={{ color: c.gold, fontFamily: "serif", fontStyle: "italic", fontWeight: "400" }}>Real Ingredients.</Text>
+            {"\n"}Pure Love.
           </Text>
-          <Text style={[s.sub, { color: c.text }]}>
-            Premium Panjeeri & Date-Nut Energy Balls made with pure, natural
-            ingredients for your family’s well-being.
+          <Text style={[s.sub, { color: c.textSecondary }]}>
+            Premium Panjeeri & Date-Nut Energy Balls made fresh in small batches. No preservatives, no shortcuts — just honest nourishment for your whole family.
           </Text>
-          <GreenButton
-            title="Order on WhatsApp"
-            whatsapp
-            onPress={() => onOpenWhatsAppOrder(products[0])}
-            style={{ marginTop: 15, width: "100%" }}
-          />
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Order on WhatsApp" onPress={() => onOpenWhatsAppOrder(products[0])} style={[s.order, { backgroundColor: c.whatsapp }]}>
+            <Ionicons name="logo-whatsapp" size={20} color="#fff" />
+            <Text numberOfLines={1} style={{ color: "#fff", fontSize: 14, fontWeight: "700" }}>Order Now</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => onNavigateTab("Products")}
             style={[
               s.explore,
-              { borderColor: c.border, backgroundColor: c.surface },
+              { borderColor: c.gold },
             ]}
           >
-            <Text style={{ color: c.text, fontSize: 14, fontWeight: "700" }}>
+            <Ionicons name="eye-outline" size={20} color={c.gold} />
+            <Text style={{ color: c.gold, fontSize: 14, fontWeight: "700" }}>
               Explore Products
             </Text>
-            <Ionicons name="arrow-forward" size={20} color={c.text} />
           </TouchableOpacity>
         </View>
       </View>
       <View style={{ paddingHorizontal: 12 }}>
         <TrustBadges variant="home" />
+        <View style={{ width: "100%", aspectRatio: 1517 / 1041, borderRadius: 16, overflow: "hidden", marginBottom: 20 }}>
+          <Image source={require("../../assets/website/description-image.png")} style={{ width: "100%", height: "100%" }} resizeMode="contain" accessibilityLabel="Nourish Spoon energy balls and panjeeri" />
+        </View>
         <View style={s.section}>
           <Text style={[s.sectionTitle, { color: c.text }]}>
             Our Signature Products
@@ -137,7 +114,7 @@ export function HomeScreen({
                   { backgroundColor: c.surface, borderColor: c.border },
                 ]}
               >
-                <View style={{ width: "100%", aspectRatio: 1.76 }}>
+                <View style={{ width: "100%", aspectRatio: 1.5 }}>
                   <Image
                     source={
                       p.category === "panjeeri"
@@ -160,13 +137,16 @@ export function HomeScreen({
                     />
                   </TouchableOpacity>
                 </View>
-                <View style={{ padding: 9 }}>
+                <View style={{ padding: 9, flex: 1 }}>
                   <Text
+                    numberOfLines={2}
                     style={{
                       fontFamily: "serif",
                       color: c.text,
                       fontWeight: "700",
-                      fontSize: 13,
+                      fontSize: 16,
+                      lineHeight: 19,
+                      minHeight: 38,
                     }}
                   >
                     {p.name}
@@ -178,6 +158,7 @@ export function HomeScreen({
                       fontSize: 11,
                       lineHeight: 15,
                       minHeight: 60,
+                      flex: 1,
                     }}
                   >
                     {p.short_description}
@@ -185,23 +166,25 @@ export function HomeScreen({
                   <View
                     style={{
                       flexDirection: "row",
-                      flexWrap: "wrap",
                       gap: 8,
                       justifyContent: "space-between",
                       alignItems: "center",
-                      marginTop: 5,
+                      marginTop: 12,
                     }}
                   >
-                    <View>
+                    <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={{ color: c.textSecondary, fontSize: 10 }}>
                         From
                       </Text>
                       <Text
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.75}
                         style={{
                           fontFamily: "serif",
                           color: c.primary,
                           fontWeight: "700",
-                          fontSize: 16,
+                          fontSize: 15,
                         }}
                       >
                         {formatPKR(
@@ -211,6 +194,7 @@ export function HomeScreen({
                       </Text>
                     </View>
                     <TouchableOpacity
+                      accessibilityRole="button"
                       accessibilityLabel={"Order " + p.name}
                       onPress={() => onOpenWhatsAppOrder(p)}
                       style={[s.cart, { backgroundColor: c.primaryDark }]}
@@ -228,30 +212,31 @@ export function HomeScreen({
 }
 const s = StyleSheet.create({
   delivery: {
-    marginHorizontal: 12,
-    borderRadius: 16,
-    padding: 12,
+    minHeight: 36,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    borderWidth: 1,
-    borderColor: "#fff",
+    gap: 8,
+    justifyContent: "center",
   },
-  hero: { minHeight: 305, position: "relative", overflow: "hidden" },
-  heroImage: { position: "absolute", width: "50%", right: 0, height: "100%" },
-  heroCopy: { width: "68%", padding: 18, paddingRight: 4 },
+  hero: { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 8 },
+  heroCopy: { width: "100%", maxWidth: 520, alignSelf: "center", alignItems: "center" },
+  eyebrow: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 24, borderWidth: 1, marginBottom: 14 },
   heading: {
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 25,
-    lineHeight: 30,
-    letterSpacing: -1,
+    fontSize: 34,
+    lineHeight: 37,
+    textAlign: "center",
   },
-  sub: { width: "88%", fontSize: 12, lineHeight: 17, marginTop: 9 },
+  sub: { fontSize: 14, lineHeight: 23, marginTop: 14, marginBottom: 18, textAlign: "center" },
+  order: { width: "100%", minHeight: 46, borderRadius: 8, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 8 },
   explore: {
     borderWidth: 1,
-    borderRadius: 25,
-    minHeight: 37,
+    width: "100%",
+    borderRadius: 8,
+    minHeight: 46,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -278,7 +263,7 @@ const s = StyleSheet.create({
   heart: {
     position: "absolute",
     right: 7,
-    top: 6,
+    bottom: 6,
     width: 27,
     height: 27,
     borderRadius: 20,
@@ -287,8 +272,8 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   cart: {
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",

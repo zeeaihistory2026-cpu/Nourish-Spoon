@@ -3,12 +3,12 @@
 // ==============================================================================
 
 export const ASSETS = {
-  logo: require('../../assets/design/brand.png'),
+  logo: require('../../assets/website/logo-2.jpg'),
   homeHeroFood: require('../../assets/design/home-food.jpg'),
-  energyBallsCard: require('../../assets/design/energy-card.jpg'),
-  panjeeriCard: require('../../assets/design/panjeeri-card.jpg'),
-  energyBallsDetailHero: require('../../assets/design/energy-detail.jpg'),
-  panjeeriDetailHero: require('../../assets/design/panjeeri-detail.jpg'),
+  energyBallsCard: require('../../assets/website/product-1-main.png'),
+  panjeeriCard: require('../../assets/website/product-2-main.png'),
+  energyBallsDetailHero: require('../../assets/website/product-1-main.png'),
+  panjeeriDetailHero: require('../../assets/website/product-2-main.png'),
   founderStoryHero: require('../../assets/design/founder.jpg'),
 
   // Icons

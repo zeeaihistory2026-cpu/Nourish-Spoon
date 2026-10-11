@@ -1,6 +1,6 @@
 import { useInfoDialog } from "../components/InfoDialog";
 import { Text } from "../components/DesignPrimitives";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -16,15 +16,23 @@ import { ASSETS } from "../constants/assets";
 
 interface PaymentDeliveryScreenProps {
   onBack: () => void;
+  initialSection?: "payment" | "delivery";
 }
 
 export const PaymentDeliveryScreen: React.FC<PaymentDeliveryScreenProps> = ({
   onBack,
+  initialSection = "payment",
 }) => {
   const { showInfo, dialog } = useInfoDialog();
   const { theme, paymentMethods, deliveryMethods, settings } = useMobileStore();
-  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
-  const [selectedDelivery, setSelectedDelivery] = useState<string | null>(null);
+  const scroll = useRef<ScrollView>(null);
+  const [deliveryY, setDeliveryY] = useState<number | null>(null);
+  useEffect(() => {
+    if (initialSection === "delivery" && deliveryY !== null) {
+      const frame = requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, deliveryY - 8), animated: false }));
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [initialSection, deliveryY]);
 
   const handlePaymentClick = (pm: any) => {
     showInfo(
@@ -43,9 +51,10 @@ export const PaymentDeliveryScreen: React.FC<PaymentDeliveryScreenProps> = ({
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {dialog}
-      <Header showBack onBack={onBack} rightAction="none" />
+      <Header title="Payment & Delivery" showBack onBack={onBack} rightAction="none" />
 
       <ScrollView
+        ref={scroll}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -160,6 +169,7 @@ export const PaymentDeliveryScreen: React.FC<PaymentDeliveryScreenProps> = ({
 
         {/* Section 2: Delivery Options */}
         <View
+          onLayout={event => setDeliveryY(event.nativeEvent.layout.y)}
           style={[
             styles.sectionBox,
             { marginTop: 12, backgroundColor: theme.surface },

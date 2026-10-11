@@ -46,6 +46,15 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {dialog}
+      <View style={[styles.topFloatBar, { backgroundColor: theme.background }]}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Go back" onPress={onBack} style={[styles.floatingCircle, { backgroundColor: theme.surface }]}>
+          <Ionicons name="chevron-back" size={20} color={theme.text} />
+        </TouchableOpacity>
+        <Text style={{ flex: 1, textAlign: "center", fontFamily: "serif", fontSize: 23, fontWeight: "700", color: theme.text }}>Product Details</Text>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Favorite ${prod.name}`} accessibilityState={{ selected: isFav }} onPress={() => toggleFavorite(prod.id)} style={[styles.floatingCircle, { backgroundColor: theme.surface }]}>
+          <Ionicons name={isFav ? "heart" : "heart-outline"} size={20} color="#E11D48" />
+        </TouchableOpacity>
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -62,35 +71,6 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             resizeMode="cover"
           />
 
-          {/* Top floating circle buttons */}
-          <View style={styles.topFloatBar}>
-            <TouchableOpacity
-              accessibilityLabel="Go back"
-              onPress={onBack}
-              style={[
-                styles.floatingCircle,
-                { backgroundColor: theme.surface },
-              ]}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="chevron-back" size={20} color={theme.text} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => toggleFavorite(prod.id)}
-              style={[
-                styles.floatingCircle,
-                { backgroundColor: theme.surface },
-              ]}
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name={isFav ? "heart" : "heart-outline"}
-                size={20}
-                color="#E11D48"
-              />
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Content Body */}
@@ -103,7 +83,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
           <View style={styles.ratingRow}>
             <View style={styles.stars}>
               {[...Array(5)].map((_, i) => (
-                <Ionicons key={i} name="star" size={15} color="#C99B36" />
+                <Ionicons key={i} name="star" size={15} color="#C9A84C" />
               ))}
             </View>
             <Text style={styles.ratingScore}>
@@ -189,7 +169,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                     ]}
                   >
                     {isSelected && (
-                      <Ionicons name="checkmark" size={14} color="#0D5428" />
+                      <Ionicons name="checkmark" size={14} color="#1B4332" />
                     )}
                   </View>
                 </TouchableOpacity>
@@ -311,7 +291,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   heroContainer: {
-    aspectRatio: 1.37,
+    aspectRatio: 1.5,
     width: "100%",
     position: "relative",
   },
@@ -320,16 +300,15 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   topFloatBar: {
-    position: "absolute",
-    top: 6,
-    left: 16,
-    right: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
   },
   floatingCircle: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
@@ -512,7 +491,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: 50,
     borderRadius: 25,
-    shadowColor: "#0D5428",
+    shadowColor: "#1B4332",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,

@@ -33,3 +33,5 @@ apps/mobile/android/.kotlin/
 
 apps/mobile/dist-*/
 artifacts/
+# Release keys are kept outside Expo's regenerated native folders.
+private-signing/

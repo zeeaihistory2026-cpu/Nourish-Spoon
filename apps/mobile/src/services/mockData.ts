@@ -1,3 +1,4 @@
+import websiteReviews from "../data/websiteReviews.json";
 import { Product, Order, Review, FAQ, PaymentMethod, DeliveryMethod, BrandIdentity, FounderStory } from '@packages/types';
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -309,91 +310,20 @@ export const INITIAL_ORDERS: Order[] = [
   }
 ];
 
-export const INITIAL_REVIEWS: Review[] = [
-  {
-    id: 'j1',
-    customer_name: 'Misbah',
-    customer_avatar: '/assets/avatars/avatar_misbah.png',
-    location: 'Pakistan',
-    rating: 5,
-    comment: 'Bht acha ha! JazakAllah mam ❤️ Truly authentic taste, the nuts are crunchy and fresh.',
-    product_name: 'Homemade Panjeeri',
-    whatsapp_quote: 'Bht acha ha!\nJazakAllah mam ❤️ 7:24 PM',
-    screenshot_url: '/assets/avatars/review_whatsapp_bubble.png',
-    verified: true,
-    helpful_count: 18,
-    status: 'approved',
-    is_featured: true,
-    review_date: '2 weeks ago'
-  },
-  {
-    id: 'j2',
-    customer_name: 'Rakshanda',
-    customer_avatar: '/assets/avatars/avatar_rakshanda.png',
-    location: 'Pakistan',
-    rating: 5,
-    comment: 'Absolutely love the taste, presentation and most importantly the hygienic homemade quality. Highly recommended!',
-    product_name: 'Date & Nuts Energy Balls',
-    verified: true,
-    helpful_count: 24,
-    status: 'approved',
-    is_featured: true,
-    review_date: '1 month ago'
-  },
-  {
-    id: 'j3',
-    customer_name: 'ShahJehan',
-    customer_avatar: '/assets/avatars/avatar_shahjehan.png',
-    location: 'Pakistan',
-    rating: 5,
-    comment: 'Panjeeri bohat hi mazedar thi and the complimentary ladoos were such a lovely surprise. Fresh, healthy and truly homemade. Highly recommended!',
-    product_name: 'Homemade Panjeeri & Ladoos',
-    verified: true,
-    helpful_count: 41,
-    status: 'approved',
-    is_featured: true,
-    review_date: '3 months ago'
-  },
-  {
-    id: 'j4',
-    customer_name: 'Ayesha Noor',
-    location: 'Lahore, Pakistan',
-    rating: 5,
-    comment: 'Amazing taste and very fresh! The energy balls are perfect for a healthy snack. Highly recommended!',
-    product_name: 'Date & Nuts Energy Balls',
-    verified: true,
-    helpful_count: 12,
-    status: 'approved',
-    is_featured: true,
-    review_date: '12 May 2025'
-  },
-  {
-    id: 'j5',
-    customer_name: 'Hassan Raza',
-    location: 'Islamabad, Pakistan',
-    rating: 5,
-    comment: 'Panjeeri tastes just like homemade. You can feel the quality of ingredients. Will order again!',
-    product_name: 'Homemade Panjeeri',
-    verified: true,
-    helpful_count: 8,
-    status: 'approved',
-    is_featured: true,
-    review_date: '6 May 2025'
-  },
-  {
-    id: 'j6',
-    customer_name: 'Zainab Fatima',
-    location: 'Karachi, Pakistan',
-    rating: 5,
-    comment: 'Beautiful packaging and excellent service. Truly crafted with love!',
-    product_name: 'Date & Nuts Energy Balls',
-    verified: true,
-    helpful_count: 15,
-    status: 'approved',
-    is_featured: true,
-    review_date: '2 May 2025'
-  }
-];
+export const INITIAL_REVIEWS: Review[] = websiteReviews.map(review => ({
+  id: review.id,
+  customer_name: review.name,
+  location: review.location,
+  rating: review.rating,
+  comment: review.comment,
+  product_name: review.productName,
+  screenshot_url: review.screenshot,
+  verified: review.verified,
+  helpful_count: review.helpful,
+  status: 'approved',
+  is_featured: true,
+  review_date: 'Website snapshot: 2026-10-11',
+}));
 
 export const INITIAL_FAQS: FAQ[] = [
   {

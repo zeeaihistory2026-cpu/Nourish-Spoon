@@ -10,7 +10,6 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { Header } from "../components/Header";
 import { Text, ART } from "../components/DesignPrimitives";
 import { useStore } from "../services/storeService";
@@ -100,12 +99,6 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
       action: () => navigation.navigate("WhatsAppOrder"),
     },
     {
-      title: "Payment & Delivery",
-      sub: "Payment options and delivery information",
-      icon: "truck",
-      action: () => navigation.navigate("PaymentDelivery"),
-    },
-    {
       title: account ? "Sign Out" : "My Account",
       sub: account ? `${account.displayName || "Your account"} · ${account.email || ""}` : "Sign in or create your account",
       icon: "user-o",
@@ -153,7 +146,7 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
       {dialog}
       <Header
         title="Contact & More"
-        onMenu={() => navigation.navigate("Home")}
+        onMenu={navigation.openMenu}
         rightAction="none"
       />
       <ScrollView
@@ -161,27 +154,16 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={[s.hero, { backgroundColor: c.surfaceWarm }]}>
-          <Image source={ART.contact} style={s.heroImage} resizeMode="cover" />
-          <LinearGradient
-            pointerEvents="none"
-            colors={[
-              c.surfaceWarm,
-              c.isDark ? "#183223E0" : "#FBF4E4D0",
-              "transparent",
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={s.heroCopy}>
+          <View style={s.heroTop}>
             <Text style={[s.headline, { color: c.text }]}>
-              We’d love to{"\n"}hear from you.
+              We’d love to hear from you.
             </Text>
-            <Text style={[s.heroSub, { color: c.textSecondary }]}>
+            <Image source={ART.contact} style={s.heroImage} resizeMode="cover" />
+          </View>
+          <Text style={[s.heroSub, { color: c.textSecondary }]}>
               For orders, inquiries or bulk/gift orders, feel free to contact
               us. Our team is always here to help!
-            </Text>
-          </View>
+          </Text>
         </View>
         <Text style={[s.heading, { color: c.text }]}>Get in Touch</Text>
         {list(rows)}
@@ -210,7 +192,7 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
                 style={[
                   s.segment,
                   {
-                    backgroundColor: c.mode === mode ? "#194D2A" : c.card,
+                    backgroundColor: c.mode === mode ? "#1B4332" : c.card,
                     borderColor: c.border,
                   },
                 ]}
@@ -239,24 +221,23 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
 const s = StyleSheet.create({
   content: { padding: 16, paddingBottom: 20 },
   hero: {
-    minHeight: 210,
     borderRadius: 20,
     overflow: "hidden",
     justifyContent: "center",
+    padding: 16,
   },
+  heroTop: { flexDirection: "row", alignItems: "center", gap: 14 },
   heroImage: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    width: "60%",
-    height: "100%",
+    width: 104,
+    height: 120,
+    borderRadius: 14,
   },
-  heroCopy: { width: "75%", padding: 16 },
   headline: {
+    flex: 1,
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 24,
-    lineHeight: 31,
+    fontSize: 28,
+    lineHeight: 30,
   },
   heroSub: { fontSize: 13, lineHeight: 19, marginTop: 10 },
   heading: {

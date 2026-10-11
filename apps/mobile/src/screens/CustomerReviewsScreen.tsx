@@ -1,670 +1,106 @@
-import { Text } from "../components/DesignPrimitives";
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Share,
-  Modal,
-  SafeAreaView,
-  StatusBar,
-} from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Image, Modal, ScrollView, Share, StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Header } from "../components/Header";
-import { BottomTabBar } from "../components/BottomTabBar";
+import { Text } from "../components/DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
-import { ASSETS } from "../constants/assets";
+import { WEBSITE_REVIEWS, WebsiteReview } from "../data/websiteReviews";
 
-interface CustomerReviewsScreenProps {
-  onBack?: () => void;
-  navigation?: any;
-}
-
-export const CustomerReviewsScreen: React.FC<CustomerReviewsScreenProps> = ({
-  onBack,
-  navigation,
-}) => {
+export function CustomerReviewsScreen({ onBack, navigation }: { onBack?: () => void; navigation?: any }) {
   const { theme } = useMobileStore();
-  const [selectedCategory, setSelectedCategory] = useState<
-    "All" | "Energy Balls" | "Panjeeri"
-  >("All");
-  const [helpfulCounts, setHelpfulCounts] = useState<Record<string, number>>({
-    "rev-1": 18,
-    "rev-2": 24,
-    "rev-3": 41,
-  });
-  const [votedHelpful, setVotedHelpful] = useState<Record<string, boolean>>({});
-  const [screenshotModalVisible, setScreenshotModalVisible] = useState(false);
-
-  const categories: Array<"All" | "Energy Balls" | "Panjeeri"> = [
-    "All",
-    "Energy Balls",
-    "Panjeeri",
-  ];
-
-  const reviewsData = [
-    {
-      id: "rev-1",
-      name: "Misbah",
-      avatarType: "image",
-      avatarSource: ASSETS.avatarMisbah,
-      location: "Pakistan",
-      timeAgo: "2 weeks ago",
-      rating: 5,
-      productName: "Homemade Panjeeri",
-      productImage: ASSETS.panjeeriCard,
-      comment: "Bht acha ha! JazakAllah mam...",
-      hasWhatsAppBubble: true,
-      whatsappMessage: "Bht acha ha!\nJazakAllah mam ❤️",
-      whatsappTime: "7:24 PM",
-      category: "Panjeeri",
-    },
-    {
-      id: "rev-2",
-      name: "Rakshanda",
-      avatarType: "letter",
-      avatarLetter: "R",
-      avatarBg: "#0D5428",
-      location: "Pakistan",
-      timeAgo: "1 month ago",
-      rating: 5,
-      productName: "Date & Nuts Energy Balls",
-      productImage: ASSETS.energyBallsCard,
-      comment:
-        "Absolutely love the taste, presentation and most importantly the hygienic homemade quality. Highly recommended!",
-      hasWhatsAppBubble: false,
-      category: "Energy Balls",
-    },
-    {
-      id: "rev-3",
-      name: "ShahJehan",
-      avatarType: "image",
-      avatarSource: ASSETS.avatarShahjehan,
-      location: "Pakistan",
-      timeAgo: "3 months ago",
-      rating: 5,
-      productName: "Homemade Panjeeri & Ladoos",
-      productImage: ASSETS.panjeeriCard,
-      comment:
-        "Panjeeri bohat hi mazedar thi and the complimentary ladoos were such a lovely surprise. Fresh, healthy and truly homemade. Highly recommended!",
-      hasWhatsAppBubble: false,
-      category: "Panjeeri",
-    },
-  ];
-
-  const filtered = reviewsData.filter((r) => {
-    if (selectedCategory === "All") return true;
-    return r.category === selectedCategory;
-  });
-
-  const toggleHelpful = (id: string) => {
-    if (votedHelpful[id]) {
-      setHelpfulCounts((prev) => ({ ...prev, [id]: (prev[id] || 1) - 1 }));
-      setVotedHelpful((prev) => ({ ...prev, [id]: false }));
-    } else {
-      setHelpfulCounts((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-      setVotedHelpful((prev) => ({ ...prev, [id]: true }));
-    }
+  const { height } = useWindowDimensions();
+  const [category, setCategory] = useState("all");
+  const [voted, setVoted] = useState<Record<string, boolean>>({});
+  const [screenshot, setScreenshot] = useState<WebsiteReview | null>(null);
+  const filters = [{ id: "all", title: "All" }, { id: "energy-balls", title: "Energy Balls" }, { id: "panjeeri", title: "Panjeeri" }];
+  const visible = WEBSITE_REVIEWS.filter(review => category === "all" || review.category === category || review.category === "both");
+  const share = async (review: WebsiteReview) => {
+    try { await Share.share({ message: `${review.comment}\n— ${review.name}, ${review.productName}\nhttps://nourishspoon.com/testimonials.html` }); } catch {}
   };
-
-  const handleShare = async (review: (typeof reviewsData)[0]) => {
-    try {
-      await Share.share({
-        message: `"${review.comment}" — ${review.name}'s verified review for ${review.productName} at Nourish Spoon.`,
-      });
-    } catch {}
-  };
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
-
-      {/* Top Header */}
-      <Header
-        showBack
-        onBack={onBack || (() => navigation?.goBack?.())}
-        rightAction="none"
-      />
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Title & Tagline */}
-        <View style={styles.titleSection}>
-          <Text style={[styles.mainTitle, { color: theme.text }]}>
-            Customer Reviews
-          </Text>
-          <Text style={[styles.subTitle, { color: theme.textSecondary }]}>
-            Real stories. Real nutrition. Real love.
-          </Text>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <Header title="Customer Reviews" showBack onBack={onBack || navigation?.goBack} rightAction="none" />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.content}>
+        <Text style={[s.eyebrow, { color: theme.gold }]}>CUSTOMER LOVE</Text>
+        <Text style={[s.heading, { color: theme.text }]}>Real Experiences. Real Love.</Text>
+        <Text style={[s.intro, { color: theme.textSecondary }]}>Customer feedback from Nourish Spoon’s website.</Text>
+        <View style={s.filters}>
+          {filters.map(filter => (
+            <TouchableOpacity key={filter.id} accessibilityRole="button" accessibilityLabel={filter.title} accessibilityState={{ selected: category === filter.id }} onPress={() => setCategory(filter.id)} style={[s.filter, { borderColor: theme.gold, backgroundColor: category === filter.id ? "#1B4332" : theme.surface }]}>
+              <Text style={{ color: category === filter.id ? "#fff" : theme.text, fontSize: 12, fontWeight: "700" }}>{filter.title}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-
-        {/* 3 Filter Pills: All | Energy Balls | Panjeeri */}
-        <View style={styles.filterRow}>
-          {categories.map((cat) => {
-            const isActive = selectedCategory === cat;
-            return (
-              <TouchableOpacity
-                key={cat}
-                onPress={() => setSelectedCategory(cat)}
-                style={[
-                  styles.filterPill,
-                  isActive
-                    ? { backgroundColor: "#0D5428", borderColor: "#0D5428" }
-                    : {
-                        backgroundColor: theme.surface,
-                        borderColor: theme.border,
-                      },
-                ]}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    {
-                      color: isActive ? "#FFFFFF" : theme.text,
-                      fontWeight: isActive ? "700" : "500",
-                    },
-                  ]}
-                >
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Reviews Cards */}
-        <View style={styles.reviewsList}>
-          {filtered.map((r) => {
-            const count = helpfulCounts[r.id] ?? 0;
-            const isLiked = votedHelpful[r.id];
-
-            return (
-              <View
-                key={r.id}
-                style={[
-                  styles.reviewCard,
-                  { backgroundColor: theme.surface, borderColor: theme.border },
-                ]}
-              >
-                {/* Header Row: Avatar, Name, Verified Badge, Location, Time */}
-                <View style={styles.userRow}>
-                  {r.avatarType === "image" ? (
-                    <Image
-                      source={r.avatarSource}
-                      style={styles.avatarImg}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View
-                      style={[
-                        styles.avatarLetterCircle,
-                        { backgroundColor: r.avatarBg },
-                      ]}
-                    >
-                      <Text style={styles.avatarLetterText}>
-                        {r.avatarLetter}
-                      </Text>
-                    </View>
-                  )}
-
-                  <View style={styles.userInfoCol}>
-                    <View style={styles.userNameBadgeRow}>
-                      <Text style={[styles.userName, { color: "#10271A" }]}>
-                        {r.name}
-                      </Text>
-                      <View style={styles.verifiedBadge}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={14}
-                          color="#0D5428"
-                        />
-                        <Text style={styles.verifiedText}>
-                          Verified Purchase
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.locationRow}>
-                      <Ionicons
-                        name="location-outline"
-                        size={13}
-                        color="#5A6D60"
-                      />
-                      <Text style={styles.locationText}>{r.location}</Text>
-                    </View>
-                  </View>
-
-                  <Text style={styles.timeAgoText}>{r.timeAgo}</Text>
-                </View>
-
-                {/* 5 Stars */}
-                <View style={styles.starsRow}>
-                  {[...Array(5)].map((_, i) => (
-                    <Ionicons
-                      key={i}
-                      name="star"
-                      size={16}
-                      color="#E5A93C"
-                      style={{ marginRight: 3 }}
-                    />
-                  ))}
-                </View>
-
-                {/* Product Reference Row: Jar Thumbnail + Title + Comment */}
-                <View style={styles.productSnippetRow}>
-                  <Image
-                    source={r.productImage}
-                    style={styles.productJarThumb}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.productSnippetTextCol}>
-                    <Text style={styles.productSnippetName}>
-                      {r.productName}
-                    </Text>
-                    <Text
-                      style={styles.productSnippetComment}
-                      numberOfLines={6}
-                    >
-                      {r.comment}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* WhatsApp Chat Bubble & View Screenshot Button (Misbah Review) */}
-                {r.hasWhatsAppBubble && (
-                  <View style={styles.whatsappProofRow}>
-                    <Image
-                      source={ASSETS.reviewWhatsappBubble}
-                      style={{
-                        flex: 1,
-                        height: 44,
-                        marginRight: 8,
-                        borderRadius: 8,
-                      }}
-                      resizeMode="contain"
-                    />
-
-                    {/* View Screenshot Button */}
-                    <TouchableOpacity
-                      onPress={() => setScreenshotModalVisible(true)}
-                      style={styles.viewScreenshotBtn}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons
-                        name="eye-outline"
-                        size={16}
-                        color="#10271A"
-                        style={{ marginRight: 5 }}
-                      />
-                      <Text style={styles.viewScreenshotText}>
-                        View Screenshot
-                      </Text>
-                      <Ionicons
-                        name="chevron-forward"
-                        size={14}
-                        color="#10271A"
-                        style={{ marginLeft: 3 }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
-
-                {/* Footer Action Buttons: Helpful & Share */}
-                <View style={styles.cardFooter}>
-                  <TouchableOpacity
-                    onPress={() => toggleHelpful(r.id)}
-                    style={styles.footerActionBtn}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name={isLiked ? "thumbs-up" : "thumbs-up-outline"}
-                      size={17}
-                      color={isLiked ? "#0D5428" : "#5A6D60"}
-                    />
-                    <Text
-                      style={[
-                        styles.footerActionText,
-                        {
-                          color: isLiked ? "#0D5428" : "#5A6D60",
-                          fontWeight: isLiked ? "700" : "500",
-                        },
-                      ]}
-                    >
-                      Helpful ({count})
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => handleShare(r)}
-                    style={styles.footerActionBtn}
-                    activeOpacity={0.7}
-                  >
-                    <FontAwesome
-                      name="whatsapp"
-                      size={18}
-                      color="#25D366"
-                      style={{ marginRight: 5 }}
-                    />
-                    <Text
-                      style={[
-                        styles.footerActionText,
-                        { color: "#10271A", fontWeight: "600" },
-                      ]}
-                    >
-                      Share
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+        {visible.map(review => (
+          <View key={review.id} style={[s.card, { backgroundColor: theme.surface, borderColor: theme.border, borderTopColor: theme.gold }]}>
+            <View style={s.author}>
+              <View style={[s.avatar, { backgroundColor: "#1B4332" }]}><Text style={{ color: "#fff", fontWeight: "700", fontSize: 21 }}>{review.name[0]}</Text></View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={{ color: theme.text, fontWeight: "700", fontSize: 16 }}>{review.name}</Text>
+                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>{review.location}</Text>
               </View>
-            );
-          })}
-        </View>
-
-      </ScrollView>
-
-      {/* Screenshot Preview Modal */}
-      <Modal
-        visible={screenshotModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setScreenshotModalVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setScreenshotModalVisible(false)}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Verified WhatsApp Feedback</Text>
-              <TouchableOpacity
-                onPress={() => setScreenshotModalVisible(false)}
-              >
-                <Ionicons name="close-circle" size={24} color="#10271A" />
+              {review.verified && <View style={s.verified}><Ionicons name="checkmark-circle" size={14} color={theme.primary} /><Text style={{ color: theme.primary, fontSize: 11 }}>Verified</Text></View>}
+            </View>
+            <View style={s.stars}>{Array.from({ length: 5 }, (_, i) => <Ionicons key={i} name={i < review.rating ? "star" : "star-outline"} color={theme.gold} size={16} />)}</View>
+            <View style={[s.tag, { backgroundColor: theme.goldWarm }]}><Text style={{ fontSize: 11, color: theme.primary }}>{review.productName}</Text></View>
+            <Text style={[s.headline, { color: theme.text }]}>{review.headline}</Text>
+            <Text style={[s.comment, { color: theme.textSecondary }]}>{review.comment}</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={`View screenshot from ${review.name} for ${review.productName}`} onPress={() => setScreenshot(review)} style={[s.proof, { borderColor: theme.border, backgroundColor: theme.surfaceWarm }]}>
+              <Image source={review.screenshotSource} style={s.thumb} resizeMode="cover" />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: theme.gold, fontSize: 9, letterSpacing: 1 }}>WHATSAPP SCREENSHOT</Text>
+                <Text style={{ color: theme.text, fontWeight: "700", fontSize: 12, marginTop: 3 }}>View Screenshot</Text>
+              </View>
+              <Ionicons name="expand-outline" size={18} color={theme.primary} />
+            </TouchableOpacity>
+            <View style={[s.footer, { borderColor: theme.border }]}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Helpful review by ${review.name}: ${review.helpful + (voted[review.id] ? 1 : 0)}`} accessibilityState={{ selected: !!voted[review.id] }} onPress={() => setVoted(prev => ({ ...prev, [review.id]: !prev[review.id] }))} style={s.action}>
+                <Ionicons name={voted[review.id] ? "thumbs-up" : "thumbs-up-outline"} size={17} color={theme.primary} />
+                <Text style={{ color: theme.primary, fontSize: 12 }}>Helpful ({review.helpful + (voted[review.id] ? 1 : 0)})</Text>
+              </TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Share review by ${review.name}`} onPress={() => share(review)} style={s.action}>
+                <Ionicons name="share-outline" size={18} color={theme.primary} /><Text style={{ color: theme.primary, fontSize: 12 }}>Share</Text>
               </TouchableOpacity>
             </View>
-            <Image
-              source={ASSETS.reviewWhatsappBubble}
-              style={styles.modalImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.modalFootnote}>
-              Authentic customer conversation verified on WhatsApp • Nourish
-              Spoon Sargodha
-            </Text>
           </View>
-        </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <Modal visible={!!screenshot} transparent animationType="fade" onRequestClose={() => setScreenshot(null)}>
+        <View style={s.overlay}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Dismiss review screenshot" onPress={() => setScreenshot(null)} style={StyleSheet.absoluteFill} />
+          <View accessibilityViewIsModal style={[s.modal, { backgroundColor: theme.surface }]}>
+            <View style={s.author}>
+              <Text style={{ flex: 1, color: theme.text, fontFamily: "serif", fontWeight: "700", fontSize: 22 }}>{screenshot?.name}’s Review</Text>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close review screenshot" onPress={() => setScreenshot(null)} style={s.close}><Ionicons name="close" size={24} color={theme.text} /></TouchableOpacity>
+            </View>
+            {screenshot && <Image source={screenshot.screenshotSource} style={{ width: "100%", height: height * 0.62 }} resizeMode="contain" accessibilityLabel={`Published WhatsApp feedback from ${screenshot.name}`} />}
+          </View>
+        </View>
       </Modal>
-
-      {/* Bottom Tab Bar */}
     </View>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  titleSection: {
-    alignItems: "center",
-    paddingTop: 10,
-    paddingBottom: 14,
-  },
-  mainTitle: {
-    fontSize: 26,
-    fontWeight: "800",
-    fontFamily: "serif",
-    marginBottom: 4,
-    letterSpacing: 0.2,
-  },
-  subTitle: {
-    fontSize: 13,
-    letterSpacing: 0.1,
-  },
-  filterRow: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    justifyContent: "space-between",
-  },
-  filterPill: {
-    flex: 1,
-    marginHorizontal: 4,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  filterText: {
-    fontSize: 13,
-  },
-  reviewsList: {
-    paddingHorizontal: 16,
-  },
-  reviewCard: {
-    borderRadius: 22,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  userRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  avatarImg: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-  },
-  avatarLetterCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarLetterText: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "700",
-    fontFamily: "serif",
-  },
-  userInfoCol: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  userNameBadgeRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-  },
-  userName: {
-    fontSize: 15,
-    fontWeight: "700",
-    marginRight: 6,
-  },
-  verifiedBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  verifiedText: {
-    color: "#0D5428",
-    fontSize: 10,
-    fontWeight: "600",
-    marginLeft: 3,
-  },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 2,
-  },
-  locationText: {
-    fontSize: 11,
-    color: "#5A6D60",
-    marginLeft: 2,
-  },
-  timeAgoText: {
-    fontSize: 11,
-    color: "#7E9687",
-  },
-  starsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    marginTop: 2,
-  },
-  productSnippetRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  productJarThumb: {
-    width: 95,
-    height: 72,
-    borderRadius: 12,
-  },
-  productSnippetTextCol: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: "center",
-  },
-  productSnippetName: {
-    fontSize: 15,
-    fontWeight: "700",
-    fontFamily: "serif",
-    color: "#10271A",
-    marginBottom: 4,
-  },
-  productSnippetComment: {
-    fontSize: 12,
-    color: "#4A5568",
-    lineHeight: 17,
-  },
-  whatsappProofRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14,
-    marginTop: 2,
-  },
-  whatsappBubbleCard: {
-    flex: 1,
-    backgroundColor: "#E2E8F0",
-    borderRadius: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 8,
-  },
-  whatsappGreenCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#25D366",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  bubbleTextCol: {
-    flex: 1,
-  },
-  bubbleMessageText: {
-    fontSize: 11,
-    color: "#1A202C",
-    fontWeight: "600",
-  },
-  bubbleMessageSub: {
-    fontSize: 10,
-    color: "#2D3748",
-    marginTop: 1,
-  },
-  bubbleTime: {
-    fontSize: 9,
-    color: "#718096",
-  },
-  viewScreenshotBtn: {
-    backgroundColor: "#FDF6E2",
-    borderColor: "#EBDCB9",
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  viewScreenshotText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#10271A",
-  },
-  cardFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderTopWidth: 1,
-    borderTopColor: "#F0E8D7",
-    paddingTop: 10,
-    marginTop: 4,
-  },
-  footerActionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 4,
-  },
-  footerActionText: {
-    fontSize: 12,
-    marginLeft: 6,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    fontFamily: "serif",
-    color: "#10271A",
-  },
-  modalImage: {
-    width: "100%",
-    height: 180,
-  },
-  modalFootnote: {
-    fontSize: 11,
-    color: "#7E9687",
-    textAlign: "center",
-    marginTop: 12,
-  },
+const s = StyleSheet.create({
+  content: { paddingHorizontal: 16, paddingBottom: 20 },
+  eyebrow: { fontSize: 11, fontWeight: "700", letterSpacing: 1.5, textAlign: "center", marginTop: 14 },
+  heading: { fontFamily: "serif", fontSize: 27, fontWeight: "700", textAlign: "center", marginTop: 5 },
+  intro: { fontSize: 13, lineHeight: 20, textAlign: "center", marginTop: 5, marginBottom: 16 },
+  filters: { flexDirection: "row", gap: 8, marginBottom: 16 },
+  filter: { flex: 1, minHeight: 40, borderWidth: 1, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  card: { borderWidth: 1, borderTopWidth: 3, borderRadius: 16, padding: 16, marginBottom: 16 },
+  author: { flexDirection: "row", alignItems: "center", gap: 10 },
+  avatar: { width: 42, height: 42, borderRadius: 21, alignItems: "center", justifyContent: "center" },
+  verified: { flexDirection: "row", alignItems: "center", gap: 3 },
+  stars: { flexDirection: "row", gap: 2, marginTop: 12, marginBottom: 10 },
+  tag: { alignSelf: "flex-start", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 12 },
+  headline: { fontFamily: "serif", fontWeight: "700", fontSize: 20, lineHeight: 25, marginTop: 12 },
+  comment: { fontSize: 13, lineHeight: 21, marginTop: 8, marginBottom: 14 },
+  proof: { flexDirection: "row", alignItems: "center", gap: 9, borderWidth: 1, borderRadius: 10, padding: 8 },
+  thumb: { width: 50, height: 58, borderRadius: 6 },
+  footer: { borderTopWidth: 1, marginTop: 14, paddingTop: 4, flexDirection: "row", justifyContent: "space-between" },
+  action: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 6 },
+  overlay: { flex: 1, backgroundColor: "#00000090", justifyContent: "center", padding: 16 },
+  modal: { borderRadius: 16, padding: 14, maxWidth: 520, width: "100%", alignSelf: "center" },
+  close: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
 });

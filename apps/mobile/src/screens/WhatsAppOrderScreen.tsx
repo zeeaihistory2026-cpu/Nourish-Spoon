@@ -165,7 +165,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             <View style={styles.ratingRow}>
               <View style={styles.stars}>
                 {[...Array(5)].map((_, i) => (
-                  <Ionicons key={i} name="star" size={11} color="#C99B36" />
+                  <Ionicons key={i} name="star" size={11} color="#C9A84C" />
                 ))}
               </View>
               <Text style={styles.ratingText}>
@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
   inputBox: {
     flex: 1,
     minWidth: 0,
-    fontFamily: "Lato_400Regular",
+    fontFamily: "Jost_400Regular",
     height: 44,
     borderRadius: 14,
     borderWidth: 1,
@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: 50,
     borderRadius: 25,
-    shadowColor: "#0D5428",
+    shadowColor: "#1B4332",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
