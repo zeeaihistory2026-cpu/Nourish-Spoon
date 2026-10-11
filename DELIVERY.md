@@ -8,7 +8,11 @@ Email/password accounts use Firebase project `nourish-spoon-f4820`. Signup, sign
 
 Firebase account creation, profile display-name updates, incorrect-password rejection, and successful sign-in were tested against the live project. The temporary QA account was deleted.
 
-Firestore security rules are prepared in `firestore.rules`, but deployment and customer profile writes have not been verified. Pending customer details are retained locally and retried after authentication. The product catalog and admin dashboard still use local data; the dashboard is not a complete cloud administration backend. Notification drafts are local and do not send push notifications.
+Payment information directs customers to the business for current account details, rather than presenting the sample bank account from the mock data as an official account.
+
+Firestore customer profile writes and owner reads were verified against the existing deployed rules. Unauthenticated reads of the test profile were denied. The replacement rules prepared in `firestore.rules` have not been deployed or fully audited. Pending customer details are retained locally and retried after authentication. The product catalog and admin dashboard still use local data; the dashboard is not a complete cloud administration backend. Notification drafts are local and do not send push notifications.
+
+One additional temporary profile QA account (`nourish-profile-qa-…@example.invalid`) and its `users/{uid}` document remain in Firebase. The existing rules rejected profile deletion, and a cleanup exception prevented deletion of the authentication account. The diagnostic cleanup routine was corrected, but console access is currently unavailable. In Firebase Authentication, find that email prefix, note its UID, and delete the account and matching Firestore user document through the console before launch. The earlier authentication-only QA account was successfully deleted.
 
 ## Verification
 

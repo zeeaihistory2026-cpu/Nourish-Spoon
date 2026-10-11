@@ -22,14 +22,14 @@ export const PaymentDeliveryScreen: React.FC<PaymentDeliveryScreenProps> = ({
   onBack,
 }) => {
   const { showInfo, dialog } = useInfoDialog();
-  const { theme, paymentMethods, deliveryMethods } = useMobileStore();
+  const { theme, paymentMethods, deliveryMethods, settings } = useMobileStore();
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [selectedDelivery, setSelectedDelivery] = useState<string | null>(null);
 
   const handlePaymentClick = (pm: any) => {
     showInfo(
       pm.name,
-      `Account Title: ${pm.account_title}\nAccount #: ${pm.account_number}\n${pm.bank_name ? `Bank: ${pm.bank_name}\n` : ""}\n${pm.instructions}`,
+      `Contact Nourish Spoon on WhatsApp at ${settings.whatsapp_number} for the current ${pm.name} account details and payment instructions. Share your transaction receipt on WhatsApp after payment so the team can confirm your order.`,
     );
   };
 

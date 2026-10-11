@@ -51,3 +51,20 @@ logo.thumbnail((590, 590))
 icon.paste(logo, ((1024-logo.width)//2, (1024-logo.height)//2))
 icon.save(OUT / 'icon.png')
 print('Extracted', len(list(OUT.iterdir())), 'design assets')
+
+# Payment and delivery badges from the supplied design, without surrounding text.
+import shutil
+payment_reference = Image.open(REF / '06_Payment_and_Delivery_Screen_HD.png')
+badges = {
+    'icon_bank.png': (96, 534, 211, 646),
+    'icon_easypaisa.png': (96, 676, 211, 788),
+    'icon_jazzcash.png': (96, 813, 211, 928),
+    'icon_delivery_sargodha.png': (96, 1232, 211, 1344),
+    'icon_delivery_tcs.png': (93, 1366, 214, 1480),
+    'icon_delivery_foodpanda.png': (96, 1497, 211, 1609),
+    'icon_delivery_pickup.png': (96, 1624, 211, 1713),
+}
+for name, rect in badges.items():
+    output = ROOT / 'apps/mobile/assets/icons' / name
+    payment_reference.crop(rect).save(output)
+    shutil.copy2(output, ROOT / 'apps/admin/public/assets/icons' / name)
