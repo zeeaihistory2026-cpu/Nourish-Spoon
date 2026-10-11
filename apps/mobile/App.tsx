@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   StatusBar,
   BackHandler,
   Platform,
   KeyboardAvoidingView,
+  Animated,
+  AccessibilityInfo,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth, syncPendingCustomerProfile } from "./src/services/firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts } from "expo-font";
 import { useMobileStore } from "./src/services/storeService";
@@ -48,6 +52,21 @@ function MobileApp() {
   const [routes, setRoutes] = useState<Route[]>([{ name: "splash" }]);
   const route = routes[routes.length - 1];
   const screen = route.name;
+  const screenOpacity = useRef(new Animated.Value(1)).current;
+  const [reduceMotion, setReduceMotion] = useState(true);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion).catch(() => {});
+    const listener = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => listener.remove();
+  }, []);
+  useEffect(() => {
+    screenOpacity.stopAnimation();
+    if (reduceMotion) { screenOpacity.setValue(1); return; }
+    screenOpacity.setValue(0);
+    const animation = Animated.timing(screenOpacity, { toValue: 1, duration: 180, useNativeDriver: Platform.OS !== 'web' });
+    animation.start();
+    return () => animation.stop();
+  }, [screen, reduceMotion, screenOpacity]);
   const [ready, setReady] = useState(false);
   const [onboarded, setOnboarded] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
@@ -66,6 +85,9 @@ function MobileApp() {
       .catch(() => {})
       .finally(() => setReady(true));
   }, []);
+  useEffect(() => firebaseAuth ? onAuthStateChanged(firebaseAuth, user => {
+    if (user) syncPendingCustomerProfile(user.uid).catch(() => {});
+  }) : undefined, []);
   const navigate = useCallback(
     (name: string, params?: Route["params"]) => {
       if (params?.product) selectProduct(params.product);
@@ -118,7 +140,7 @@ function MobileApp() {
     return <View style={{ flex: 1, backgroundColor: "#FFF9EC" }} />;
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: theme.background }}
+      style={{ flex: 1, backgroundColor: theme.background, overflow: "hidden" }}
       edges={["top", "bottom"]}
     >
       <StatusBar
@@ -129,7 +151,7 @@ function MobileApp() {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={{ flex: 1 }} key={screen}>
+        <Animated.View style={{ flex: 1, opacity: screenOpacity }} key={screen}>
           {screen === "splash" && <SplashScreen onFinish={finishSplash} />}
           {screen === "onboarding" && (
             <OnboardingScreen onComplete={completeOnboarding} />
@@ -185,7 +207,7 @@ function MobileApp() {
               onSuccess={() => navigate("Home")}
             />
           )}
-        </View>
+        </Animated.View>
         {!hideTabs && (
           <BottomTabBar activeTab={activeTab} onSelectTab={navigate} />
         )}

@@ -31,7 +31,7 @@ export function HomeScreen({
     <ScrollView
       style={{ flex: 1 }}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 20 }}
     >
       <Header
         onMenu={() => onNavigateTab("More")}
@@ -137,7 +137,7 @@ export function HomeScreen({
                   { backgroundColor: c.surface, borderColor: c.border },
                 ]}
               >
-                <View>
+                <View style={{ width: "100%", aspectRatio: 1.76 }}>
                   <Image
                     source={
                       p.category === "panjeeri"
@@ -274,7 +274,7 @@ const s = StyleSheet.create({
     letterSpacing: -0.7,
   },
   card: { flex: 1, borderRadius: 13, borderWidth: 1, overflow: "hidden" },
-  cardImage: { width: "100%", aspectRatio: 1.76 },
+  cardImage: { width: "100%", height: "100%" },
   heart: {
     position: "absolute",
     right: 7,

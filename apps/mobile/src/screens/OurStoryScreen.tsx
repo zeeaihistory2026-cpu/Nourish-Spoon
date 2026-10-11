@@ -22,7 +22,7 @@ const steps = [
     "Our traditional family recipes are prepared in small batches for the best taste.",
   ],
   [
-    "jar-outline",
+    "bottle-tonic-outline",
     "Pack Airtight",
     "Hygienically packed to lock in freshness and natural nutrition.",
   ],
@@ -93,12 +93,12 @@ export function OurStoryScreen({ navigation }: { navigation: any }) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
       >
         <Image
           source={ART.founder}
           accessibilityLabel="Tayyaba preparing ingredients: We make every jar as if it’s going to our own family."
-          style={{ width: "100%", aspectRatio: 1.67 }}
+          style={{ width: "100%", height: width / 1.67 }}
           resizeMode="contain"
         />
         <View style={s.narrative}>

@@ -364,7 +364,6 @@ export const CustomerReviewsScreen: React.FC<CustomerReviewsScreenProps> = ({
           })}
         </View>
 
-        <View style={{ height: 40 }} />
       </ScrollView>
 
       {/* Screenshot Preview Modal */}
@@ -411,7 +410,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   titleSection: {
     alignItems: "center",

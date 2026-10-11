@@ -25,3 +25,11 @@ yarn-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+
+# Local Android signing material
+apps/mobile/android/keystores/
+apps/mobile/android/signing.properties
+apps/mobile/android/.kotlin/
+
+apps/mobile/dist-*/
+artifacts/

@@ -55,8 +55,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
 
     const matchesSearch =
       !searchQuery ||
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.short_description.toLowerCase().includes(searchQuery.toLowerCase());
+      p.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+      p.short_description.toLowerCase().includes(searchQuery.trim().toLowerCase());
 
     return matchesCat && matchesSearch;
   });
@@ -100,7 +100,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
             style={[styles.searchInput, { color: theme.text }]}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={10} onPress={() => setSearchQuery("")}>
               <Ionicons name="close-circle" size={16} color={theme.textMuted} />
             </TouchableOpacity>
           )}
@@ -113,6 +113,9 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
             return (
               <TouchableOpacity
                 key={cat}
+                accessibilityRole="button"
+                accessibilityLabel={cat}
+                accessibilityState={{ selected: isActive }}
                 onPress={() => setSelectedCategory(cat)}
                 style={[
                   styles.catPill,
@@ -390,7 +393,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   searchBar: {
     flexDirection: "row",
@@ -422,6 +425,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   catPillText: {
+    textAlign: "center",
     fontSize: 12.5,
     fontWeight: "600",
   },
@@ -451,8 +455,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     right: 0,
-    width: 42,
-    height: 42,
+    width: 44,
+    height: 44,
     borderRadius: 21,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
@@ -543,7 +547,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 42,
+    height: 44,
     borderRadius: 12,
     shadowColor: "#0D5428",
     shadowOffset: { width: 0, height: 2 },
@@ -560,7 +564,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 42,
+    height: 44,
     paddingHorizontal: 8,
     borderRadius: 12,
     borderWidth: 1,
@@ -570,8 +574,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   cartSquare: {
-    width: 42,
-    height: 42,
+    width: 44,
+    height: 44,
     borderRadius: 14,
     borderWidth: 1,
     alignItems: "center",

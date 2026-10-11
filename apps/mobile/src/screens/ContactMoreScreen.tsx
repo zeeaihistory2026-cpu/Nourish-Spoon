@@ -237,7 +237,7 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
   );
 }
 const s = StyleSheet.create({
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 16, paddingBottom: 20 },
   hero: {
     minHeight: 210,
     borderRadius: 20,

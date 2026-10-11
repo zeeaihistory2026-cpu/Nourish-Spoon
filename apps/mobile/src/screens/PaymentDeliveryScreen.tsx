@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 18,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   titleSection: {
     alignItems: "center",

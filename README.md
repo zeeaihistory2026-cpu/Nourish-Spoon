@@ -3,7 +3,7 @@
 > **Crafted with Love • Sargodha, Pakistan**  
 > Premium Handcrafted Panjeeri, Date & Nut Energy Balls, and Traditional Pakistani Superfoods.
 
-This repository contains the complete, production-ready, pixel-perfect **React Native Mobile App**, **Vite + React Admin Dashboard**, and **Supabase PostgreSQL Backend** built strictly according to the PRD specification and the 11 reference HD UI screens.
+This repository contains the **Expo React Native mobile app** and **Vite React admin dashboard**, using the supplied HD screen designs. Mobile email/password accounts use Firebase. Catalog and admin data remain local; cloud profile storage and physical Android testing are still pending. See [DELIVERY.md](DELIVERY.md) for verified behavior, limitations, and APK build instructions.
 
 ---
 
@@ -17,7 +17,7 @@ nourish-spoon/
 │   │   ├── src/
 │   │   │   ├── components/        # Header, BottomTabBar, TrustBadges
 │   │   │   ├── constants/         # Theme tokens (Light/Dark), Asset bundle mapper
-│   │   │   ├── screens/           # 11 Pixel-Perfect Reference Screens
+│   │   │   ├── screens/           # Screens based on supplied reference designs
 │   │   │   │   ├── SplashScreen.tsx          # Animated leaf splash & tagline
 │   │   │   │   ├── OnboardingScreen.tsx      # 3-slide value onboarding flow
 │   │   │   │   ├── HomeScreen.tsx            # Screen 01 HD: Hero food, Best-sellers, Delivery banner
@@ -29,7 +29,7 @@ nourish-spoon/
 │   │   │   │   ├── OurStoryScreen.tsx        # Screen 08 HD: Founder Tayyaba narrative & 4-step craft
 │   │   │   │   ├── FAQScreen.tsx             # Screen 09 HD: Accordion FAQs & WhatsApp CTA banner
 │   │   │   │   └── ContactMoreScreen.tsx     # Screen 10 HD: Contact list, theme switch & socials
-│   │   │   └── services/          # Zustand store, Supabase client & Mock Data
+│   │   │   └── services/          # Zustand store, Firebase account services & local data
 │   │   ├── App.tsx                # Master screen router & state coordinator
 │   │   ├── app.json               # Expo configuration
 │   │   ├── package.json
@@ -63,20 +63,11 @@ nourish-spoon/
 
 ---
 
-## ⚡ Supabase Configuration & Credentials
+## Firebase account configuration
 
-The application connects to your Supabase instance:
+Copy `apps/mobile/.env.example` to `apps/mobile/.env` and enter the Firebase web app configuration. Enable Email/Password in Firebase Authentication. This workspace is configured for `nourish-spoon-f4820`; secrets and signing files are excluded from Git.
 
-- **Supabase URL**: `https://pxcoixwchnfzwnricktu.supabase.co`
-- **Supabase API Key**: Add your Supabase project API key to your local `.env` files (see `.env.example`).
-
-### Applying Migrations to Supabase
-You can execute the SQL files in `supabase/migrations/` and `supabase/seed/` directly via the Supabase Dashboard SQL Editor or via the Supabase CLI:
-
-```bash
-# Optional: Using Supabase CLI
-npx supabase db push
-```
+`firestore.rules` and `firestore.indexes.json` are prepared for review. They have not been deployed or verified against the project. Existing Supabase SQL files are legacy scaffolding and are not the mobile account backend.
 
 ---
 
@@ -123,7 +114,7 @@ npm start
 ---
 
 ## 💬 WhatsApp Order Flow
-Orders are placed via one-tap WhatsApp prefilled messages formatted to Pakistani standard:
+The app prepares a WhatsApp message for the customer to review and send. Opening WhatsApp does not itself submit an order:
 ```text
 Assalam-o-Alaikum Nourish Spoon!
 I would like to place an order:

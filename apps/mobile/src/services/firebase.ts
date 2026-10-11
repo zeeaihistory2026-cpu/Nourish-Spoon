@@ -28,7 +28,13 @@ export const firebaseAuth: Auth | null = app ? (() => {
 
 export async function saveCustomerProfile(uid: string, fullName: string, email: string, phone: string) {
   if (!db) throw new Error('Firebase is not configured.');
+  await AsyncStorage.setItem(`nourish:profile:${uid}`, JSON.stringify({ fullName, email, phone }));
   await setDoc(doc(db, 'users', uid), { uid, fullName, email, phone, role: 'customer', updatedAt: serverTimestamp() }, { merge: true });
+  await AsyncStorage.removeItem(`nourish:profile:${uid}`);
+}
+export async function syncPendingCustomerProfile(uid: string) {
+  const saved = await AsyncStorage.getItem(`nourish:profile:${uid}`);
+  if (saved) { const profile = JSON.parse(saved); await saveCustomerProfile(uid, profile.fullName, profile.email, profile.phone); }
 }
 export function accountError(error: { code?: string; message?: string }) {
   const messages: Record<string, string> = {

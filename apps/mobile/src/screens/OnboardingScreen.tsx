@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Image, ScrollView, TouchableOpacity } from "react-native";
+import { View, Image, ScrollView, TouchableOpacity, useWindowDimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Text,
@@ -10,6 +10,7 @@ import {
 import { useMobileStore } from "../services/storeService";
 export function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
   const { theme: c } = useMobileStore();
+  const { width } = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const slides = [
     {
@@ -112,7 +113,7 @@ export function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
         </View>
         <Image
           source={ART.onboarding}
-          style={{ width: "100%", aspectRatio: 1.47, marginTop: 12 }}
+          style={{ width: "100%", height: width / 1.47, marginTop: 12 }}
           resizeMode="cover"
         />
       </ScrollView>

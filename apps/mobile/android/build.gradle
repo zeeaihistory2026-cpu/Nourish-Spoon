@@ -22,8 +22,7 @@ allprojects {
 
 apply plugin: "expo-root-project"
 // Optional local NDK override; Expo's pinned NDK remains the default.
-if (findProperty('nourish.ndkVersion')) {
-  ext.ndkVersion = findProperty('nourish.ndkVersion')
-}
+def requestedNdkVersion = findProperty('nourish.ndkVersion') ?: System.getenv('NOURISH_NDK_VERSION')
+if (requestedNdkVersion) ext.ndkVersion = requestedNdkVersion
 
 apply plugin: "com.facebook.react.rootproject"

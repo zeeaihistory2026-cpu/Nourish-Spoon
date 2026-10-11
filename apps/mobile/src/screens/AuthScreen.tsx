@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  useWindowDimensions,
 } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   Text,
   Botanical,
@@ -20,12 +20,9 @@ import {
 } from "../components/DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 import { firebaseAuth, isFirebaseConfigured, saveCustomerProfile, accountError } from '../services/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithCredential } from 'firebase/auth';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { AuthInput } from "../components/AuthInput";
 
-WebBrowser.maybeCompleteAuthSession();
 export function AuthScreen({
   signup = false,
   onBack,
@@ -39,6 +36,7 @@ export function AuthScreen({
 }) {
   const { showInfo, dialog } = useInfoDialog();
   const { theme: c } = useMobileStore();
+  const { width } = useWindowDimensions();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -60,6 +58,7 @@ export function AuthScreen({
     return true;
   };
   const submit = async () => {
+    if (busy) return;
     setMessage("");
     if (
       !email.trim() ||
@@ -89,8 +88,8 @@ export function AuthScreen({
       if (signup) {
         const { user } = await createUserWithEmailAndPassword(firebaseAuth!, email.trim().toLowerCase(), password);
         await updateProfile(user, { displayName: name.trim() });
-        try { await saveCustomerProfile(user.uid, name.trim(), email.trim().toLowerCase(), phone.trim()); }
-        catch { /* Firebase Auth retains the name and email; profile sync can be retried later. */ }
+        // Profile synchronization must not block a successfully created account.
+        saveCustomerProfile(user.uid, name.trim(), email.trim().toLowerCase(), phone.trim()).catch(() => {});
       } else {
         await signInWithEmailAndPassword(firebaseAuth!, email.trim().toLowerCase(), password);
       }
@@ -102,7 +101,8 @@ export function AuthScreen({
     }
   };
   const reset = async () => {
-    if (!email.includes("@")) {
+    if (busy) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setMessage(
         "Enter your email address above to receive a password reset link.",
       );
@@ -118,32 +118,6 @@ export function AuthScreen({
     } finally {
       setBusy(false);
     }
-  };
-  const [googleRequest, , promptGoogle] = Google.useAuthRequest({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || 'unconfigured',
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || 'unconfigured',
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || 'unconfigured',
-  });
-  const oauth = async (provider: 'google' | 'apple') => {
-    if (!configured()) return;
-    setBusy(true); setMessage('');
-    try {
-      if (Platform.OS === 'web') {
-        await signInWithPopup(firebaseAuth!, provider === 'google' ? new GoogleAuthProvider() : new OAuthProvider('apple.com'));
-      } else if (provider === 'google') {
-        const clientId = Platform.OS === 'android' ? process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID : process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-        if (!clientId || !googleRequest) { setMessage('Google sign-in is being configured. Please use email and password.'); return; }
-        const result = await promptGoogle();
-        if (result.type !== 'success') return;
-        const idToken = result.params.id_token || result.authentication?.idToken;
-        const accessToken = result.authentication?.accessToken;
-        if (!idToken && !accessToken) throw new Error('Missing Google credential');
-        await signInWithCredential(firebaseAuth!, GoogleAuthProvider.credential(idToken, accessToken));
-      } else {
-        setMessage('Apple sign-in is available in the web app. Please use email and password on Android.'); return;
-      }
-      onSuccess();
-    } catch (error: any) { setMessage(accountError(error)); } finally { setBusy(false); }
   };
   return (
     <KeyboardAvoidingView
@@ -221,7 +195,7 @@ export function AuthScreen({
           )}
           <AuthInput
             ref={emailRef}
-            label={signup ? "Email Address" : "Email Address"}
+            label="Email Address"
             icon="mail-outline"
             showLabel={signup}
             value={email}
@@ -290,6 +264,9 @@ export function AuthScreen({
           )}
           {!signup && (
             <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Forgot password"
+              disabled={busy}
               onPress={reset}
               style={{ alignSelf: "flex-end", paddingBottom: 14 }}
             >
@@ -320,56 +297,6 @@ export function AuthScreen({
             onPress={submit}
             disabled={busy}
           />
-          {!signup && (
-            <>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 12,
-                  marginVertical: 18,
-                }}
-              >
-                <View
-                  style={{ flex: 1, height: 1, backgroundColor: c.border }}
-                />
-                <Text style={{ color: c.textSecondary }}>or continue with</Text>
-                <View
-                  style={{ flex: 1, height: 1, backgroundColor: c.border }}
-                />
-              </View>
-              <View style={{ flexDirection: "row", gap: 8 }}>
-                {(["google", "apple"] as const).map((p) => (
-                  <TouchableOpacity
-                    key={p}
-                    disabled={busy}
-                    onPress={() => oauth(p)}
-                    style={{
-                      flex: 1,
-                      minHeight: 44,
-                      borderRadius: 24,
-                      borderWidth: 1,
-                      borderColor: c.border,
-                      backgroundColor: c.surface,
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <FontAwesome
-                      name={p === "google" ? "google" : "apple"}
-                      size={21}
-                      color={p === "google" ? "#4285F4" : c.text}
-                    />
-                    <Text style={{ color: c.text, fontSize: 11 }}>
-                      Continue with {p === "google" ? "Google" : "Apple"}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          )}
           {signup && (
             <Text
               style={{
@@ -395,6 +322,9 @@ export function AuthScreen({
             </Text>
           )}
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={signup ? "Go to sign in" : "Go to sign up"}
+            disabled={busy}
             onPress={onSwitch}
             style={{ alignItems: "center", paddingVertical: 18 }}
           >
@@ -412,6 +342,8 @@ export function AuthScreen({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Continue as guest"
             onPress={onBack}
             style={{ alignItems: "center", paddingBottom: 12 }}
           >
@@ -422,7 +354,7 @@ export function AuthScreen({
         </View>
         <Image
           source={ART.login}
-          style={{ width: "100%", aspectRatio: 2.76 }}
+          style={{ width: "100%", height: width / 2.76 }}
           resizeMode="cover"
         />
       </ScrollView>
