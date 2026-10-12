@@ -3,7 +3,7 @@
 // ==============================================================================
 
 export const ASSETS = {
-  logo: require('../../assets/website/logo-2.jpg'),
+  logo: require('../../assets/website/logo-transparent.png'),
   homeHeroFood: require('../../assets/design/home-food.jpg'),
   energyBallsCard: require('../../assets/website/product-1-main.png'),
   panjeeriCard: require('../../assets/website/product-2-main.png'),

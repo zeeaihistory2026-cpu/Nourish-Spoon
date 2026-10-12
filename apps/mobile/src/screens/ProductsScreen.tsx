@@ -19,12 +19,14 @@ interface ProductsScreenProps {
   onBack: () => void;
   onSelectProduct: (prod: Product) => void;
   onOpenWhatsAppOrder: (prod: Product, variant?: ProductVariant) => void;
+  onAddToCart: (prod: Product, variant?: ProductVariant) => void;
 }
 
 export const ProductsScreen: React.FC<ProductsScreenProps> = ({
   onBack,
   onSelectProduct,
   onOpenWhatsAppOrder,
+  onAddToCart,
 }) => {
   const { theme, products, favorites, toggleFavorite } = useMobileStore();
   const [selectedCategory, setSelectedCategory] = useState<
@@ -354,8 +356,8 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                     {/* Cart Button */}
                     <TouchableOpacity
                       accessibilityRole="button"
-                      accessibilityLabel={`Add ${prod.name} to order`}
-                      onPress={() => onOpenWhatsAppOrder(prod, currentVariant)}
+                      accessibilityLabel={`Add ${prod.name} to cart`}
+                      onPress={() => onAddToCart(prod, currentVariant)}
                       style={[
                         styles.cartSquare,
                         {

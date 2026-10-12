@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Product,
@@ -19,7 +20,7 @@ import {
   INITIAL_DELIVERY_METHODS,
   BRAND_IDENTITY,
   FOUNDER_STORY,
-} from "./mockData";
+} from "@packages/catalog/websiteSnapshot";
 import { LightTheme, DarkTheme, ThemeType } from "../constants/theme";
 
 export interface MobileStoreState {
@@ -57,16 +58,19 @@ export interface MobileStoreState {
     quantity?: number,
   ) => void;
   removeFromCart: (variantId: string) => void;
+  updateQuantity: (variantId: string, quantity: number) => void;
+  clearCart: () => void;
+  setProducts: (products: Product[]) => void;
 }
 
-export const useMobileStore = create<MobileStoreState>((set, get) => ({
+export const useMobileStore = create<MobileStoreState>()(persist((set, get) => ({
   themeMode: "light",
   theme: LightTheme,
   currentTheme: LightTheme,
   products: INITIAL_PRODUCTS,
   selectedProduct: INITIAL_PRODUCTS[0],
   selectedVariant: INITIAL_PRODUCTS[0].variants[0],
-  favorites: ["c0000000-0000-0000-0000-000000000001"],
+  favorites: [],
   reviews: INITIAL_REVIEWS,
   faqs: INITIAL_FAQS,
   paymentMethods: INITIAL_PAYMENT_METHODS,
@@ -116,25 +120,38 @@ export const useMobileStore = create<MobileStoreState>((set, get) => ({
   },
 
   addToCart: (product: Product, variant: ProductVariant, quantity = 1) => {
+    if (!product.active || !variant.active || !Number.isInteger(quantity) || quantity < 1) return;
     const current = get().cart;
     const existing = current.find((item) => item.variant.id === variant.id);
     if (existing) {
+      if (existing.quantity >= 20) return;
       set({
         cart: current.map((item) =>
           item.variant.id === variant.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: Math.min(20, item.quantity + quantity) }
             : item,
         ),
       });
     } else {
-      set({ cart: [...current, { product, variant, quantity }] });
+      if (current.length >= 10) return;
+      set({ cart: [...current, { product, variant, quantity: Math.min(20, quantity) }] });
     }
   },
 
   removeFromCart: (variantId: string) => {
     set({ cart: get().cart.filter((item) => item.variant.id !== variantId) });
   },
-}));
+  updateQuantity: (variantId, quantity) => {
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) return;
+    set({ cart: get().cart.map(item => item.variant.id === variantId ? { ...item, quantity } : item) });
+  },
+  clearCart: () => set({ cart: [] }),
+  setProducts: products => set({ products, cart: get().cart.map(item => {
+    const product = products.find(p => p.id === item.product.id || p.slug === item.product.slug || p.category === item.product.category);
+    const variant = product?.variants.find(v => v.id === item.variant.id || v.weight === item.variant.weight);
+    return product && variant ? { ...item, product, variant } : item;
+  }) }),
+}), { name: 'nourish:shopping', storage: createJSONStorage(() => AsyncStorage), partialize: state => ({ cart: state.cart, favorites: state.favorites }) }));
 
 // Export alias for convenience
 export const useStore = useMobileStore;

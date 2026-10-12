@@ -56,19 +56,6 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
 
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-  const [showCityDropdown, setShowCityDropdown] = useState(false);
-
-  const cities = [
-    "Sargodha",
-    "Lahore",
-    "Islamabad",
-    "Rawalpindi",
-    "Karachi",
-    "Faisalabad",
-    "Multan",
-    "Peshawar",
-  ];
-
   const handleProductSelect = (p: Product) => {
     setCurrentProduct(p);
     setSelectedVariant(p.variants[0]);
@@ -84,11 +71,11 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
     if (
       !customerName.trim() ||
       !customerPhone.trim() ||
-      !deliveryAddress.trim()
+      !deliveryAddress.trim() || !deliveryCity.trim()
     ) {
       showInfo(
         "Missing Details",
-        "Please fill in your name, phone number, and delivery address.",
+        "Please fill in your name, phone number, city and delivery address.",
       );
       return;
     }
@@ -363,56 +350,10 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             />
           </View>
 
-          {/* Delivery City */}
           <View style={styles.fieldRow}>
-            <Text style={[styles.inlineLabel, { color: theme.text }]}>
-              Delivery City
-            </Text>
-            <TouchableOpacity
-              onPress={() => setShowCityDropdown(!showCityDropdown)}
-              style={[
-                styles.inputBox,
-                styles.cityTrigger,
-                { backgroundColor: theme.surface, borderColor: theme.border },
-              ]}
-              activeOpacity={0.8}
-            >
-              <Text style={{ color: theme.text, fontSize: 13 }}>
-                {deliveryCity}
-              </Text>
-              <Ionicons name="chevron-down" size={14} color={theme.textMuted} />
-            </TouchableOpacity>
+            <Text style={[styles.inlineLabel, { color: theme.text }]}>Delivery City</Text>
+            <TextInput accessibilityLabel="Delivery city" value={deliveryCity} onChangeText={setDeliveryCity} placeholder="Enter your city" maxLength={80} autoCapitalize="words" placeholderTextColor={theme.textMuted} style={[styles.inputBox, { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border }]} />
           </View>
-
-          {showCityDropdown && (
-            <View
-              style={[
-                styles.dropdownMenu,
-                {
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                  marginLeft: 110,
-                },
-              ]}
-            >
-              {cities.map((c) => (
-                <TouchableOpacity
-                  key={c}
-                  onPress={() => {
-                    setDeliveryCity(c);
-                    setShowCityDropdown(false);
-                  }}
-                  style={styles.dropdownMenuItem}
-                >
-                  <Text
-                    style={[styles.dropdownMenuText, { color: theme.text }]}
-                  >
-                    {c}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
 
           {/* Delivery Address */}
           <View style={styles.fieldRow}>

@@ -14,7 +14,7 @@ import { Header } from "../components/Header";
 import { Text, ART } from "../components/DesignPrimitives";
 import { useStore } from "../services/storeService";
 
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { onAuthStateChanged, signOut, sendEmailVerification, User } from "firebase/auth";
 import { firebaseAuth } from "../services/firebase";
 
 export function ContactMoreScreen({ navigation }: { navigation: any }) {
@@ -73,13 +73,19 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
     },
     {
       title: "Follow on Instagram",
-      sub: "@nourishspoon",
+      sub: "@nourish_spoon",
       icon: "instagram",
       bg: "#CF1680",
-      action: () => open("https://instagram.com/nourishspoon"),
+      action: () => open("https://instagram.com/nourish_spoon"),
     },
   ];
   const more = [
+    ...(account && !account.emailVerified ? [{ title: "Verify Email", sub: "Confirm ownership of your account", icon: "envelope-o", action: async () => { try { await sendEmailVerification(account); showInfo("Verification sent", "Check your inbox to verify your email address."); } catch { showInfo("Unable to send email", "Please wait and try again."); } } }] : []),
+    { title: "Cart", sub: "Review items and checkout", icon: "shopping-cart", action: () => navigation.navigate("Cart") },
+    { title: "My Orders", sub: "Order history and reorder", icon: "list-alt", action: () => navigation.navigate("Orders") },
+    { title: "Track Order", sub: "Order progress and TCS tracking", icon: "truck", action: () => navigation.navigate("TrackOrder") },
+    { title: "Saved Addresses", sub: "Save any delivery city", icon: "address-book-o", action: () => navigation.navigate("Addresses") },
+    { title: "Notifications", sub: "Order and payment updates", icon: "bell-o", action: () => navigation.navigate("Notifications") },
     {
       title: "FAQ",
       sub: "Get answers to common questions",

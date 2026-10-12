@@ -1,133 +1,40 @@
-# 🌿 Nourish Spoon — Mobile App & Admin Dashboard
+# Nourish Spoon
 
-> **Crafted with Love • Sargodha, Pakistan**  
-> Premium Handcrafted Panjeeri, Date & Nut Energy Balls, and Traditional Pakistani Superfoods.
+Expo React Native mobile app, React admin dashboard, and Firebase commerce backend. The mobile interface follows [nourishspoon.com](https://nourishspoon.com): Cormorant Garamond headings, Jost text, cream/forest/gold colors, product artwork, website reviews and six hero banners.
 
-This repository contains the **Expo React Native mobile app** and **Vite React admin dashboard**. The mobile app now follows the Nourish Spoon website's logo, Cormorant Garamond/Jost typography, colors, product artwork, and home carousel, while retaining native navigation and account flows. Mobile email/password accounts and customer profile storage use Firebase. Catalog and admin data remain local; a full rules audit and physical Android testing of the latest APK are still pending. See [DELIVERY.md](DELIVERY.md) for verified behavior, limitations, and APK build instructions.
+## Structure
 
----
+- `apps/mobile/src/screens`: storefront, accounts and business information.
+- `apps/mobile/src/features`: commerce screens, Firebase data services and social sign-in.
+- `apps/mobile/src/components`: shared UI, navigation, carousel and dialogs.
+- `apps/mobile/plugins`: repeatable native Android launch and release-signing configuration.
+- `apps/admin/src/features/commerce`: authenticated owner dashboard and focused editors.
+- `packages/catalog`: website snapshot and adapter for existing Firebase product documents.
+- `packages/types`, `packages/utils`: shared contracts and utilities.
+- `functions`: authoritative checkout, order updates, reviews, notifications and protected native auth handoff.
+- `hosting`: Firebase-hosted Google/Apple sign-in bridge.
+- `tooling`: isolated Firebase emulator security and integration tests.
+- `docs/design`, `docs/product`: original design references and product requirements.
+- `scripts`: asset extraction and screenshot gallery tools.
 
-## 📁 Repository Structure
+Unused source and assets were archived outside the tracked application. Signing keys, environment files, generated builds, previews, test fixtures and cleanup backups are ignored by Git.
 
-```text
-nourish-spoon/
-├── apps/
-│   ├── mobile/                    # React Native (Expo) Mobile Application
-│   │   ├── assets/                # High-res photography, jar cards, ingredients, icons
-│   │   ├── src/
-│   │   │   ├── components/        # Header, BottomTabBar, TrustBadges
-│   │   │   ├── constants/         # Theme tokens (Light/Dark), Asset bundle mapper
-│   │   │   ├── screens/           # Screens based on supplied reference designs
-│   │   │   │   ├── SplashScreen.tsx          # Animated leaf splash & tagline
-│   │   │   │   ├── OnboardingScreen.tsx      # 3-slide value onboarding flow
-│   │   │   │   ├── HomeScreen.tsx            # Screen 01 HD: Hero food, Best-sellers, Delivery banner
-│   │   │   │   ├── ProductsScreen.tsx        # Screen 02 HD: Category filter, search, 250g/500g toggle
-│   │   │   │   ├── ProductDetailScreen.tsx   # Screens 03 & 04 HD: Jar hero, benefits, 14 ingredients
-│   │   │   │   ├── WhatsAppOrderScreen.tsx   # Screen 05 HD: WhatsApp 1-tap order configurator
-│   │   │   │   ├── PaymentDeliveryScreen.tsx # Screen 06 HD: JazzCash, EasyPaisa, Bank, TCS, Sargodha
-│   │   │   │   ├── CustomerReviewsScreen.tsx # Screen 07 HD: WhatsApp screenshot bubbles & ratings
-│   │   │   │   ├── OurStoryScreen.tsx        # Screen 08 HD: Founder Tayyaba narrative & 4-step craft
-│   │   │   │   ├── FAQScreen.tsx             # Screen 09 HD: Accordion FAQs & WhatsApp CTA banner
-│   │   │   │   └── ContactMoreScreen.tsx     # Screen 10 HD: Contact list, theme switch & socials
-│   │   │   └── services/          # Zustand store, Firebase account services & local data
-│   │   ├── App.tsx                # Master screen router & state coordinator
-│   │   ├── app.json               # Expo configuration
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   └── admin/                     # Admin Dashboard (Vite + React + Tailwind + TypeScript)
-│       ├── public/assets/         # Static assets, payment/delivery logos, jar cards
-│       ├── src/
-│       │   ├── components/        # Sidebar, Header, KPI Cards, Recharts, Orders Table, Modals
-│       │   ├── pages/             # Dashboard, Orders, Products, Reviews, FAQs, Settings, etc.
-│       │   ├── services/          # Supabase client, mock data & admin reactive store
-│       │   ├── App.tsx
-│       │   └── main.tsx
-│       ├── index.html
-│       ├── tailwind.config.js
-│       ├── vite.config.ts
-│       └── package.json
-│
-├── packages/
-│   ├── types/                     # Shared TypeScript models (Product, Order, Review, FAQ, etc.)
-│   └── utils/                     # PKR formatting, WhatsApp payload generator, delivery helpers
-│
-└── supabase/
-    ├── migrations/
-    │   ├── 001_initial_schema.sql # 18 tables, constraints, indexes & timestamp triggers
-    │   ├── 002_rls_policies.sql   # Public read, customer order write, admin manage
-    │   └── 003_storage_buckets.sql# Buckets for product photos, reviews, avatars & banners
-    └── seed/
-        └── seed.sql               # Complete initial seed data mirroring PRD & 11 HD screens
-```
+## Run locally
 
----
+Run `npm ci` in `apps/mobile`, `apps/admin`, `functions` and `tooling`. Copy the environment templates into each application's `.env` file and fill in the public Firebase web configuration. Mobile: `npm start` inside `apps/mobile`. Admin: `npm run dev` inside `apps/admin`.
 
-## Firebase account configuration
+The app includes a custom native Android launch overlay; use a native build to check it. The browser preview cannot validate Android system splash, keyboard or safe areas.
 
-Copy `apps/mobile/.env.example` to `apps/mobile/.env` and enter the Firebase web app configuration. Enable Email/Password in Firebase Authentication. This workspace is configured for `nourish-spoon-f4820`; secrets and signing files are excluded from Git.
+## Features
 
-`firestore.rules` and `firestore.indexes.json` are prepared for review. They have not been deployed or verified against the project. Existing Supabase SQL files are legacy scaffolding and are not the mobile account backend.
+Email accounts, persistent cart and favorites, product search/size selection, custom delivery city, saved addresses, server-calculated checkout, order history/reordering, gift messages, order stages, manual payment confirmation, TCS consignment links, in-app order updates, published nutrition/storage information and delivered-purchase reviews. More contains shopping/account tools; the burger menu contains delivery and payment information.
 
----
+The owner dashboard manages Firebase products, variant stock/prices, orders, payment status, consignment numbers, review moderation and delivery settings. Access requires verified `info@nourishspoon.com` or an explicitly assigned `admin` custom claim. Customer clients cannot write order totals, payment or delivery status directly.
 
-## 🚀 Running the Admin Dashboard
+## Deployment status
 
-```bash
-cd apps/admin
-npm install
-npm run dev
-```
+Email accounts and the public catalogue use the existing Firebase project. New commerce functions, revised access rules and hosted native social sign-in are prepared and tested locally, **not deployed to the live project**. Firebase CLI account access is still needed. Apple sign-in additionally requires the owner's Apple Developer provider credentials. Google/Apple UI availability is not proof of a working live provider.
 
-The Admin Dashboard will be available at `http://localhost:5173`.
-To build for production:
-```bash
-npm run build
-```
+Notifications currently appear inside the app; background push delivery is not implemented. TCS opens its official tracking site; parcel scans are not fetched through a private TCS API. Payment is confirmed manually, without a payment-gateway integration. Loyalty points, coupons and Urdu translation are not included in this release.
 
----
-
-## 📱 Running the Mobile App (React Native / Expo)
-
-```bash
-cd apps/mobile
-npm install
-npm start
-```
-
-- Press `w` to run in web browser (powered by `react-native-web`).
-- Press `a` to run on connected Android device/emulator.
-- Press `i` to run on iOS Simulator (macOS).
-- Scan QR code with the **Expo Go** app on your physical iOS/Android device!
-
----
-
-## 🎨 Design System & Palette
-
-- **Primary Deep Forest Green**: `#0D5428` / `#073B21`
-- **Parchment Cream Background**: `#FFF9EC` / `#FBF4E4`
-- **Warm Pakistan Gold**: `#C99B36` / `#E2BB62`
-- **WhatsApp Brand Green**: `#25D366`
-- **Typography**: Classic Pakistani Serif headings with clean modern Sans-serif body.
-- **Dark Mode**: Midnight forest palette (`#0C1B12`) with sage leaf accents (`#77A76A`).
-
----
-
-## 💬 WhatsApp Order Flow
-The app prepares a WhatsApp message for the customer to review and send. Opening WhatsApp does not itself submit an order:
-```text
-Assalam-o-Alaikum Nourish Spoon!
-I would like to place an order:
-
-• 1x Date & Nuts Energy Balls (500g) - Rs. 3,899
-Total: Rs. 3,899
-
-Customer Details:
-Name: Hira Malik
-Phone: 0300 1234567
-City: Sargodha
-Delivery: Sargodha Same-Day Delivery
-Payment: JazzCash
-```
-
-Crafted with dedication for **Nourish Spoon**.
+See [deployment instructions](docs/backend-deployment.md), [architecture](docs/architecture.md) and [QA/build notes](DELIVERY.md).

@@ -9,7 +9,7 @@ export type ProductVariant = {
   regular_price: number;
   sale_price: number | null;
   price_per_100g: number | null;
-  stock: number;
+  stock: number | null;
   is_default: boolean;
   active: boolean;
   sort_order: number;
@@ -35,6 +35,7 @@ export type NutritionFact = {
 };
 
 export type Product = {
+  inventory_mode?: 'per_variant';
   id: string;
   name: string;
   slug: string;
@@ -80,7 +81,7 @@ export type DeliveryMethod = {
   subtitle: string;
   description: string;
   estimated_time: string;
-  fee: number;
+  fee: number | null;
   available_cities: string[];
   icon?: string;
   active: boolean;

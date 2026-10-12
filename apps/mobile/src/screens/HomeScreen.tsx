@@ -20,6 +20,8 @@ interface Props {
   onOpenWhatsAppOrder: (p?: Product) => void;
   onOpenDeliveryInfo: () => void;
   onOpenMenu: () => void;
+  onAddToCart: (p: Product) => void;
+  onOpenNotifications: () => void;
 }
 export function HomeScreen({
   onNavigateTab,
@@ -27,6 +29,8 @@ export function HomeScreen({
   onOpenWhatsAppOrder,
   onOpenDeliveryInfo,
   onOpenMenu,
+  onAddToCart,
+  onOpenNotifications,
 }: Props) {
   const { theme: c, products, favorites, toggleFavorite } = useMobileStore();
   return (
@@ -50,7 +54,7 @@ export function HomeScreen({
           </Text>
         <Ionicons name="chevron-forward" size={16} color="#fff" />
       </TouchableOpacity>
-      <Header onMenu={onOpenMenu} onNotification={() => onNavigateTab("Reviews")} />
+      <Header onMenu={onOpenMenu} onNotification={onOpenNotifications} />
       <HeroCarousel />
       <View style={s.hero}>
         <View style={s.heroCopy}>
@@ -125,7 +129,7 @@ export function HomeScreen({
                   />
                   <TouchableOpacity
                     accessibilityLabel={"Favorite " + p.name}
-                    onPress={() => toggleFavorite(p.id)}
+                    onPress={(event) => { event.stopPropagation(); toggleFavorite(p.id); }}
                     style={s.heart}
                   >
                     <Ionicons
@@ -195,8 +199,8 @@ export function HomeScreen({
                     </View>
                     <TouchableOpacity
                       accessibilityRole="button"
-                      accessibilityLabel={"Order " + p.name}
-                      onPress={() => onOpenWhatsAppOrder(p)}
+                      accessibilityLabel={"Add " + p.name + " to cart"}
+                      onPress={(event) => { event.stopPropagation(); onAddToCart(p); }}
                       style={[s.cart, { backgroundColor: c.primaryDark }]}
                     >
                       <Ionicons name="cart-outline" size={21} color="#fff" />

@@ -1,53 +1,42 @@
-# Nourish Spoon delivery
+# Delivery and QA notes
 
-The latest mobile styling follows https://nourishspoon.com/: Cormorant Garamond headings, Jost body/input text, website logo, forest green/cream/gold tokens, and the website's product artwork. The home screen includes all six website carousel banners, centered hero copy, and compact order/explore buttons. Banner assets are bundled for offline display; autoplay pauses when the app is backgrounded or reduced motion is enabled, and manual controls remain available.
+The app follows the website's Cormorant Garamond/Jost typography, forest/cream/gold palette, artwork and six promotional banners. Hero images preserve their full framing; swipe, dots and autoplay remain, and previous/next arrows are removed. Autoplay pauses in the background and for reduced motion. The transparent logo replaces the textured square in the launch, header, menu and account screens; UI logo color is the website gold.
 
-The burger menu contains Delivery Information and Payment Methods, with links to the corresponding section. More contains contact links, FAQ, About, ordering, account, and appearance options. Catalog WhatsApp/View Product/cart actions occupy one row, including at 320px widths. Home cards stretch equally and anchor price/cart controls at the bottom. Detail back/favorite controls occupy a separate header so they do not obscure product artwork. The contact hero separates its photograph from the heading and paragraph.
+The native launch photo and app splash preserve the complete panjeeri/laddu image. Android 12's initial system-managed splash has a centered padded icon on cream, followed by the photo/text launch screen. Home cards have matching heights and aligned cart controls. Product WhatsApp/View/cart actions share one row at 320px and 360px. Detail actions and navigation occupy separate layout space. Scrollable screens end with 20px clearance above navigation. Custom city fields accept cities outside any predefined list.
 
-Navigation occupies its own layout space; scrolling content and bottom action panels have 20px of clearance. Screen transitions respect the device's reduced-motion preference.
+More contains cart, order history, tracking, saved addresses, notifications, FAQ, account and contact tools. The burger menu contains delivery information and payment methods. Published website reviews and their individual proof images are bundled. Nutrition/storage values are website figures, not a laboratory verification; allergen descriptions are based on published ingredients.
 
-All 12 publicly displayed website reviews and their individual WhatsApp screenshots are bundled in the app. Names, headlines, messages, ratings, verification badges, and helpful counts come from the website snapshot taken on 2026-10-11. Reviews for both products appear in both product filters. Helpful toggles are local feedback; they do not update website counts. Relative ages from the snapshot are not presented as current dates.
+## Checks completed on 2026-10-12
 
-## Accounts and data
+- Mobile TypeScript check and native release compilation.
+- Admin TypeScript/production build after extracting editors and removing demo pages/assets.
+- Eight backend domain/catalogue tests: authoritative pricing, unknown fees, first-order policy, malformed quantities/overselling, custom cities, order stages and legacy Firebase product compatibility.
+- Five Firestore rules tests: owner privacy, protected order writes, address schema/privacy, untamperable notifications and private reviews/auth handoff.
+- Five callable integration tests: idempotent checkout, customer privilege rejection, fulfilment/TCS/review rules, concurrent stock/cancellation and one-use auth handoff.
+- Browser QA: signup, sign-in, password visibility and field validation, search/filtering, cart quantities, custom-city checkout, saved-address create/edit/remove, order navigation, notification navigation and menu separation. Website reviews, image framing and small-phone layout were visually inspected.
+- APK v2 signature validation, Android package/version and ARM64/minimum SDK inspection.
 
-Email/password accounts use Firebase project `nourish-spoon-f4820`. Signup, sign-in, sign-out, and password reset are implemented. Social sign-in is omitted as requested. The Firebase web configuration belongs in `apps/mobile/.env`; use `.env.example` as the template.
+The 26-screen gallery consists of actual browser renders. Commerce screenshots use isolated demo data, including illustrative delivery fees. They are not Android device screenshots. A final APK signature/build check does not establish physical-device startup, keyboard, safe areas or provider login; those still require a connected phone/emulator.
 
-Firebase account creation, profile display-name updates, incorrect-password rejection, and successful sign-in were tested against the live project. The temporary QA account was deleted.
+## Live-service limits
 
-Payment information directs customers to the business for current account details, rather than presenting the sample bank account from the mock data as an official account.
+The existing Firebase project handles email accounts and its public catalogue. Revised rules, commerce functions and native social Hosting bridge are prepared and tested locally but not deployed. CLI account authorization is unavailable. Google needs enabled/configured Firebase provider access; Apple additionally needs an Apple Developer account and provider credentials, which have not been supplied. The app keeps guest WhatsApp ordering available and reports service errors without pretending an order succeeded.
 
-Firestore customer profile writes and owner reads were verified against the existing deployed rules. Unauthenticated reads of the test profile were denied. The replacement rules prepared in `firestore.rules` have not been deployed or fully audited. Pending customer details are retained locally and retried after authentication. The product catalog and admin dashboard still use local data; the dashboard is not a complete cloud administration backend. Notification drafts are local and do not send push notifications.
+Notifications are in-app updates; background push is not implemented. TCS scans open on the official TCS website, without a private carrier API integration. Payments are confirmed manually. Coupons, loyalty and Urdu translation are not included. See `docs/backend-deployment.md` for deployment and owner handover, including cleanup of the earlier residual live QA account.
 
-One additional temporary profile QA account (`nourish-profile-qa-…@example.invalid`) and its `users/{uid}` document remain in Firebase. The existing rules rejected profile deletion, and a cleanup exception prevented deletion of the authentication account. The diagnostic cleanup routine was corrected, but console access is currently unavailable. In Firebase Authentication, find that email prefix, note its UID, and delete the account and matching Firestore user document through the console before launch. The earlier authentication-only QA account was successfully deleted.
+Dependency audit remains open: mobile dependencies report 26 advisories (7 moderate, 19 high), including transitive Expo/Metro/Firebase build tooling. The earlier critical advisory was resolved. Breaking downgrade suggestions from `npm audit fix --force` were not applied. Review supported upstream upgrades before production distribution. The admin build also warns about its large Firebase bundle.
 
-## Verification
+## Rebuilding and signing
 
-- Mobile TypeScript check and production web export.
-- Admin production build.
-- Browser inspection at phone widths, product search and empty states, product variant selection, order validation, modal dismissal, and tab navigation.
-- Live Firebase email/password test: `node --env-file=apps/mobile/.env scripts/verify-firebase-auth.mjs`.
-- Android release build and APK signature verification.
-
-Version 1.0.1 (version code 2) was built successfully on 2026-10-11. Its APK SHA-256 is `ED6D486816276BCAC85DBE3EC3B93C094AF42605F3C25FCADCF9FDC77C5185D7`. The final Android bundle was checked for the current carousel, website reviews, and equal-height home card code. Browser review filters returned 12 total reviews, 8 for energy balls, and 10 for Panjeeri; helpful feedback was reversible. Both home cart buttons had the same vertical position at 360px width.
-
-The delivery includes 26 browser screenshots at 360 × 800, a clickable HTML gallery, and a screen overview image. These are browser previews, not Android device screenshots.
-
-The user tested the earlier preview on a physical phone and supplied screenshots. These latest fixes were checked in the browser; no Android device or emulator was connected for an installation test of version 1.0.1. Physical-device keyboard, safe-area, and account persistence checks remain necessary before a production release.
-
-## Rebuild the Android APK
-
-Install dependencies in `apps/mobile`. Set `JAVA_HOME` to JDK 17 and `ANDROID_HOME` to an Android SDK with platform/build tools 36 and a complete NDK installation. This workspace uses NDK `28.2.13676358`.
-
-From `apps/mobile/android`, run in PowerShell:
+Install dependencies and configure `apps/mobile/.env` from the template. Use JDK 17, Android SDK/build tools 36 and NDK 28.2.13676358. From `apps/mobile/android`:
 
 ```powershell
 $env:NODE_ENV = 'production'
 $env:NOURISH_NDK_VERSION = '28.2.13676358'
-.\gradlew.bat :app:assembleRelease '-Pnourish.ndkVersion=28.2.13676358' '-PreactNativeArchitectures=arm64-v8a' '-Pkotlin.compiler.execution.strategy=in-process' --max-workers=1 --no-parallel --console=plain
+.\gradlew.bat :app:assembleRelease '-Pnourish.ndkVersion=28.2.13676358' '-PreactNativeArchitectures=arm64-v8a' '-Pkotlin.compiler.execution.strategy=in-process' '-Dorg.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=1024m' --max-workers=1 --no-parallel --console=plain
 ```
 
-The output is `apps/mobile/android/app/build/outputs/apk/release/app-release.apk`. This build targets ARM64 Android devices running Android 7 or newer.
+Output: `apps/mobile/android/app/build/outputs/apk/release/app-release.apk`, version 1.0.2 / code 3, ARM64, Android 7+.
 
-Release signing uses the local, ignored `apps/mobile/private-signing/signing.properties` and `apps/mobile/private-signing/nourish-release.jks`. This directory is outside the generated Android folder. The Expo config plugin reapplies release signing and the optional NDK override after prebuild; assembling a release without signing properties fails explicitly. Back up both files securely. Neither signing secrets nor the environment file belong in GitHub.
-
-**Installation note for version 1.0.1:** Expo's native resource refresh recreated the Android folder and removed the earlier preview's signing material. A replacement key is now used. This APK cannot update the old 1.0.0 preview in place: uninstall that preview, then install 1.0.1. Uninstallation clears local app settings; Firebase accounts remain available for sign-in. Future updates must use the new backed-up key.
+Private signing remains in the ignored `apps/mobile/private-signing` folder, outside generated native files. Back up the JKS and signing properties securely. Certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee3459409980f31600e51bb0`. Version 1.0.2 uses the same key as 1.0.1 and can update that preview. It cannot update the old 1.0.0 preview signed by the lost earlier key.
+Final APK SHA-256: `35773A9800C34D4A1446619A36D034BA9909F7AC0BDF7FAD986C5E297A92DBAA`. Size: 41,423,010 bytes. The bundle contains the live project ID and transparent-logo asset; demo project IDs and QA passwords are absent. Final package inspection confirms obsolete external-storage/overlay permissions are absent.

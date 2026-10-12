@@ -2,21 +2,37 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function admin() { return signedIn() && request.auth.token.admin == true; }
+    function admin() { return signedIn() && (request.auth.token.admin == true || (request.auth.token.email_verified == true && request.auth.token.email == 'info@nourishspoon.com')); }
     match /users/{uid} {
       allow read: if admin() || (signedIn() && request.auth.uid == uid);
       allow create: if signedIn() && request.auth.uid == uid
         && request.resource.data.uid == uid && request.resource.data.role == 'customer'
+        && request.resource.data.email == request.auth.token.email
         && request.resource.data.keys().hasOnly(['uid','fullName','email','phone','role','updatedAt']);
       allow update: if admin() || (signedIn() && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','phone','updatedAt']));
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName','email','phone','updatedAt'])
+        && request.resource.data.email == request.auth.token.email);
       allow delete: if admin();
+      match /addresses/{id} {
+        allow read, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['label','name','phone','city','line'])
+          && request.resource.data.label is string && request.resource.data.label.size() > 0 && request.resource.data.label.size() <= 40
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
+          && request.resource.data.phone is string && request.resource.data.phone.size() <= 30
+          && request.resource.data.city is string && request.resource.data.city.size() > 0 && request.resource.data.city.size() <= 80
+          && request.resource.data.line is string && request.resource.data.line.size() > 0 && request.resource.data.line.size() <= 300;
+      }
+      match /notifications/{id} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow update: if signedIn() && request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) && request.resource.data.read is bool;
+      }
     }
     match /products/{id} { allow read: if true; allow write: if admin(); }
     match /faqs/{id} { allow read: if true; allow write: if admin(); }
     match /settings/{id} { allow read: if true; allow write: if admin(); }
-    match /reviews/{id} { allow read: if resource.data.approved == true || admin(); allow write: if admin(); }
-    match /orders/{id} { allow read, write: if admin(); }
+    match /reviews/{id} { allow read: if resource.data.status == 'approved' || admin() || (signedIn() && resource.data.customer_uid == request.auth.uid); allow write: if admin(); }
+    match /orders/{id} { allow read: if admin() || (signedIn() && resource.data.customer_uid == request.auth.uid); allow write: if false; }
     match /{document=**} { allow read, write: if false; }
   }
 }

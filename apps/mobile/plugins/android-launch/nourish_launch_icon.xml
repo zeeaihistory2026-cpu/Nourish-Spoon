@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item><shape android:shape="rectangle"><size android:width="288dp" android:height="288dp" /><solid android:color="#FDF6E3" /></shape></item>
+    <!-- Keep the complete square artwork inside Android's circular icon mask. -->
+    <item android:width="128dp" android:height="128dp" android:gravity="center">
+        <bitmap android:src="@drawable/nourish_launch_logo" android:gravity="fill" android:filter="true" />
+    </item>
+</layer-list>

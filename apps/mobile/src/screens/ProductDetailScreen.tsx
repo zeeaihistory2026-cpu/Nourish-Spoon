@@ -16,17 +16,20 @@ import { useMobileStore } from "../services/storeService";
 import { ASSETS } from "../constants/assets";
 import { formatPKR, formatPer100g } from "@packages/utils";
 import { Product, ProductVariant } from "@packages/types";
+import { Card, Heading, Copy } from "../features/commerce/components";
 
 interface ProductDetailScreenProps {
   product?: Product;
   onBack: () => void;
   onOpenWhatsAppOrder: (prod: Product, variant?: ProductVariant) => void;
+  onAddToCart: (prod: Product, variant?: ProductVariant) => void;
 }
 
 export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
   product,
   onBack,
   onOpenWhatsAppOrder,
+  onAddToCart,
 }) => {
   const { showInfo, dialog } = useInfoDialog();
   const { width } = useWindowDimensions();
@@ -255,6 +258,11 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
               </View>
             ))}
           </View>
+          <View style={{ marginTop: 18, gap: 12 }}>
+            <Card><Heading>Nutrition per 100g</Heading>{prod.nutrition_facts?.map(fact => <View key={fact.id} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}><Text>{fact.label}</Text><Text>{fact.value} {fact.unit}</Text></View>)}<Copy>Values published by nourishspoon.com. These are website figures; independent laboratory verification is unavailable.</Copy></Card>
+            <Card><Heading>Allergens</Heading><Copy>{isPanjeeri ? 'Contains tree nuts, milk (ghee), and wheat/gluten (semolina).' : 'Contains tree nuts, milk (ghee), and sesame.'} Allergen information is derived from the published ingredients. Cross-contact information is not confirmed; contact us if you have an allergy.</Copy></Card>
+            <Card><Heading>Storage & shelf life</Heading><Copy>{prod.storage_instructions}</Copy></Card>
+          </View>
         </View>
       </ScrollView>
 
@@ -278,6 +286,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
           />
           <Text style={styles.orderButtonText}>Order on WhatsApp →</Text>
         </TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add ${prod.name} to cart`} onPress={() => onAddToCart(prod, activeVariant)} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: theme.surfaceWarm, borderWidth: 1, borderColor: theme.border }}><Ionicons name="cart-outline" size={22} color={theme.primary} /></TouchableOpacity>
       </View>
     </View>
   );
@@ -480,12 +489,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bottomBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 20,
     borderTopWidth: 1,
   },
   orderButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

@@ -22,6 +22,7 @@ import { useMobileStore } from "../services/storeService";
 import { firebaseAuth, isFirebaseConfigured, saveCustomerProfile, accountError } from '../services/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { AuthInput } from "../components/AuthInput";
+import { socialSignIn } from '../features/account/socialSignIn';
 
 export function AuthScreen({
   signup = false,
@@ -118,6 +119,13 @@ export function AuthScreen({
     } finally {
       setBusy(false);
     }
+  };
+  const social = async (provider: 'google' | 'apple') => {
+    if (busy || !configured()) return;
+    setBusy(true); setMessage('');
+    try { await socialSignIn(provider); onSuccess(); }
+    catch (error: any) { setMessage(error.code ? accountError(error) : error.message || 'Could not complete sign-in.'); }
+    finally { setBusy(false); }
   };
   return (
     <KeyboardAvoidingView
@@ -321,6 +329,9 @@ export function AuthScreen({
               </Text>
             </Text>
           )}
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            {(['google', 'apple'] as const).map(provider => <TouchableOpacity key={provider} accessibilityRole="button" accessibilityLabel={`Continue with ${provider === 'google' ? 'Google' : 'Apple'}`} disabled={busy} onPress={() => social(provider)} style={{ flex: 1, minHeight: 48, borderWidth: 1, borderColor: c.border, borderRadius: 10, backgroundColor: c.surface, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8, opacity: busy ? 0.6 : 1 }}><Ionicons name={provider === 'google' ? 'logo-google' : 'logo-apple'} size={21} color={c.text} /><Text numberOfLines={1} style={{ fontSize: 14, color: c.text }}>{provider === 'google' ? 'Google' : 'Apple'}</Text></TouchableOpacity>)}
+          </View>
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={signup ? "Go to sign in" : "Go to sign up"}

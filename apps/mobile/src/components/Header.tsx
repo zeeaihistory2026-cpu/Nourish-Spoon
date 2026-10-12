@@ -48,7 +48,7 @@ export function Header({
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={
-            rightAction === "search" ? "Search products" : "View reviews"
+            rightAction === "search" ? "Search products" : "Notifications"
           }
           onPress={rightAction === "search" ? onSearch : onNotification}
           style={[styles.circle, { backgroundColor: theme.surface }]}
@@ -58,7 +58,6 @@ export function Header({
             size={23}
             color={theme.text}
           />
-          {rightAction === "bell" && <View style={styles.dot} />}
         </TouchableOpacity>
       )}
     </View>

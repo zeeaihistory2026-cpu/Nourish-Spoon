@@ -7,7 +7,7 @@ import { useMobileStore } from "../services/storeService";
 import { WEBSITE_REVIEWS, WebsiteReview } from "../data/websiteReviews";
 
 export function CustomerReviewsScreen({ onBack, navigation }: { onBack?: () => void; navigation?: any }) {
-  const { theme } = useMobileStore();
+  const { theme, reviews } = useMobileStore();
   const { height } = useWindowDimensions();
   const [category, setCategory] = useState("all");
   const [voted, setVoted] = useState<Record<string, boolean>>({});
@@ -31,6 +31,7 @@ export function CustomerReviewsScreen({ onBack, navigation }: { onBack?: () => v
             </TouchableOpacity>
           ))}
         </View>
+        {reviews.filter(review => review.status === 'approved' && !WEBSITE_REVIEWS.some(website => website.id === review.id) && (category === 'all' || (category === 'panjeeri' ? review.product_name.includes('Panjeeri') : !review.product_name.includes('Panjeeri')))).map(review => <View key={review.id} style={[s.card, { backgroundColor: theme.surface, borderColor: theme.border, borderTopColor: theme.gold }]}><Text style={{ fontSize: 16, fontWeight: '700' }}>{review.customer_name} · {review.rating}★</Text><Text style={{ fontSize: 12, color: theme.primary }}>Verified purchase · {review.product_name}</Text><Text style={[s.comment, { color: theme.textSecondary }]}>{review.comment}</Text></View>)}
         {visible.map(review => (
           <View key={review.id} style={[s.card, { backgroundColor: theme.surface, borderColor: theme.border, borderTopColor: theme.gold }]}>
             <View style={s.author}>

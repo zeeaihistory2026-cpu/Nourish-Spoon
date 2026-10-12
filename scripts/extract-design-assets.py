@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-REF = ROOT / 'Nourish_Spoon_HD_UI_Designs (1)/Nourish_Spoon_HD_UI_Designs/Final_Screens_HD'
+REF = ROOT / 'docs/design/reference-screens/Nourish_Spoon_HD_UI_Designs/Final_Screens_HD'
 OUT = ROOT / 'apps/mobile/assets/design'
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -27,7 +27,7 @@ crop('10_Contact_and_More_Screen_HD.png', (531, 214, 806, 535), 'contact-food.jp
 crop('07_Customer_Reviews_Screen_HD.png', (81, 760, 487, 852), 'review-proof.png')
 
 # Use the separately supplied ingredient photography instead of crops containing labels.
-ingredient_dir = ROOT / 'extracted_assets/ingredients/date and energy ball icons'
+ingredient_dir = ROOT / 'docs/design/extracted-assets/ingredients/date and energy ball icons'
 mapping = {'dates':'whole_medjool_dates', 'almonds':'whole_raw_almonds',
     'walnuts':'whole_shelled_walnuts', 'cashews':'raw_cashew_nuts',
     'raisins':'golden_raisins', 'figs':'dried_whole_figs', 'coconut':'fresh_coconut',
@@ -39,7 +39,7 @@ for name, match in mapping.items():
     img = Image.open(source).convert('RGB')
     img.thumbnail((240, 240))
     img.save(OUT / (name + '.jpg'), quality=90)
-source = next((ROOT / 'extracted_assets/ingredients/panjeeri icons').glob('*semolina*.png'))
+source = next((ROOT / 'docs/design/extracted-assets/ingredients/panjeeri icons').glob('*semolina*.png'))
 img = Image.open(source).convert('RGB')
 img.thumbnail((240, 240))
 img.save(OUT / 'semolina.jpg', quality=90)

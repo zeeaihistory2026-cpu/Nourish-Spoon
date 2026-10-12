@@ -6,12 +6,15 @@ import {
   View,
   Image,
   TouchableOpacity,
+  StyleProp,
+  ViewStyle,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMobileStore } from "../services/storeService";
 
 export function Text({ style, ...props }: TextProps) {
+  const defaultColor = useMobileStore(state => state.theme.text);
   const flat = StyleSheet.flatten(style) || {};
   const serif = flat.fontFamily === "serif";
   const bold = Number(flat.fontWeight) >= 600 || flat.fontWeight === "bold";
@@ -28,7 +31,7 @@ export function Text({ style, ...props }: TextProps) {
     <NativeText
       {...props}
       style={[
-        { color: useMobileStore.getState().theme.text },
+        { color: defaultColor },
         style,
         { fontFamily, fontWeight: "normal" },
       ]}
@@ -37,7 +40,7 @@ export function Text({ style, ...props }: TextProps) {
 }
 
 export const ART = {
-  brand: require("../../assets/website/logo-2.jpg"),
+  brand: require("../../assets/website/logo-transparent.png"),
   botanical: require("../../assets/design/botanical.png"),
   home: require("../../assets/design/home-food.jpg"),
   splash: require("../../assets/design/splash-food.jpg"),
@@ -91,7 +94,7 @@ export function Brand({ large = false, website = false }: { large?: boolean; web
   const { theme } = useMobileStore();
   if (website) return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 7, flexShrink: 1 }}>
-      <Image source={require("../../assets/website/logo-2.jpg")} style={{ width: 38, height: 38, borderRadius: 19 }} />
+      <Image source={require("../../assets/website/logo-transparent.png")} resizeMode="contain" style={{ width: 38, height: 38, tintColor: '#C9A84C' }} />
       <View>
         <Text style={{ fontFamily: "serif", fontSize: 22, lineHeight: 25, fontWeight: "700", color: theme.text }}>Nourish Spoon™</Text>
         <Text style={{ fontFamily: "serif", fontSize: 14, color: theme.gold }}>Crafted with Love</Text>
@@ -100,7 +103,7 @@ export function Brand({ large = false, website = false }: { large?: boolean; web
   );
   return (
     <View style={{ alignItems: "center" }}>
-      <Image source={ART.brand} style={{ width: large ? 80 : 46, height: large ? 80 : 46, borderRadius: large ? 40 : 23 }} />
+      <Image source={ART.brand} resizeMode="contain" style={{ width: large ? 80 : 46, height: large ? 80 : 46, tintColor: '#C9A84C' }} />
       <Text style={{ fontFamily: "serif", fontSize: large ? 36 : 24, fontWeight: "700", color: theme.text, marginTop: 7 }}>Nourish Spoon™</Text>
       <Text style={{ fontFamily: "serif", fontSize: large ? 18 : 14, color: theme.gold }}>Crafted with Love</Text>
     </View>
@@ -108,13 +111,20 @@ export function Brand({ large = false, website = false }: { large?: boolean; web
 
 }
 
+interface GreenButtonProps {
+  title: string;
+  onPress: () => void;
+  whatsapp?: boolean;
+  disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
+}
 export function GreenButton({
   title,
   onPress,
   whatsapp = false,
   disabled = false,
   style,
-}: any) {
+}: GreenButtonProps) {
   const { theme } = useMobileStore();
   return (
     <TouchableOpacity

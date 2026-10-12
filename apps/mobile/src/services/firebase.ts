@@ -1,7 +1,8 @@
 import { getApps, initializeApp } from 'firebase/app';
-import { getAuth, initializeAuth, Auth, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, initializeAuth, Auth, browserLocalPersistence, connectAuthEmulator } from 'firebase/auth';
 import * as AuthSDK from 'firebase/auth';
-import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, serverTimestamp, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
@@ -25,6 +26,13 @@ export const firebaseAuth: Auth | null = app ? (() => {
     throw error;
   }
 })() : null;
+// Explicit local QA configuration; release exports must leave this variable unset.
+const emulatorHost = process.env.EXPO_PUBLIC_FIREBASE_EMULATOR_HOST;
+if (emulatorHost && db && firebaseAuth && app) {
+  connectAuthEmulator(firebaseAuth, `http://${emulatorHost}:9099`, { disableWarnings: true });
+  connectFirestoreEmulator(db, emulatorHost, 8080);
+  connectFunctionsEmulator(getFunctions(app, 'us-central1'), emulatorHost, 5001);
+}
 
 export async function saveCustomerProfile(uid: string, fullName: string, email: string, phone: string) {
   if (!db) throw new Error('Firebase is not configured.');

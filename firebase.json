@@ -1,4 +1,6 @@
 {
   "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
-  "emulators": { "auth": { "port": 9099 }, "firestore": { "port": 8080 } }
+  "functions": [{ "source": "functions", "codebase": "commerce", "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"] }],
+  "hosting": { "public": "hosting", "ignore": ["firebase.json", "**/.*", "**/node_modules/**"], "headers": [{ "source": "/auth.html", "headers": [{ "key": "Cache-Control", "value": "no-store" }, { "key": "Referrer-Policy", "value": "no-referrer" }] }] },
+  "emulators": { "auth": { "port": 9099 }, "firestore": { "port": 8080 }, "functions": { "port": 5001 } }
 }

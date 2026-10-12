@@ -1,4 +1,4 @@
-import publishedReviews from "./websiteReviews.json";
+import publishedReviews from "@packages/catalog/websiteReviews.json";
 
 const screenshots = [
   require("../../assets/website/review-1.png"),

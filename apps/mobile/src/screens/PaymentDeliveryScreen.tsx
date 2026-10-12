@@ -44,7 +44,7 @@ export const PaymentDeliveryScreen: React.FC<PaymentDeliveryScreenProps> = ({
   const handleDeliveryClick = (dm: any) => {
     showInfo(
       dm.title,
-      `${dm.description}\n\nEstimated Time: ${dm.estimated_time}\nFee: ${dm.fee === 0 ? "Free" : `Rs. ${dm.fee}`}`,
+      `${dm.description}\n\nEstimated Time: ${dm.estimated_time}\nFee: ${dm.fee == null ? "Confirm with Nourish Spoon" : dm.fee === 0 ? "Free" : `Rs. ${dm.fee}`}`,
     );
   };
 

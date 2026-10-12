@@ -1,0 +1,6 @@
+{
+  "name": "nourish-spoon-qa",
+  "private": true,
+  "scripts": { "test:rules": "node --test firestore.test.mjs" },
+  "devDependencies": { "firebase-tools": "^15.0.0", "@firebase/rules-unit-testing": "^5.0.0", "firebase": "^12.0.0" }
+}
