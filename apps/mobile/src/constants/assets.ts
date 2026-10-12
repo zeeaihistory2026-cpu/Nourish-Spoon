@@ -3,12 +3,10 @@
 // ==============================================================================
 
 export const ASSETS = {
+  comboCard: require('../../assets/products/combo-pack.png'),
   logo: require('../../assets/website/logo-transparent.png'),
-  homeHeroFood: require('../../assets/design/home-food.jpg'),
   energyBallsCard: require('../../assets/website/product-1-main.png'),
   panjeeriCard: require('../../assets/website/product-2-main.png'),
-  energyBallsDetailHero: require('../../assets/website/product-1-main.png'),
-  panjeeriDetailHero: require('../../assets/website/product-2-main.png'),
   founderStoryHero: require('../../assets/design/founder.jpg'),
 
   // Icons

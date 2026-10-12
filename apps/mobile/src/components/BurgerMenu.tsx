@@ -1,58 +1,216 @@
 import React from "react";
-import { Image, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Text, Brand } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 
 export type MenuSection = "payment" | "delivery";
-
-export function BurgerMenu({ visible, reduceMotion, onClose, onSelect }: {
+export type MenuDestination =
+  | MenuSection
+  | "home"
+  | "products"
+  | "panjeeri"
+  | "energy_balls"
+  | "combos"
+  | "story"
+  | "reviews";
+const groups: {
+  label: string;
+  items: {
+    destination: MenuDestination;
+    title: string;
+    icon: React.ComponentProps<typeof Ionicons>["name"];
+  }[];
+}[] = [
+  {
+    label: "SHOP",
+    items: [
+      { destination: "home", title: "Home", icon: "home-outline" },
+      { destination: "products", title: "All Products", icon: "grid-outline" },
+      {
+        destination: "panjeeri",
+        title: "Homemade Panjeeri",
+        icon: "leaf-outline",
+      },
+      {
+        destination: "energy_balls",
+        title: "Energy Balls",
+        icon: "nutrition-outline",
+      },
+      { destination: "combos", title: "Combo Deals", icon: "gift-outline" },
+    ],
+  },
+  {
+    label: "NOURISH SPOON",
+    items: [
+      { destination: "story", title: "Our Story", icon: "flower-outline" },
+      {
+        destination: "reviews",
+        title: "Customer Reviews",
+        icon: "star-outline",
+      },
+      {
+        destination: "delivery",
+        title: "Delivery Information",
+        icon: "car-outline",
+      },
+      {
+        destination: "payment",
+        title: "Payment Methods",
+        icon: "card-outline",
+      },
+    ],
+  },
+];
+export function BurgerMenu({
+  visible,
+  reduceMotion,
+  onClose,
+  onSelect,
+}: {
   visible: boolean;
   reduceMotion: boolean;
   onClose: () => void;
-  onSelect: (section: MenuSection) => void;
+  onSelect: (destination: MenuDestination) => void;
 }) {
   const { theme } = useMobileStore();
-  const items = [
-    { section: "delivery" as const, title: "Delivery Information", description: "Delivery areas, timing and charges", icon: "car-outline" as const },
-    { section: "payment" as const, title: "Payment Methods", description: "Bank transfer, Easypaisa and JazzCash", icon: "card-outline" as const },
-  ];
   return (
-    <Modal visible={visible} transparent statusBarTranslucent animationType={reduceMotion ? "none" : "fade"} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      statusBarTranslucent
+      animationType={reduceMotion ? "none" : "fade"}
+      onRequestClose={onClose}
+    >
       <View style={s.backdrop}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Dismiss menu" onPress={onClose} style={StyleSheet.absoluteFill} />
-        <SafeAreaView accessibilityViewIsModal style={[s.panel, { backgroundColor: theme.background }]} edges={["top", "bottom"]}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Dismiss menu"
+          onPress={onClose}
+          style={StyleSheet.absoluteFill}
+        />
+        <SafeAreaView
+          accessibilityViewIsModal
+          style={[s.panel, { backgroundColor: theme.background }]}
+          edges={["top", "bottom"]}
+        >
           <View style={s.top}>
-            <Text accessibilityRole="header" style={{ fontFamily: "serif", fontWeight: "700", fontSize: 28, color: theme.text }}>Menu</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close menu" onPress={onClose} style={s.close}>
+            <Brand website />
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Close menu"
+              onPress={onClose}
+              style={s.close}
+            >
               <Ionicons name="close" size={25} color={theme.text} />
             </TouchableOpacity>
           </View>
-          <View style={{ paddingHorizontal: 16, paddingVertical: 20 }}><Brand website /></View>
-          {items.map(item => (
-            <TouchableOpacity key={item.section} accessibilityRole="button" accessibilityLabel={item.title} onPress={() => onSelect(item.section)} style={[s.item, { borderColor: theme.border }]}>
-              <View style={[s.icon, { backgroundColor: theme.goldWarm }]}><Ionicons name={item.icon} size={24} color={theme.primary} /></View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: "700", color: theme.text }}>{item.title}</Text>
-                <Text style={{ fontSize: 12, lineHeight: 17, color: theme.textSecondary, marginTop: 3 }}>{item.description}</Text>
+          <ScrollView
+            contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 20 }}
+          >
+            {groups.map((group) => (
+              <View key={group.label}>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: 2,
+                    color: theme.textMuted,
+                    marginTop: 20,
+                    marginBottom: 6,
+                  }}
+                >
+                  {group.label}
+                </Text>
+                {group.items.map((item) => (
+                  <TouchableOpacity
+                    key={item.destination}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.title}
+                    onPress={() => onSelect(item.destination)}
+                    style={[s.item, { borderColor: theme.borderSubtle }]}
+                  >
+                    <Ionicons
+                      name={item.icon}
+                      size={22}
+                      color={theme.primary}
+                    />
+                    <Text style={s.label}>{item.title}</Text>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={16}
+                      color={theme.textSecondary}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
-              <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-            </TouchableOpacity>
-          ))}
-          <View style={{ flex: 1 }} />
-          <Text style={{ color: theme.textSecondary, textAlign: "center", fontSize: 12, padding: 20 }}>Crafted with Love · Nourish Spoon</Text>
+            ))}
+            <View style={[s.banner, { backgroundColor: "#F5EADB" }]}>
+              <Image
+                source={require("../../assets/hero/panjeeri.png")}
+                resizeMode="contain"
+                style={{ width: "100%", height: 118 }}
+              />
+              <Text
+                style={{
+                  fontFamily: "serif",
+                  fontSize: 22,
+                  fontWeight: "700",
+                  color: "#183320",
+                  padding: 12,
+                }}
+              >
+                Wholesome goodness.{"\n"}Crafted with Love.
+              </Text>
+            </View>
+            <Text
+              style={{
+                color: theme.textSecondary,
+                fontSize: 12,
+                lineHeight: 18,
+                marginTop: 12,
+              }}
+            >
+              Your profile, wishlist, addresses and updates are in More.
+            </Text>
+          </ScrollView>
         </SafeAreaView>
       </View>
     </Modal>
   );
 }
-
 const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: "#00000070" },
-  panel: { width: "85%", maxWidth: 340, flex: 1 },
-  top: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingLeft: 20, paddingRight: 10 },
-  close: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  item: { flexDirection: "row", alignItems: "center", gap: 10, padding: 16, borderTopWidth: 1 },
-  icon: { width: 40, height: 40, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  panel: { width: "86%", maxWidth: 340, flex: 1 },
+  top: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingLeft: 16,
+    paddingRight: 6,
+    paddingVertical: 12,
+  },
+  close: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    minHeight: 50,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  label: { flex: 1, fontFamily: "serif", fontSize: 20, fontWeight: "700" },
+  banner: { marginTop: 20, borderRadius: 14, overflow: "hidden" },
 });

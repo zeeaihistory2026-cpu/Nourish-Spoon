@@ -16,19 +16,35 @@ export function Page({
   title,
   back,
   children,
+  subtitle,
 }: {
   title: string;
   back: () => void;
   children: React.ReactNode;
+  subtitle?: string;
 }) {
   const { theme } = useMobileStore();
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <Header title={title} showBack onBack={back} rightAction="none" />
+      <Header showBack onBack={back} rightAction="none" />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.page}
       >
+        <View style={{ marginBottom: 2 }}>
+          <Text
+            accessibilityRole="header"
+            style={{
+              fontFamily: "serif",
+              fontSize: 34,
+              lineHeight: 38,
+              fontWeight: "700",
+            }}
+          >
+            {title}
+          </Text>
+          {subtitle && <Copy>{subtitle}</Copy>}
+        </View>
         {children}
       </ScrollView>
     </View>
@@ -40,7 +56,10 @@ export function Card({ children }: { children: React.ReactNode }) {
     <View
       style={[
         styles.card,
-        { backgroundColor: theme.surface, borderColor: theme.border },
+        {
+          backgroundColor: theme.isDark ? theme.surface : "#FFFCF5",
+          borderColor: theme.border,
+        },
       ]}
     >
       {children}
@@ -135,12 +154,12 @@ export function AccountGate({
 }
 export const styles = StyleSheet.create({
   page: { padding: 16, paddingBottom: 20, gap: 12 },
-  card: { padding: 16, borderWidth: 1, borderRadius: 16, gap: 10 },
+  card: { padding: 14, borderWidth: 1, borderRadius: 14, gap: 10 },
   heading: {
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 26,
-    lineHeight: 29,
+    fontSize: 24,
+    lineHeight: 27,
   },
   copy: { fontSize: 14, lineHeight: 21 },
   input: {

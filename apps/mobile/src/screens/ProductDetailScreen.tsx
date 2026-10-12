@@ -8,15 +8,15 @@ import {
   Image,
   TouchableOpacity,
   useWindowDimensions,
-  Alert,
 } from "react-native";
-import { Ionicons, FontAwesome, Feather } from "@expo/vector-icons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { TrustBadges } from "../components/TrustBadges";
 import { useMobileStore } from "../services/storeService";
 import { ASSETS } from "../constants/assets";
 import { formatPKR, formatPer100g } from "@packages/utils";
 import { Product, ProductVariant } from "@packages/types";
 import { Card, Heading, Copy } from "../features/commerce/components";
+import { ProductArtwork } from "../components/ProductArtwork";
 
 interface ProductDetailScreenProps {
   product?: Product;
@@ -50,12 +50,38 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {dialog}
       <View style={[styles.topFloatBar, { backgroundColor: theme.background }]}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Go back" onPress={onBack} style={[styles.floatingCircle, { backgroundColor: theme.surface }]}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          onPress={onBack}
+          style={[styles.floatingCircle, { backgroundColor: theme.surface }]}
+        >
           <Ionicons name="chevron-back" size={20} color={theme.text} />
         </TouchableOpacity>
-        <Text style={{ flex: 1, textAlign: "center", fontFamily: "serif", fontSize: 23, fontWeight: "700", color: theme.text }}>Product Details</Text>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Favorite ${prod.name}`} accessibilityState={{ selected: isFav }} onPress={() => toggleFavorite(prod.id)} style={[styles.floatingCircle, { backgroundColor: theme.surface }]}>
-          <Ionicons name={isFav ? "heart" : "heart-outline"} size={20} color="#E11D48" />
+        <Text
+          style={{
+            flex: 1,
+            textAlign: "center",
+            fontFamily: "serif",
+            fontSize: 23,
+            fontWeight: "700",
+            color: theme.text,
+          }}
+        >
+          Product Details
+        </Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={`Favorite ${prod.name}`}
+          accessibilityState={{ selected: isFav }}
+          onPress={() => toggleFavorite(prod.id)}
+          style={[styles.floatingCircle, { backgroundColor: theme.surface }]}
+        >
+          <Ionicons
+            name={isFav ? "heart" : "heart-outline"}
+            size={20}
+            color="#E11D48"
+          />
         </TouchableOpacity>
       </View>
       <ScrollView
@@ -64,16 +90,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
       >
         {/* Full Bleed Hero Header Image */}
         <View style={styles.heroContainer}>
-          <Image
-            source={
-              isPanjeeri
-                ? ASSETS.panjeeriDetailHero
-                : ASSETS.energyBallsDetailHero
-            }
-            style={styles.heroImage}
-            resizeMode="cover"
-          />
-
+          <ProductArtwork product={prod} />
         </View>
 
         {/* Content Body */}
@@ -83,19 +100,21 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             {prod.name}
           </Text>
 
-          <View style={styles.ratingRow}>
-            <View style={styles.stars}>
-              {[...Array(5)].map((_, i) => (
-                <Ionicons key={i} name="star" size={15} color="#C9A84C" />
-              ))}
-            </View>
-            <Text style={styles.ratingScore}>
-              {prod.rating}{" "}
-              <Text style={styles.reviewVerified}>
-                ({prod.review_count} verified reviews)
+          {prod.review_count > 0 && (
+            <View style={styles.ratingRow}>
+              <View style={styles.stars}>
+                {[...Array(5)].map((_, i) => (
+                  <Ionicons key={i} name="star" size={15} color="#C9A84C" />
+                ))}
+              </View>
+              <Text style={styles.ratingScore}>
+                {prod.rating}{" "}
+                <Text style={styles.reviewVerified}>
+                  ({prod.review_count} verified reviews)
+                </Text>
               </Text>
-            </Text>
-          </View>
+            </View>
+          )}
 
           <Text style={[styles.description, { color: theme.textSecondary }]}>
             {prod.short_description}
@@ -103,85 +122,94 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
 
           {/* Variants Selector */}
           <View style={styles.variantsRow}>
-            {prod.variants.map((v) => {
-              const isSelected = selectedWeight === v.weight;
-              return (
-                <TouchableOpacity
-                  key={v.id}
-                  onPress={() => setSelectedWeight(v.weight)}
-                  style={[
-                    styles.variantCard,
-                    width < 360 && { paddingHorizontal: 9 },
-                    isSelected
-                      ? {
-                          backgroundColor: isPanjeeri
-                            ? theme.surfaceWarm
-                            : theme.primaryDark,
-                          borderColor: theme.primary,
-                        }
-                      : {
-                          backgroundColor: theme.surface,
-                          borderColor: theme.border,
-                        },
-                  ]}
-                  activeOpacity={0.85}
-                >
-                  <View>
-                    <Text
-                      style={[
-                        styles.varWeight,
-                        {
-                          color:
-                            isSelected && !isPanjeeri
-                              ? "#FFFFFF"
-                              : theme.textSecondary,
-                        },
-                      ]}
-                    >
-                      {v.weight}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.varPrice,
-                        {
-                          color:
-                            isSelected && !isPanjeeri ? "#FFFFFF" : theme.text,
-                        },
-                      ]}
-                    >
-                      {formatPKR(v.sale_price || v.regular_price)}
-                    </Text>
-                    {!isPanjeeri && v.price_per_100g && (
+            {prod.variants
+              .filter((variant) => variant.active)
+              .map((v) => {
+                const isSelected = selectedWeight === v.weight;
+                return (
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={`Choose ${v.weight}`}
+                    accessibilityState={{ selected: isSelected }}
+                    key={v.id}
+                    onPress={() => setSelectedWeight(v.weight)}
+                    style={[
+                      styles.variantCard,
+                      width < 360 && { paddingHorizontal: 9 },
+                      isSelected
+                        ? {
+                            backgroundColor: isPanjeeri
+                              ? theme.surfaceWarm
+                              : theme.primaryDark,
+                            borderColor: theme.primary,
+                          }
+                        : {
+                            backgroundColor: theme.surface,
+                            borderColor: theme.border,
+                          },
+                    ]}
+                    activeOpacity={0.85}
+                  >
+                    <View>
                       <Text
                         style={[
-                          styles.varPer100g,
-                          { color: isSelected ? "#A9C4B3" : theme.textMuted },
+                          styles.varWeight,
+                          {
+                            color:
+                              isSelected && !isPanjeeri
+                                ? "#FFFFFF"
+                                : theme.textSecondary,
+                          },
                         ]}
                       >
-                        {formatPer100g(v.price_per_100g)}
+                        {v.weight}
                       </Text>
-                    )}
-                  </View>
+                      <Text
+                        style={[
+                          styles.varPrice,
+                          {
+                            color:
+                              isSelected && !isPanjeeri
+                                ? "#FFFFFF"
+                                : theme.text,
+                          },
+                        ]}
+                      >
+                        {formatPKR(v.sale_price || v.regular_price)}
+                      </Text>
+                      {!isPanjeeri && v.price_per_100g && (
+                        <Text
+                          style={[
+                            styles.varPer100g,
+                            { color: isSelected ? "#A9C4B3" : theme.textMuted },
+                          ]}
+                        >
+                          {formatPer100g(v.price_per_100g)}
+                        </Text>
+                      )}
+                    </View>
 
-                  <View
-                    style={[
-                      styles.variantCheckCircle,
-                      isSelected
-                        ? { backgroundColor: "#FFFFFF" }
-                        : { borderColor: theme.border, borderWidth: 1 },
-                    ]}
-                  >
-                    {isSelected && (
-                      <Ionicons name="checkmark" size={14} color="#1B4332" />
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+                    <View
+                      style={[
+                        styles.variantCheckCircle,
+                        isSelected
+                          ? { backgroundColor: "#FFFFFF" }
+                          : { borderColor: theme.border, borderWidth: 1 },
+                      ]}
+                    >
+                      {isSelected && (
+                        <Ionicons name="checkmark" size={14} color="#1B4332" />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
           </View>
 
           {/* 4 Trust Badges */}
-          <TrustBadges variant="product" />
+          {prod.category === "energy_balls" && (
+            <TrustBadges variant="product" />
+          )}
 
           {/* Key Ingredients Header */}
           <View
@@ -191,9 +219,15 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             ]}
           >
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              {isPanjeeri ? "Key Ingredients" : "Premium Ingredients"}
+              {prod.ingredients?.length
+                ? isPanjeeri
+                  ? "Key Ingredients"
+                  : "Premium Ingredients"
+                : "Recipe information"}
             </Text>
             <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Recipe details"
               onPress={() =>
                 showInfo(
                   "Ingredients & Storage",
@@ -204,7 +238,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
               style={styles.knowMoreRow}
             >
               <Text style={[styles.knowMoreText, { color: theme.primary }]}>
-                {isPanjeeri ? "12 Natural Ingredients" : "Know More"}
+                Recipe details
               </Text>
               <Ionicons
                 name="chevron-forward"
@@ -259,9 +293,46 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
             ))}
           </View>
           <View style={{ marginTop: 18, gap: 12 }}>
-            <Card><Heading>Nutrition per 100g</Heading>{prod.nutrition_facts?.map(fact => <View key={fact.id} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}><Text>{fact.label}</Text><Text>{fact.value} {fact.unit}</Text></View>)}<Copy>Values published by nourishspoon.com. These are website figures; independent laboratory verification is unavailable.</Copy></Card>
-            <Card><Heading>Allergens</Heading><Copy>{isPanjeeri ? 'Contains tree nuts, milk (ghee), and wheat/gluten (semolina).' : 'Contains tree nuts, milk (ghee), and sesame.'} Allergen information is derived from the published ingredients. Cross-contact information is not confirmed; contact us if you have an allergy.</Copy></Card>
-            <Card><Heading>Storage & shelf life</Heading><Copy>{prod.storage_instructions}</Copy></Card>
+            <Card>
+              <Heading>Nutrition per 100g</Heading>
+              {prod.nutrition_facts?.map((fact) => (
+                <View
+                  key={fact.id}
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    gap: 12,
+                  }}
+                >
+                  <Text>{fact.label}</Text>
+                  <Text>
+                    {fact.value} {fact.unit}
+                  </Text>
+                </View>
+              ))}
+              <Copy>
+                {prod.nutrition_facts?.length
+                  ? "Values published by nourishspoon.com. Independent laboratory verification is unavailable."
+                  : "Confirmed nutrition for this recipe or combo is not yet available. Please contact our team."}
+              </Copy>
+            </Card>
+            <Card>
+              <Heading>Allergens</Heading>
+              <Copy>
+                {prod.category === "energy_balls"
+                  ? "Contains tree nuts, milk (ghee), and sesame."
+                  : "The supplied Panjeeri description includes nuts, ghee and khoya (milk). Confirm the full ingredient and allergen list, including wheat and sesame, with our team."}{" "}
+                Cross-contact information is not confirmed; contact us if you
+                have an allergy.
+              </Copy>
+            </Card>
+            <Card>
+              <Heading>Storage & shelf life</Heading>
+              <Copy>
+                {prod.storage_instructions ||
+                  "Follow each jar’s storage instructions and date. Confirm the pack contents and shelf life with our team."}
+              </Copy>
+            </Card>
           </View>
         </View>
       </ScrollView>
@@ -274,6 +345,8 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
         ]}
       >
         <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Order on WhatsApp"
           onPress={() => onOpenWhatsAppOrder(prod, activeVariant)}
           style={[styles.orderButton, { backgroundColor: theme.primary }]}
           activeOpacity={0.85}
@@ -286,7 +359,23 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
           />
           <Text style={styles.orderButtonText}>Order on WhatsApp →</Text>
         </TouchableOpacity>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add ${prod.name} to cart`} onPress={() => onAddToCart(prod, activeVariant)} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 12, backgroundColor: theme.surfaceWarm, borderWidth: 1, borderColor: theme.border }}><Ionicons name="cart-outline" size={22} color={theme.primary} /></TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={`Add ${prod.name} to cart`}
+          onPress={() => onAddToCart(prod, activeVariant)}
+          style={{
+            width: 48,
+            height: 48,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 12,
+            backgroundColor: theme.surfaceWarm,
+            borderWidth: 1,
+            borderColor: theme.border,
+          }}
+        >
+          <Ionicons name="cart-outline" size={22} color={theme.primary} />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -489,8 +578,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bottomBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     paddingHorizontal: 20,
     paddingTop: 12,

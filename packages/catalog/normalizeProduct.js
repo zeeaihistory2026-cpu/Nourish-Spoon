@@ -3,7 +3,7 @@
 export function normalizeProduct(id, raw, fallback = {}) {
   const category =
     raw.category ||
-    (/panjeeri/i.test(raw.name || id) ? "panjeeri" : "energy_balls");
+    (/combo|nourishment.pack/i.test(raw.name || id) ? 'combos' : /panjeeri/i.test(raw.name || id) ? "panjeeri" : "energy_balls");
   const variants = (raw.variants || []).map((value, index) => {
     const weight =
       value.weight ||

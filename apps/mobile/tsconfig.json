@@ -8,5 +8,7 @@
       "@/*": ["./src/*"],
       "@packages/*": ["../../packages/*"]
     }
-  }
+  },
+  "include": ["App.tsx", "index.js", "src/**/*", "../../packages/**/*", "expo-env.d.ts"],
+  "exclude": ["node_modules", "android", "ios", "dist*", "private-signing"]
 }

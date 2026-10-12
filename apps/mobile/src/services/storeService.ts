@@ -147,7 +147,7 @@ export const useMobileStore = create<MobileStoreState>()(persist((set, get) => (
   },
   clearCart: () => set({ cart: [] }),
   setProducts: products => set({ products, cart: get().cart.map(item => {
-    const product = products.find(p => p.id === item.product.id || p.slug === item.product.slug || p.category === item.product.category);
+    const product = products.find(p => p.id === item.product.id) || products.find(p => p.slug && p.slug === item.product.slug);
     const variant = product?.variants.find(v => v.id === item.variant.id || v.weight === item.variant.weight);
     return product && variant ? { ...item, product, variant } : item;
   }) }),

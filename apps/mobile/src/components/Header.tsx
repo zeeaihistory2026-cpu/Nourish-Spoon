@@ -10,7 +10,8 @@ interface HeaderProps {
   onMenu?: () => void;
   onNotification?: () => void;
   onSearch?: () => void;
-  rightAction?: "bell" | "search" | "none";
+  onCart?: () => void;
+  rightAction?: "bell" | "search" | "cart" | "none";
 }
 export function Header({
   title,
@@ -19,9 +20,11 @@ export function Header({
   onMenu,
   onNotification,
   onSearch,
+  onCart,
   rightAction = "bell",
 }: HeaderProps) {
-  const { theme } = useMobileStore();
+  const { theme, cart } = useMobileStore();
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   return (
     <View style={[styles.header, { height: title ? 65 : 72 }]}>
       {title && <Botanical />}
@@ -48,16 +51,17 @@ export function Header({
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={
-            rightAction === "search" ? "Search products" : "Notifications"
+            rightAction === "search" ? "Search products" : rightAction === "cart" ? "Open cart" : "Notifications"
           }
-          onPress={rightAction === "search" ? onSearch : onNotification}
+          onPress={rightAction === "search" ? onSearch : rightAction === "cart" ? onCart : onNotification}
           style={[styles.circle, { backgroundColor: theme.surface }]}
         >
           <Ionicons
-            name={rightAction === "search" ? "search" : "notifications-outline"}
+            name={rightAction === "search" ? "search" : rightAction === "cart" ? "bag-outline" : "notifications-outline"}
             size={23}
             color={theme.text}
           />
+          {rightAction === 'cart' && cartCount > 0 && <View style={styles.cartBadge}><Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>{cartCount > 99 ? '99+' : cartCount}</Text></View>}
         </TouchableOpacity>
       )}
     </View>
@@ -84,13 +88,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flex: 1,
   },
-  dot: {
+  cartBadge: {
     position: "absolute",
-    right: 9,
-    top: 6,
-    backgroundColor: "#EC1749",
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    right: 0,
+    top: 0,
+    backgroundColor: "#1B4332",
+    minWidth: 17,
+    height: 17,
+    paddingHorizontal: 3,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -14,21 +14,34 @@ export function subscribeCatalogue() {
     (snapshot) => {
       // Before the owner imports the catalogue, bundled website content remains available for browsing.
       if (snapshot.empty) return;
-      const products = snapshot.docs
+      const published = snapshot.docs
+        // These two old generic SKUs are superseded by the owner's recipe-specific catalogue.
+        .filter(
+          (doc) => !["date-nut-balls", "homemade-panjeeri"].includes(doc.id),
+        )
         .map((doc) =>
           normalizeProduct(
             doc.id,
             doc.data(),
             INITIAL_PRODUCTS.find(
               (product) =>
-                product.category ===
-                (/panjeeri/i.test(doc.data().name || doc.id)
-                  ? "panjeeri"
-                  : "energy_balls"),
+                product.id === doc.id || product.slug === doc.data().slug,
             ),
           ),
         )
         .filter((product) => product.active && product.variants.length);
+      // Bundled owner additions stay browsable until imported; a published exact SKU
+      // overrides its snapshot, including an inactive SKU (which stays hidden).
+      const products = [
+        ...INITIAL_PRODUCTS.filter(
+          (product) =>
+            !snapshot.docs.some(
+              (doc) =>
+                doc.id === product.id || doc.data().slug === product.slug,
+            ),
+        ),
+        ...published,
+      ];
       useMobileStore
         .getState()
         .setProducts(products.sort((a, b) => a.sort_order - b.sort_order));

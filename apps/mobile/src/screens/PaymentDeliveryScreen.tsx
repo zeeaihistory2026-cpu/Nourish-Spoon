@@ -1,340 +1,116 @@
+import React from "react";
+import { View, TouchableOpacity, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useInfoDialog } from "../components/InfoDialog";
 import { Text } from "../components/DesignPrimitives";
-import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Header } from "../components/Header";
+import { Page, Card, Copy } from "../features/commerce/components";
 import { useMobileStore } from "../services/storeService";
 import { ASSETS } from "../constants/assets";
-
-interface PaymentDeliveryScreenProps {
-  onBack: () => void;
-  initialSection?: "payment" | "delivery";
-}
-
-export const PaymentDeliveryScreen: React.FC<PaymentDeliveryScreenProps> = ({
+export function PaymentDeliveryScreen({
   onBack,
   initialSection = "payment",
-}) => {
+}: {
+  onBack: () => void;
+  initialSection?: "payment" | "delivery";
+}) {
   const { showInfo, dialog } = useInfoDialog();
   const { theme, paymentMethods, deliveryMethods, settings } = useMobileStore();
-  const scroll = useRef<ScrollView>(null);
-  const [deliveryY, setDeliveryY] = useState<number | null>(null);
-  useEffect(() => {
-    if (initialSection === "delivery" && deliveryY !== null) {
-      const frame = requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, deliveryY - 8), animated: false }));
-      return () => cancelAnimationFrame(frame);
-    }
-  }, [initialSection, deliveryY]);
-
-  const handlePaymentClick = (pm: any) => {
-    showInfo(
-      pm.name,
-      `Contact Nourish Spoon on WhatsApp at ${settings.whatsapp_number} for the current ${pm.name} account details and payment instructions. Share your transaction receipt on WhatsApp after payment so the team can confirm your order.`,
-    );
-  };
-
-  const handleDeliveryClick = (dm: any) => {
-    showInfo(
-      dm.title,
-      `${dm.description}\n\nEstimated Time: ${dm.estimated_time}\nFee: ${dm.fee == null ? "Confirm with Nourish Spoon" : dm.fee === 0 ? "Free" : `Rs. ${dm.fee}`}`,
-    );
-  };
-
+  const payment = initialSection === "payment";
+  const rows = payment
+    ? paymentMethods
+        .filter((method) => method.active)
+        .map((method) => ({
+          id: method.id,
+          title: method.name,
+          description: method.subtext,
+          image:
+            method.code === "bank_transfer"
+              ? ASSETS.iconBank
+              : method.code === "easypaisa"
+                ? ASSETS.iconEasyPaisa
+                : ASSETS.iconJazzCash,
+          action: () =>
+            showInfo(
+              method.name,
+              `Contact Nourish Spoon at ${settings.whatsapp_number} for current ${method.name} account details. Share your transaction receipt on WhatsApp so the team can verify your payment.`,
+            ),
+        }))
+    : deliveryMethods
+        .filter((method) => method.active)
+        .map((method) => ({
+          id: method.id,
+          title: method.title,
+          description: method.subtitle,
+          image:
+            method.code === "sargodha_sameday"
+              ? ASSETS.iconDeliverySargodha
+              : method.code === "tcs_nationwide"
+                ? ASSETS.iconDeliveryTcs
+                : method.code === "foodpanda_sargodha"
+                  ? ASSETS.iconDeliveryFoodpanda
+                  : ASSETS.iconDeliveryPickup,
+          action: () =>
+            showInfo(
+              method.title,
+              `${method.description}\n\nEstimated time: ${method.estimated_time}\nFee: ${method.fee == null ? "Confirm with Nourish Spoon" : method.fee === 0 ? "Free" : `Rs. ${method.fee}`}`,
+            ),
+        }));
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <Page
+      title={payment ? "Payment Methods" : "Delivery Information"}
+      subtitle={
+        payment
+          ? "Simple, secure advance payments."
+          : "Handmade goodness, delivered across Pakistan."
+      }
+      back={onBack}
+    >
       {dialog}
-      <Header title="Payment & Delivery" showBack onBack={onBack} rightAction="none" />
-
-      <ScrollView
-        ref={scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Title & Subtitle */}
-        <View style={styles.titleSection}>
-          <Text style={[styles.heading, { color: theme.text }]}>
-            Payment & Delivery
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Secure and convenient options for your orders.
-          </Text>
-        </View>
-
-        {/* Section 1: Payment Method */}
-        <View style={[styles.sectionBox, { backgroundColor: theme.surface }]}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Payment Method
-            </Text>
-            <Text
-              style={[styles.sectionSublabel, { color: theme.textSecondary }]}
-            >
-              (Advance Payment Only)
-            </Text>
-          </View>
-
-          <View style={styles.listContainer}>
-            {paymentMethods
-              .filter((p) => p.active)
-              .map((pm) => {
-                const iconSource =
-                  pm.code === "bank_transfer"
-                    ? ASSETS.iconBank
-                    : pm.code === "easypaisa"
-                      ? ASSETS.iconEasyPaisa
-                      : ASSETS.iconJazzCash;
-
-                return (
-                  <TouchableOpacity
-                    key={pm.id}
-                    onPress={() => handlePaymentClick(pm)}
-                    style={[
-                      styles.itemCard,
-                      {
-                        backgroundColor: theme.surface,
-                        borderColor: theme.border,
-                      },
-                    ]}
-                    activeOpacity={0.8}
-                  >
-                    <Image
-                      source={iconSource}
-                      style={styles.itemIcon}
-                      resizeMode="contain"
-                    />
-                    <View style={styles.itemDetails}>
-                      <Text style={[styles.itemTitle, { color: theme.text }]}>
-                        {pm.name}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.itemSubtext,
-                          { color: theme.textSecondary },
-                        ]}
-                      >
-                        {pm.subtext}
-                      </Text>
-                    </View>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={18}
-                      color={theme.textMuted}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-          </View>
-
-          {/* Yellow Warning / Info Banner */}
-          <View
-            style={[
-              styles.noticeBanner,
-              { backgroundColor: theme.goldWarm, borderColor: theme.goldLight },
-            ]}
-          >
-            <Ionicons
-              name="information-circle"
-              size={20}
-              color={theme.gold}
-              style={{ marginRight: 8, marginTop: 1 }}
-            />
-            <View style={{ flex: 1 }}>
-              <Text
-                style={[
-                  styles.noticeHeading,
-                  { color: theme.mode === "light" ? "#7A5B0B" : "#F1D79E" },
-                ]}
-              >
-                We do not offer Cash on Delivery.
-              </Text>
-              <Text
-                style={[
-                  styles.noticeText,
-                  { color: theme.mode === "light" ? "#8C6C16" : "#E0C58A" },
-                ]}
-              >
-                Orders are confirmed after advance payment.
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Section 2: Delivery Options */}
-        <View
-          onLayout={event => setDeliveryY(event.nativeEvent.layout.y)}
-          style={[
-            styles.sectionBox,
-            { marginTop: 12, backgroundColor: theme.surface },
-          ]}
+      {rows.map((row) => (
+        <TouchableOpacity
+          key={row.id}
+          accessibilityRole="button"
+          accessibilityLabel={row.title}
+          onPress={row.action}
         >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Delivery Options
-            </Text>
-            <Text
-              style={[styles.sectionSublabel, { color: theme.textSecondary }]}
+          <Card>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
             >
-              Choose a delivery method that works best for you.
-            </Text>
-          </View>
-
-          <View style={styles.listContainer}>
-            {deliveryMethods
-              .filter((d) => d.active)
-              .map((dm) => {
-                const iconSource =
-                  dm.code === "sargodha_sameday"
-                    ? ASSETS.iconDeliverySargodha
-                    : dm.code === "tcs_nationwide"
-                      ? ASSETS.iconDeliveryTcs
-                      : dm.code === "foodpanda_sargodha"
-                        ? ASSETS.iconDeliveryFoodpanda
-                        : ASSETS.iconDeliveryPickup;
-
-                return (
-                  <TouchableOpacity
-                    key={dm.id}
-                    onPress={() => handleDeliveryClick(dm)}
-                    style={[
-                      styles.itemCard,
-                      {
-                        backgroundColor: theme.surface,
-                        borderColor: theme.border,
-                      },
-                    ]}
-                    activeOpacity={0.8}
-                  >
-                    <Image
-                      source={iconSource}
-                      style={styles.itemIcon}
-                      resizeMode="contain"
-                    />
-                    <View style={styles.itemDetails}>
-                      <Text style={[styles.itemTitle, { color: theme.text }]}>
-                        {dm.title}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.itemSubtext,
-                          { color: theme.textSecondary },
-                        ]}
-                      >
-                        {dm.subtitle}
-                      </Text>
-                    </View>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={18}
-                      color={theme.textMuted}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+              <Image
+                source={row.image}
+                resizeMode="contain"
+                style={{ width: 42, height: 42 }}
+              />
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontFamily: "serif",
+                    fontWeight: "700",
+                    fontSize: 22,
+                  }}
+                >
+                  {row.title}
+                </Text>
+                <Copy>{row.description}</Copy>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={theme.textSecondary}
+              />
+            </View>
+          </Card>
+        </TouchableOpacity>
+      ))}
+      {payment && (
+        <Card>
+          <Copy>
+            Orders require advance payment. Cash on delivery is unavailable.
+            Payment transfers are verified by Nourish Spoon.
+          </Copy>
+        </Card>
+      )}
+    </Page>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 18,
-    paddingBottom: 20,
-  },
-  titleSection: {
-    alignItems: "center",
-    marginBottom: 20,
-    marginTop: 4,
-  },
-  heading: {
-    fontFamily: "serif",
-    fontSize: 26,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 12.5,
-    textAlign: "center",
-    marginTop: 4,
-  },
-  sectionBox: {
-    padding: 12,
-    borderRadius: 18,
-    backgroundColor: "#FFFCF3",
-    marginBottom: 8,
-  },
-  sectionHeader: {
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontFamily: "serif",
-    fontSize: 23,
-    fontWeight: "700",
-  },
-  sectionSublabel: {
-    fontSize: 13,
-    marginTop: 2,
-  },
-  listContainer: {
-    gap: 10,
-  },
-  itemCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 18,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  itemIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    marginRight: 12,
-  },
-  itemDetails: {
-    flex: 1,
-  },
-  itemTitle: {
-    fontFamily: "serif",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  itemSubtext: {
-    fontSize: 12,
-    lineHeight: 15,
-    marginTop: 2,
-  },
-  noticeBanner: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginTop: 12,
-  },
-  noticeHeading: {
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  noticeText: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-});
+}

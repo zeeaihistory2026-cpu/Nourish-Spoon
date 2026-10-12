@@ -1,8 +1,5 @@
 const { initializeApp } = require("firebase-admin/app");
-const {
-  getFirestore,
-  Timestamp,
-} = require("firebase-admin/firestore");
+const { getFirestore, Timestamp } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
@@ -19,11 +16,13 @@ function signedIn(request) {
 }
 function owner(request) {
   signedIn(request);
-  if (!(
-    request.auth.token.admin === true ||
-    (request.auth.token.email_verified === true &&
-      request.auth.token.email === "info@nourishspoon.com")
-  ))
+  if (
+    !(
+      request.auth.token.admin === true ||
+      (request.auth.token.email_verified === true &&
+        request.auth.token.email === "info@nourishspoon.com")
+    )
+  )
     throw new HttpsError(
       "permission-denied",
       "Verified owner access is required.",
@@ -32,8 +31,12 @@ function owner(request) {
 function callable(action) {
   return onCall(options, async (request) => {
     try {
-      if (!request.data || typeof request.data !== 'object' || Array.isArray(request.data))
-        throw new HttpsError('invalid-argument', 'Send valid request details.');
+      if (
+        !request.data ||
+        typeof request.data !== "object" ||
+        Array.isArray(request.data)
+      )
+        throw new HttpsError("invalid-argument", "Send valid request details.");
       return await action(request);
     } catch (error) {
       if (error instanceof HttpsError) throw error;
@@ -54,9 +57,7 @@ exports.placeOrder = callable(async (request) => {
   )
     throw new Error("Choose nationwide delivery for this city.");
   if (
-    !["bank_transfer", "easypaisa", "jazzcash"].includes(
-      input.payment_method,
-    )
+    !["bank_transfer", "easypaisa", "jazzcash"].includes(input.payment_method)
   )
     throw new Error("Choose a payment method.");
   // A stable client request ID makes retries safe when the response is lost.
@@ -104,6 +105,7 @@ exports.placeOrder = callable(async (request) => {
           ? input.gift_message.trim().slice(0, 400)
           : "",
       order_number: `NS-${orderRef.id.slice(0, 10).toUpperCase()}`,
+      status_history: [{ status: "pending", at: new Date().toISOString() }],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -147,6 +149,12 @@ exports.updateOrder = callable(async (request) => {
     if (request.data.status && request.data.status !== order.status) {
       domain.statusChange(order.status, request.data.status);
       patch.status = request.data.status;
+      patch.status_history = [
+        ...(Array.isArray(order.status_history)
+          ? order.status_history
+          : [{ status: "pending", at: order.created_at }]),
+        { status: patch.status, at: patch.updated_at },
+      ];
     }
     if (request.data.payment_status) {
       if (

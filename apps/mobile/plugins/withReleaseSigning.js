@@ -21,6 +21,9 @@ android {`);
         }`);
       source = source.replace(/(buildTypes\s*\{[\s\S]*?release\s*\{[\s\S]*?)signingConfig signingConfigs\.debug/, "$1signingConfig releaseSigningFile.exists() ? signingConfigs.release : signingConfigs.debug");
     }
+    if (!source.includes('enableV1Signing = true')) {
+      source = source.replace("keyPassword releaseSigning['keyPassword']", "keyPassword releaseSigning['keyPassword']\n                enableV1Signing = true\n                enableV2Signing = true\n                enableV3Signing = true");
+    }
     if (!source.includes("Missing Nourish Spoon release signing")) source += `
 gradle.taskGraph.whenReady { graph ->
     if (!releaseSigningFile.exists() && graph.allTasks.any { it.path == ':app:assembleRelease' || it.path == ':app:bundleRelease' }) {

@@ -11,6 +11,17 @@ const fs = require("node:fs"),
   Module = require("node:module");
 const ts = require("../apps/mobile/node_modules/typescript");
 const path = require("node:path");
+// The bundled catalogue now has a small typed builder alongside the snapshot.
+Module._extensions[".ts"] = (module, filename) =>
+  module._compile(
+    ts.transpileModule(fs.readFileSync(filename, "utf8"), {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        esModuleInterop: true,
+      },
+    }).outputText,
+    filename,
+  );
 async function seed() {
   const app = initializeApp({ projectId: "demo-nourish-spoon" }, "qa-fixtures");
   const db = getFirestore(app),
@@ -32,12 +43,16 @@ async function seed() {
   snapshot._compile(compiled, sourcePath);
   for (const product of snapshot.exports.INITIAL_PRODUCTS)
     await db.doc(`products/${product.id}`).set(product);
-  await db
-    .doc("settings/commerce")
-    .set({
-      delivery_fees: { tcs_nationwide: 250, sargodha_sameday: 150 },
-      first_order_free_delivery: false,
-    });
+  // Retire previous local fixtures so browser previews reflect the current catalogue.
+  for (const id of [
+    "c0000000-0000-0000-0000-000000000001",
+    "c0000000-0000-0000-0000-000000000002",
+  ])
+    await db.doc(`products/${id}`).delete();
+  await db.doc("settings/commerce").set({
+    delivery_fees: { tcs_nationwide: 250, sargodha_sameday: 150 },
+    first_order_free_delivery: false,
+  });
   for (const [uid, email, owner] of [
     ["qa-customer", "customer@example.invalid", false],
     ["qa-owner", "info@nourishspoon.com", true],
@@ -58,15 +73,13 @@ async function seed() {
         throw error;
     }
     if (owner) await auth.setCustomUserClaims(uid, { admin: true });
-    await db
-      .doc(`users/${uid}`)
-      .set({
-        uid,
-        fullName: owner ? "QA Owner" : "QA Customer",
-        email,
-        phone: "03001234567",
-        role: "customer",
-      });
+    await db.doc(`users/${uid}`).set({
+      uid,
+      fullName: owner ? "QA Owner" : "QA Customer",
+      email,
+      phone: "03001234567",
+      role: "customer",
+    });
   }
   console.log(
     "Isolated demo project seeded. Delivery fees are test fixtures, not production business rates.",

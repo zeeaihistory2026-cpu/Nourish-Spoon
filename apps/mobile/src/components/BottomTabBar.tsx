@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useMobileStore } from "../services/storeService";
 import { Text } from "./DesignPrimitives";
-export type MobileTab = "Home" | "Products" | "Reviews" | "About" | "More";
+export type MobileTab = "Home" | "Products" | "Cart" | "Orders" | "More";
 export function BottomTabBar({
   currentTab,
   activeTab,
@@ -15,13 +15,13 @@ export function BottomTabBar({
   onSelectTab?: (tab: MobileTab) => void;
   navigation?: any;
 }) {
-  const { theme } = useMobileStore();
+  const { theme, cart } = useMobileStore();
   const selected = activeTab || currentTab || "Home";
   const tabs: { id: MobileTab; icon: any; active: any }[] = [
     { id: "Home", icon: "home-outline", active: "home" },
     { id: "Products", icon: "bag-outline", active: "bag" },
-    { id: "Reviews", icon: "heart-outline", active: "heart" },
-    { id: "About", icon: "document-text-outline", active: "document-text" },
+    { id: "Cart", icon: "cart-outline", active: "cart" },
+    { id: "Orders", icon: "receipt-outline", active: "receipt" },
     { id: "More", icon: "person-outline", active: "person" },
   ];
   return (
@@ -47,6 +47,27 @@ export function BottomTabBar({
             size={24}
             color={selected === t.id ? theme.primary : theme.textSecondary}
           />
+          {t.id === "Cart" && cart.length > 0 && (
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                right: "23%",
+                backgroundColor: "#1B4332",
+                borderRadius: 10,
+                minWidth: 16,
+                paddingHorizontal: 3,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontSize: 10, color: "#fff" }}>
+                {Math.min(
+                  99,
+                  cart.reduce((sum, item) => sum + item.quantity, 0),
+                )}
+              </Text>
+            </View>
+          )}
           <Text
             style={{
               fontSize: 11,

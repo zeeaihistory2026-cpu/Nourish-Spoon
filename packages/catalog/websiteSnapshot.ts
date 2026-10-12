@@ -1,4 +1,5 @@
 import websiteReviews from "./websiteReviews.json";
+import { createReceivedProducts } from './receivedProducts';
 import {
   Product,
   Review,
@@ -9,7 +10,7 @@ import {
   FounderStory,
 } from "@packages/types";
 
-export const INITIAL_PRODUCTS: Product[] = [
+export const WEBSITE_PRODUCTS: Product[] = [
   {
     id: "c0000000-0000-0000-0000-000000000001",
     name: "Date & Nuts Energy Balls",
@@ -398,6 +399,8 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
 ];
 
+export const INITIAL_PRODUCTS = createReceivedProducts(WEBSITE_PRODUCTS);
+
 export const INITIAL_REVIEWS: Review[] = websiteReviews.map((review) => ({
   id: review.id,
   customer_name: review.name,
@@ -428,7 +431,7 @@ export const INITIAL_FAQS: FAQ[] = [
     category: "Products",
     question: "Are your products 100% natural?",
     answer:
-      "Yes! We only use 100% natural ingredients like premium dates, dry fruits, desi ghee, and pure seeds. We never add refined white sugar, preservatives, artificial essences, or fillers.",
+      "Ingredients vary by recipe. Panjeeri is available with or without added sugar; Date & Nuts Energy Balls use naturally sweet dates. Check the selected recipe and jar label, and contact us for the complete ingredient and allergen list.",
     sort_order: 2,
     active: true,
   },

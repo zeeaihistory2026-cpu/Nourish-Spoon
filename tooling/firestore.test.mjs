@@ -10,7 +10,14 @@ let env;
 before(async () => {
   env = await initializeTestEnvironment({
     projectId: "demo-nourish-spoon",
-    firestore: { host: '127.0.0.1', port: 8080, rules: fs.readFileSync("../firestore.rules", "utf8") },
+    firestore: {
+      host: "127.0.0.1",
+      port: 8080,
+      rules: fs.readFileSync(
+        new URL("../firestore.rules", import.meta.url),
+        "utf8",
+      ),
+    },
   });
   await env.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();

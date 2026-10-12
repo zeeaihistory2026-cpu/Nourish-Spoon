@@ -1,40 +1,38 @@
 # Nourish Spoon
 
-Expo React Native mobile app, React admin dashboard, and Firebase commerce backend. The mobile interface follows [nourishspoon.com](https://nourishspoon.com): Cormorant Garamond headings, Jost text, cream/forest/gold colors, product artwork, website reviews and six hero banners.
+Expo React Native app, React owner dashboard, and Firebase commerce backend. The app uses the website’s Cormorant Garamond/Jost fonts, forest/cream/gold palette, photography and published reviews, adapted to a compact mobile shopping flow.
 
 ## Structure
 
 - `apps/mobile/src/screens`: storefront, accounts and business information.
-- `apps/mobile/src/features`: commerce screens, Firebase data services and social sign-in.
-- `apps/mobile/src/components`: shared UI, navigation, carousel and dialogs.
-- `apps/mobile/plugins`: repeatable native Android launch and release-signing configuration.
-- `apps/admin/src/features/commerce`: authenticated owner dashboard and focused editors.
-- `packages/catalog`: website snapshot and adapter for existing Firebase product documents.
+- `apps/mobile/src/features`: commerce and Firebase account/data services.
+- `apps/mobile/src/components`: shared product artwork/cards, fixed hero, navigation and dialogs.
+- `apps/mobile/plugins`: repeatable Android launch and signing configuration.
+- `apps/admin/src/features/commerce`: owner dashboard and focused editors.
+- `packages/catalog`: owner catalogue, website snapshot, categories and Firebase normalization.
 - `packages/types`, `packages/utils`: shared contracts and utilities.
-- `functions`: authoritative checkout, order updates, reviews, notifications and protected native auth handoff.
-- `hosting`: Firebase-hosted Google/Apple sign-in bridge.
-- `tooling`: isolated Firebase emulator security and integration tests.
-- `docs/design`, `docs/product`: original design references and product requirements.
-- `scripts`: asset extraction and screenshot gallery tools.
+- `functions`: authoritative checkout, fulfilment, reviews, notices and secure native auth handoff.
+- `hosting`: hosted Google/Apple sign-in bridge.
+- `tooling`: isolated Firebase security/integration tests and local fixtures.
+- `docs`: architecture, deployment, original designs and product sources.
+- `scripts`: asset extraction and screenshot galleries.
 
-Unused source and assets were archived outside the tracked application. Signing keys, environment files, generated builds, previews, test fixtures and cleanup backups are ignored by Git.
+Signing keys, environment files, builds, previews, test fixtures and cleanup backups are ignored by Git.
 
 ## Run locally
 
-Run `npm ci` in `apps/mobile`, `apps/admin`, `functions` and `tooling`. Copy the environment templates into each application's `.env` file and fill in the public Firebase web configuration. Mobile: `npm start` inside `apps/mobile`. Admin: `npm run dev` inside `apps/admin`.
+Run `npm ci` in `apps/mobile`, `apps/admin`, `functions` and `tooling`. Configure the supplied environment templates. Run `npm start` in mobile or `npm run dev` in admin.
 
-The app includes a custom native Android launch overlay; use a native build to check it. The browser preview cannot validate Android system splash, keyboard or safe areas.
+The launch is a complete centered transparent logo on cream. Home has one fixed-height hero with three crossfading food backgrounds, category shortcuts, equal product cards and combos. A header cart, Cart tab and View Cart bar provide direct access. Checkout uses Delivery, Payment and Review steps; a memory-only draft survives sign-in or a visit to payment instructions. Order confirmation, receipt and tracking have separate screens. Product actions and navigation occupy their own layout space.
 
-## Features
+The October 12 owner catalogue includes two Panjeeri recipes, two Energy Ball sizes and six combos: nine product records and twelve size/pack choices. Source prices are in [catalogue notes](docs/product/catalogue/README.md). Unconfirmed recipe nutrition, stock and pack contents are not invented.
 
-Email accounts, persistent cart and favorites, product search/size selection, custom delivery city, saved addresses, server-calculated checkout, order history/reordering, gift messages, order stages, manual payment confirmation, TCS consignment links, in-app order updates, published nutrition/storage information and delivered-purchase reviews. More contains shopping/account tools; the burger menu contains delivery and payment information.
+## Features and deployment
 
-The owner dashboard manages Firebase products, variant stock/prices, orders, payment status, consignment numbers, review moderation and delivery settings. Access requires verified `info@nourishspoon.com` or an explicitly assigned `admin` custom claim. Customer clients cannot write order totals, payment or delivery status directly.
+Email accounts, persistent cart/favorites, search/category/size selection, custom delivery city, saved addresses, checkout, order history/reordering, gift messages, fulfilment stages, manual payment confirmation, TCS links, in-app updates, and delivered-purchase reviews. Fulfilment changes record timestamps; older stages without timestamps remain explicitly unavailable. Home, Products, Cart, Orders and More are the five main tabs. More contains profile, wishlist, addresses, TCS lookup, notifications and support. The drawer contains shopping categories, story, reviews, delivery information and payment methods, with no duplicate account tools.
 
-## Deployment status
+The owner dashboard manages products, variant stock/prices, orders, payments, TCS numbers, review moderation and delivery settings. Owner access requires verified `info@nourishspoon.com` or an admin custom claim. Missing catalogue records can be imported without replacing existing records.
 
-Email accounts and the public catalogue use the existing Firebase project. New commerce functions, revised access rules and hosted native social sign-in are prepared and tested locally, **not deployed to the live project**. Firebase CLI account access is still needed. Apple sign-in additionally requires the owner's Apple Developer provider credentials. Google/Apple UI availability is not proof of a working live provider.
+Existing email accounts are live. The new catalogue import, commerce functions, revised rules and hosted social bridge are **not deployed**. Firebase CLI account authorization is still required. Apple additionally requires Apple Developer provider credentials. Google/Apple buttons do not establish working live providers.
 
-Notifications currently appear inside the app; background push delivery is not implemented. TCS opens its official tracking site; parcel scans are not fetched through a private TCS API. Payment is confirmed manually, without a payment-gateway integration. Loyalty points, coupons and Urdu translation are not included in this release.
-
-See [deployment instructions](docs/backend-deployment.md), [architecture](docs/architecture.md) and [QA/build notes](DELIVERY.md).
+Notifications are in-app, TCS opens its official site, and payments are manual. Push notifications, a payment gateway, loyalty, coupons and Urdu are not included. See [deployment](docs/backend-deployment.md), [architecture](docs/architecture.md) and [QA notes](DELIVERY.md).

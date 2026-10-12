@@ -2,6 +2,31 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { normalizeProduct } = require("../lib/normalizeProduct");
 const { priceOrder } = require("../src/domain");
+test("combo names classify separately and retain their own price and variant identity", () => {
+  const combo = normalizeProduct("family-combo", {
+    name: "Family Combo Panjeeri x Energy Balls",
+    active: true,
+    variants: [{ weight: "250g combo", regular_price: 3847 }],
+  });
+  const recipe = normalizeProduct("classic-panjeeri-with-sugar", {
+    category: "panjeeri",
+    active: true,
+    variants: [{ weight: "250g", regular_price: 1648 }],
+  });
+  assert.equal(combo.category, "combos");
+  assert.notEqual(combo.variants[0].id, recipe.variants[0].id);
+  const order = priceOrder(
+    [
+      { product_id: combo.id, variant_id: combo.variants[0].id, quantity: 1 },
+      { product_id: recipe.id, variant_id: recipe.variants[0].id, quantity: 1 },
+    ],
+    [combo, recipe],
+    {},
+    "self_pickup",
+    false,
+  );
+  assert.equal(order.subtotal, 5495);
+});
 test("existing catalogue retains server prices, active state and stable variant IDs", () => {
   const product = normalizeProduct("date-nut-balls", {
     name: "Date & Nuts Energy Balls",

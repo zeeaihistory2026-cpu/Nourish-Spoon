@@ -1,26 +1,57 @@
-import { useInfoDialog } from "../components/InfoDialog";
 import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
-  Image,
   TouchableOpacity,
   StyleSheet,
   Linking,
-  Alert,
 } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  onAuthStateChanged,
+  signOut,
+  sendEmailVerification,
+  User,
+} from "firebase/auth";
+import { doc, onSnapshot } from "firebase/firestore";
+import { firebaseAuth, db } from "../services/firebase";
+import { useMobileStore } from "../services/storeService";
 import { Header } from "../components/Header";
-import { Text, ART } from "../components/DesignPrimitives";
-import { useStore } from "../services/storeService";
+import { Text, GreenButton } from "../components/DesignPrimitives";
+import { useInfoDialog } from "../components/InfoDialog";
+import { AppNavigation } from "../navigation/types";
+import { Card, Copy } from "../features/commerce/components";
+import { useAccountData } from "../features/commerce/useAccountData";
+import { watchOrders, watchAddresses } from "../features/commerce/service";
 
-import { onAuthStateChanged, signOut, sendEmailVerification, User } from "firebase/auth";
-import { firebaseAuth } from "../services/firebase";
-
-export function ContactMoreScreen({ navigation }: { navigation: any }) {
+export function ContactMoreScreen({
+  navigation,
+}: {
+  navigation: AppNavigation;
+}) {
+  const { theme: c, settings, favorites, setThemeMode } = useMobileStore();
   const { showInfo, dialog } = useInfoDialog();
-  const { currentTheme: c, settings, setThemeMode } = useStore();
-  const open = async (url: string) => {
+  const [account, setAccount] = useState<User | null>(
+    firebaseAuth?.currentUser || null,
+  );
+  const [phone, setPhone] = useState("");
+  const orders = useAccountData(watchOrders),
+    addresses = useAccountData(watchAddresses);
+  useEffect(
+    () =>
+      firebaseAuth ? onAuthStateChanged(firebaseAuth, setAccount) : undefined,
+    [],
+  );
+  useEffect(() => {
+    setPhone("");
+    if (account && db)
+      return onSnapshot(
+        doc(db, "users", account.uid),
+        (snapshot) => setPhone(snapshot.data()?.phone || ""),
+        () => {},
+      );
+  }, [account?.uid]);
+  async function open(url: string) {
     try {
       await Linking.openURL(url);
     } catch {
@@ -29,256 +60,320 @@ export function ContactMoreScreen({ navigation }: { navigation: any }) {
         "Please contact us at " + settings.whatsapp_number,
       );
     }
-  };
-  const [account, setAccount] = useState<User | null>(firebaseAuth?.currentUser || null);
-  useEffect(() => firebaseAuth ? onAuthStateChanged(firebaseAuth, setAccount) : undefined, []);
-  const accountAction = async () => {
-    if (!account) { navigation.navigate("Login"); return; }
-    try { await signOut(firebaseAuth!); showInfo("Signed out", "You can continue browsing and ordering as a guest."); }
-    catch { showInfo("Unable to sign out", "Please try again."); }
-  };
-  const phone = settings.whatsapp_number.replace(/\D/g, "");
-  const rows = [
+  }
+  async function logout() {
+    try {
+      await signOut(firebaseAuth!);
+    } catch {
+      showInfo("Unable to sign out", "Please try again.");
+    }
+  }
+  const rows: {
+    title: string;
+    sub: string;
+    icon: React.ComponentProps<typeof Ionicons>["name"];
+    action: () => void;
+  }[] = [
     {
-      title: "Chat on WhatsApp",
-      sub: settings.whatsapp_number,
-      icon: "whatsapp",
-      bg: "#209E3F",
-      action: () => open(`https://wa.me/${phone}`),
+      title: "My Wishlist",
+      sub: "Your favourite products",
+      icon: "heart-outline",
+      action: () => navigation.navigate("Wishlist"),
     },
     {
-      title: "Call Us",
-      sub: settings.whatsapp_number,
-      icon: "phone",
-      action: () => open(`tel:${settings.whatsapp_number}`),
+      title: "Saved Addresses",
+      sub: "Manage your delivery addresses",
+      icon: "location-outline",
+      action: () => navigation.navigate("Addresses"),
     },
     {
-      title: "Email Us",
-      sub: settings.contact_email,
-      icon: "envelope-o",
-      action: () => open(`mailto:${settings.contact_email}`),
+      title: "Track a TCS Parcel",
+      sub: "Track an earlier WhatsApp order",
+      icon: "car-outline",
+      action: () => navigation.navigate("TrackOrder"),
     },
     {
-      title: "Our Location",
-      sub: settings.business_address,
-      icon: "map-marker",
-      bg: "#315C33",
-      action: () => open("https://maps.google.com/?q=Sargodha,Punjab,Pakistan"),
+      title: "Notifications",
+      sub: "Order and payment updates",
+      icon: "notifications-outline",
+      action: () => navigation.navigate("Notifications"),
     },
     {
-      title: "Business Hours",
-      sub: settings.business_hours,
-      icon: "clock-o",
-      action: () => showInfo("Business Hours", settings.business_hours),
-    },
-    {
-      title: "Follow on Instagram",
-      sub: "@nourish_spoon",
-      icon: "instagram",
-      bg: "#CF1680",
-      action: () => open("https://instagram.com/nourish_spoon"),
-    },
-  ];
-  const more = [
-    ...(account && !account.emailVerified ? [{ title: "Verify Email", sub: "Confirm ownership of your account", icon: "envelope-o", action: async () => { try { await sendEmailVerification(account); showInfo("Verification sent", "Check your inbox to verify your email address."); } catch { showInfo("Unable to send email", "Please wait and try again."); } } }] : []),
-    { title: "Cart", sub: "Review items and checkout", icon: "shopping-cart", action: () => navigation.navigate("Cart") },
-    { title: "My Orders", sub: "Order history and reorder", icon: "list-alt", action: () => navigation.navigate("Orders") },
-    { title: "Track Order", sub: "Order progress and TCS tracking", icon: "truck", action: () => navigation.navigate("TrackOrder") },
-    { title: "Saved Addresses", sub: "Save any delivery city", icon: "address-book-o", action: () => navigation.navigate("Addresses") },
-    { title: "Notifications", sub: "Order and payment updates", icon: "bell-o", action: () => navigation.navigate("Notifications") },
-    {
-      title: "FAQ",
-      sub: "Get answers to common questions",
-      icon: "question-circle-o",
+      title: "Help & Support",
+      sub: "Answers to common questions",
+      icon: "help-circle-outline",
       action: () => navigation.navigate("FAQ"),
     },
-    {
-      title: "About Nourish Spoon",
-      sub: "Our story, values and what makes us special",
-      icon: "info-circle",
-      action: () => navigation.navigate("About"),
-    },
-    {
-      title: "Order on WhatsApp",
-      sub: "Quick and easy ordering",
-      icon: "whatsapp",
-      action: () => navigation.navigate("WhatsAppOrder"),
-    },
-    {
-      title: account ? "Sign Out" : "My Account",
-      sub: account ? `${account.displayName || "Your account"} · ${account.email || ""}` : "Sign in or create your account",
-      icon: "user-o",
-      action: accountAction,
-    },
   ];
-  const list = (items: typeof more) => (
-    <View
-      style={[s.card, { backgroundColor: c.surface, borderColor: c.border }]}
-    >
-      {items.map((r, i) => (
-        <TouchableOpacity
-          key={r.title}
-          accessibilityRole="button"
-          accessibilityLabel={r.title}
-          onPress={r.action}
-          style={[
-            s.row,
-            i > 0 && { borderTopWidth: 1, borderTopColor: c.border },
-          ]}
-        >
-          <View
-            style={[
-              s.icon,
-              { backgroundColor: "bg" in r ? (r.bg as string) : c.goldWarm },
-            ]}
-          >
-            <FontAwesome
-              name={r.icon as any}
-              size={25}
-              color={"bg" in r ? "#fff" : c.primary}
-            />
-          </View>
-          <View style={s.copy}>
-            <Text style={[s.label, { color: c.text }]}>{r.title}</Text>
-            <Text style={[s.sub, { color: c.textSecondary }]}>{r.sub}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={19} color={c.textSecondary} />
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
+  if (account && !account.emailVerified)
+    rows.push({
+      title: "Verify Email",
+      sub: "Confirm ownership of your account",
+      icon: "mail-outline",
+      action: async () => {
+        try {
+          await sendEmailVerification(account);
+          showInfo(
+            "Verification sent",
+            "Check your inbox to verify your email.",
+          );
+        } catch {
+          showInfo("Unable to send email", "Please wait and try again.");
+        }
+      },
+    });
   return (
     <View style={{ flex: 1, backgroundColor: c.background }}>
       {dialog}
       <Header
-        title="Contact & More"
         onMenu={navigation.openMenu}
-        rightAction="none"
+        rightAction="cart"
+        onCart={() => navigation.navigate("Cart")}
       />
       <ScrollView
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[s.hero, { backgroundColor: c.surfaceWarm }]}>
-          <View style={s.heroTop}>
-            <Text style={[s.headline, { color: c.text }]}>
-              We’d love to hear from you.
-            </Text>
-            <Image source={ART.contact} style={s.heroImage} resizeMode="cover" />
+        <Text accessibilityRole="header" style={s.heading}>
+          My Profile
+        </Text>
+        <Copy>Manage your account and preferences.</Copy>
+        <Card>
+          <View style={s.identity}>
+            <View style={[s.avatar, { backgroundColor: c.goldWarm }]}>
+              <Text
+                style={{ fontFamily: "serif", fontSize: 36, color: c.primary }}
+              >
+                {(account?.displayName || "Guest").slice(0, 1).toUpperCase()}
+              </Text>
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={s.name}>
+                {account?.displayName || "Welcome, Guest"}
+              </Text>
+              <Text style={{ fontSize: 13, color: c.textSecondary }}>
+                {account?.email || "Sign in for a personal experience"}
+              </Text>
+              {!!phone && <Copy>{phone}</Copy>}
+            </View>
           </View>
-          <Text style={[s.heroSub, { color: c.textSecondary }]}>
-              For orders, inquiries or bulk/gift orders, feel free to contact
-              us. Our team is always here to help!
-          </Text>
-        </View>
-        <Text style={[s.heading, { color: c.text }]}>Get in Touch</Text>
-        {list(rows)}
-        <Text style={[s.heading, { color: c.text }]}>More</Text>
-        {list(more)}
-        <Text style={[s.heading, { color: c.text }]}>Appearance</Text>
-        <View
-          style={[
-            s.card,
-            { padding: 14, backgroundColor: c.surface, borderColor: c.border },
-          ]}
-        >
-          <Text style={[s.label, { color: c.text }]}>
-            Choose your preferred app theme.
-          </Text>
-          <View style={s.segments}>
+          <GreenButton
+            title={account ? "Edit Profile" : "Sign In / Create Account"}
+            onPress={() =>
+              navigation.navigate(account ? "EditProfile" : "Login")
+            }
+          />
+        </Card>
+        <Card>
+          <View style={s.stats}>
+            {[
+              {
+                label: "Orders",
+                value: !account
+                  ? "—"
+                  : orders.error || orders.loading
+                    ? "—"
+                    : orders.items.length,
+                icon: "cube-outline" as const,
+                action: () => navigation.navigate("Orders"),
+              },
+              {
+                label: "Wishlist",
+                value: favorites.length,
+                icon: "heart-outline" as const,
+                action: () => navigation.navigate("Wishlist"),
+              },
+              {
+                label: "Addresses",
+                value: !account
+                  ? "—"
+                  : addresses.error || addresses.loading
+                    ? "—"
+                    : addresses.items.length,
+                icon: "location-outline" as const,
+                action: () => navigation.navigate("Addresses"),
+              },
+            ].map((stat) => (
+              <TouchableOpacity
+                key={stat.label}
+                accessibilityRole="button"
+                accessibilityLabel={`Open ${stat.label.toLowerCase()}`}
+                onPress={stat.action}
+                style={s.stat}
+              >
+                <Ionicons name={stat.icon} size={24} color={c.primary} />
+                <Text style={s.name}>{stat.value}</Text>
+                <Text style={{ fontSize: 12 }}>{stat.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Card>
+        {rows.map((row) => (
+          <TouchableOpacity
+            key={row.title}
+            accessibilityRole="button"
+            accessibilityLabel={row.title}
+            onPress={row.action}
+            style={[
+              s.row,
+              {
+                backgroundColor: c.isDark ? c.surface : "#FFFCF5",
+                borderColor: c.border,
+              },
+            ]}
+          >
+            <View style={[s.icon, { backgroundColor: c.goldWarm }]}>
+              <Ionicons name={row.icon} size={23} color={c.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.label}>{row.title}</Text>
+              <Text style={{ fontSize: 12, color: c.textSecondary }}>
+                {row.sub}
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={17}
+              color={c.textSecondary}
+            />
+          </TouchableOpacity>
+        ))}
+        <Card>
+          <Text style={s.label}>Get in Touch</Text>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {[
+              {
+                label: "WhatsApp",
+                icon: "chatbubble-outline" as const,
+                url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
+              },
+              {
+                label: "Call",
+                icon: "call-outline" as const,
+                url: `tel:${settings.whatsapp_number}`,
+              },
+              {
+                label: "Email",
+                icon: "mail-outline" as const,
+                url: `mailto:${settings.contact_email}`,
+              },
+            ].map((item) => (
+              <TouchableOpacity
+                key={item.label}
+                accessibilityRole="button"
+                accessibilityLabel={item.label}
+                onPress={() => open(item.url)}
+                style={[s.contact, { borderColor: c.border }]}
+              >
+                <Ionicons name={item.icon} size={20} color={c.primary} />
+                <Text style={{ fontSize: 12 }}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Copy>
+            {settings.business_address}
+            {"\n"}
+            {settings.business_hours}
+          </Copy>
+        </Card>
+        <Card>
+          <Text style={s.label}>Appearance</Text>
+          <View style={{ flexDirection: "row", gap: 8 }}>
             {(["light", "dark"] as const).map((mode) => (
               <TouchableOpacity
                 key={mode}
                 accessibilityRole="button"
-                accessibilityLabel={
-                  mode === "light" ? "Light theme" : "Dark theme"
-                }
+                accessibilityLabel={`${mode === "light" ? "Light" : "Dark"} theme`}
                 accessibilityState={{ selected: c.mode === mode }}
                 onPress={() => setThemeMode(mode)}
                 style={[
-                  s.segment,
+                  s.contact,
                   {
-                    backgroundColor: c.mode === mode ? "#1B4332" : c.card,
                     borderColor: c.border,
+                    backgroundColor:
+                      c.mode === mode ? c.surfaceWarm : c.surface,
                   },
                 ]}
               >
                 <Ionicons
                   name={mode === "light" ? "sunny-outline" : "moon-outline"}
-                  size={21}
-                  color={c.mode === mode ? "#fff" : c.text}
+                  size={20}
+                  color={c.primary}
                 />
-                <Text
-                  style={{
-                    color: c.mode === mode ? "#fff" : c.text,
-                    fontWeight: "700",
-                  }}
-                >
-                  {mode === "light" ? "Light" : "Dark"}
-                </Text>
+                <Text>{mode === "light" ? "Light" : "Dark"}</Text>
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Card>
+        {account && (
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Sign Out"
+            onPress={logout}
+            style={[s.row, { borderColor: c.danger }]}
+          >
+            <Ionicons name="log-out-outline" size={24} color={c.danger} />
+            <Text style={{ color: c.danger, fontSize: 16 }}>Sign Out</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
 }
 const s = StyleSheet.create({
-  content: { padding: 16, paddingBottom: 20 },
-  hero: {
-    borderRadius: 20,
-    overflow: "hidden",
-    justifyContent: "center",
-    padding: 16,
-  },
-  heroTop: { flexDirection: "row", alignItems: "center", gap: 14 },
-  heroImage: {
-    width: 104,
-    height: 120,
-    borderRadius: 14,
-  },
-  headline: {
-    flex: 1,
-    fontFamily: "serif",
-    fontWeight: "700",
-    fontSize: 28,
-    lineHeight: 30,
-  },
-  heroSub: { fontSize: 13, lineHeight: 19, marginTop: 10 },
+  content: { padding: 16, paddingBottom: 20, gap: 10 },
   heading: {
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 25,
-    marginTop: 18,
-    marginBottom: 8,
+    fontSize: 34,
+    lineHeight: 38,
   },
-  card: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 12 },
+  identity: { flexDirection: "row", gap: 12, alignItems: "center" },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  name: {
+    fontFamily: "serif",
+    fontWeight: "700",
+    fontSize: 24,
+    lineHeight: 27,
+  },
+  stats: { flexDirection: "row", gap: 6 },
+  stat: { flex: 1, alignItems: "center", gap: 4, paddingVertical: 6 },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    gap: 12,
+    gap: 10,
+    padding: 12,
+    minHeight: 66,
+    borderWidth: 1,
+    borderRadius: 14,
   },
   icon: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
   },
-  copy: { flex: 1, minWidth: 0 },
-  label: { fontWeight: "700", fontSize: 15 },
-  sub: { fontSize: 13, lineHeight: 18, marginTop: 3 },
-  segments: { flexDirection: "row", gap: 8, marginTop: 12 },
-  segment: {
+  label: {
+    fontFamily: "serif",
+    fontWeight: "700",
+    fontSize: 21,
+    lineHeight: 24,
+  },
+  contact: {
     flex: 1,
+    minHeight: 48,
+    padding: 8,
     borderWidth: 1,
-    borderRadius: 24,
-    minHeight: 44,
-    flexDirection: "row",
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 4,
   },
 });

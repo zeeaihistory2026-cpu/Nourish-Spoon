@@ -5,17 +5,14 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
   TextInput,
   Switch,
   Linking,
-  Alert,
 } from "react-native";
-import { Ionicons, FontAwesome, Feather } from "@expo/vector-icons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "../components/Header";
 import { useMobileStore } from "../services/storeService";
-import { ASSETS } from "../constants/assets";
 import {
   formatPKR,
   generateWhatsAppMessage,
@@ -23,6 +20,7 @@ import {
   DEFAULT_WHATSAPP_PHONE,
 } from "@packages/utils";
 import { Product, ProductVariant } from "@packages/types";
+import { ProductArtwork } from "../components/ProductArtwork";
 
 interface WhatsAppOrderScreenProps {
   initialProduct?: Product;
@@ -71,7 +69,8 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
     if (
       !customerName.trim() ||
       !customerPhone.trim() ||
-      !deliveryAddress.trim() || !deliveryCity.trim()
+      !deliveryAddress.trim() ||
+      !deliveryCity.trim()
     ) {
       showInfo(
         "Missing Details",
@@ -135,33 +134,30 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             { backgroundColor: theme.surface, borderColor: theme.border },
           ]}
         >
-          <Image
-            source={
-              currentProduct.name.includes("Energy")
-                ? ASSETS.energyBallsCard
-                : ASSETS.panjeeriCard
-            }
-            style={styles.previewImage}
-          />
+          <View style={styles.previewImage}>
+            <ProductArtwork product={currentProduct} />
+          </View>
 
           <View style={styles.previewDetails}>
             <Text style={[styles.previewTitle, { color: theme.text }]}>
               {currentProduct.name}
             </Text>
 
-            <View style={styles.ratingRow}>
-              <View style={styles.stars}>
-                {[...Array(5)].map((_, i) => (
-                  <Ionicons key={i} name="star" size={11} color="#C9A84C" />
-                ))}
-              </View>
-              <Text style={styles.ratingText}>
-                {currentProduct.rating}{" "}
-                <Text style={styles.reviewCount}>
-                  ({currentProduct.review_count} reviews)
+            {currentProduct.review_count > 0 && (
+              <View style={styles.ratingRow}>
+                <View style={styles.stars}>
+                  {[...Array(5)].map((_, i) => (
+                    <Ionicons key={i} name="star" size={11} color="#C9A84C" />
+                  ))}
+                </View>
+                <Text style={styles.ratingText}>
+                  {currentProduct.rating}{" "}
+                  <Text style={styles.reviewCount}>
+                    ({currentProduct.review_count} reviews)
+                  </Text>
                 </Text>
-              </Text>
-            </View>
+              </View>
+            )}
 
             <Text
               style={[styles.previewWeight, { color: theme.textSecondary }]}
@@ -351,8 +347,26 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
           </View>
 
           <View style={styles.fieldRow}>
-            <Text style={[styles.inlineLabel, { color: theme.text }]}>Delivery City</Text>
-            <TextInput accessibilityLabel="Delivery city" value={deliveryCity} onChangeText={setDeliveryCity} placeholder="Enter your city" maxLength={80} autoCapitalize="words" placeholderTextColor={theme.textMuted} style={[styles.inputBox, { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border }]} />
+            <Text style={[styles.inlineLabel, { color: theme.text }]}>
+              Delivery City
+            </Text>
+            <TextInput
+              accessibilityLabel="Delivery city"
+              value={deliveryCity}
+              onChangeText={setDeliveryCity}
+              placeholder="Enter your city"
+              maxLength={80}
+              autoCapitalize="words"
+              placeholderTextColor={theme.textMuted}
+              style={[
+                styles.inputBox,
+                {
+                  color: theme.text,
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                },
+              ]}
+            />
           </View>
 
           {/* Delivery Address */}

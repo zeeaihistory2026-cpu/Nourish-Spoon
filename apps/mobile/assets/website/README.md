@@ -10,3 +10,7 @@ Source base URL: https://nourishspoon.com/assets/images/
 - review-1.png through review-12.png: the screenshots displayed on the public testimonials page. The 12 corresponding published reviews are preserved in packages/catalog/websiteReviews.json as a snapshot taken on 2026-10-11.
 
 Website typography is Cormorant Garamond for display text and Jost for body text. Fonts are bundled from the corresponding Expo Google Fonts packages. No website account, cookies, or private data are included.
+
+Current runtime uses banner-1, banner-4 and banner-5 as fixed-height hero backgrounds. Unused banners, the original textured logo and description poster are preserved under docs/design/website-originals rather than bundled in the app. Product cards use the original product photographs; combos use assets/products/combo-pack.png (see docs/design/combo-artwork.md).
+
+The previous website hero banners are archived under `docs/design/website-originals`. The current mobile hero uses the three cream assets under `assets/hero`; see `docs/design/hero-artwork.md` for provenance.

@@ -1,0 +1,231 @@
+import React, { useEffect, useRef, useState } from "react";
+import {
+  AccessibilityInfo,
+  AppState,
+  Animated,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { Text } from "./DesignPrimitives";
+import { useMobileStore } from "../services/storeService";
+
+const scenes = [
+  {
+    image: require("../../assets/hero/panjeeri.png"),
+    label: "Homemade Panjeeri",
+  },
+  {
+    image: require("../../assets/hero/energy-balls.png"),
+    label: "Date-nut energy balls and wholesome ingredients",
+  },
+  {
+    image: require("../../assets/hero/ingredients.png"),
+    label: "Wholesome nuts and dates",
+  },
+];
+
+/** Stable copy and geometry, with three decorative backgrounds crossfading behind it. */
+export function HomeHero({ onShop }: { onShop: () => void }) {
+  const { theme } = useMobileStore();
+  const { fontScale } = useWindowDimensions();
+  const [width, setWidth] = useState(0);
+  const [index, setIndex] = useState(0);
+  const [loaded, setLoaded] = useState<boolean[]>([false, false, false]);
+  const [reduceMotion, setReduceMotion] = useState(true);
+  const [foreground, setForeground] = useState(
+    AppState.currentState !== "background" &&
+      AppState.currentState !== "inactive",
+  );
+  const opacity = useRef(
+    scenes.map((_, i) => new Animated.Value(i === 0 ? 1 : 0)),
+  ).current;
+  const lastInteraction = useRef(0);
+  const height = Math.max(228, Math.ceil(220 * fontScale));
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then(setReduceMotion)
+      .catch(() => {});
+    const motion = AccessibilityInfo.addEventListener(
+      "reduceMotionChanged",
+      setReduceMotion,
+    );
+    const app = AppState.addEventListener("change", (state) =>
+      setForeground(state === "active"),
+    );
+    return () => {
+      motion.remove();
+      app.remove();
+    };
+  }, []);
+  useEffect(() => {
+    const animation = Animated.parallel(
+      opacity.map((value, i) =>
+        Animated.timing(value, {
+          toValue: i === index ? 1 : 0,
+          duration: reduceMotion ? 0 : 650,
+          useNativeDriver: Platform.OS !== "web",
+        }),
+      ),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [index, reduceMotion, opacity]);
+  const ready = loaded.every(Boolean);
+  useEffect(() => {
+    if (!ready || reduceMotion || !foreground) return;
+    const timer = setInterval(() => {
+      if (Date.now() - lastInteraction.current > 10000)
+        setIndex((current) => (current + 1) % scenes.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [ready, reduceMotion, foreground]);
+  const gradient: readonly [string, string, string] = [
+    "#F5EADB",
+    "rgba(245,234,219,0.75)",
+    "rgba(245,234,219,0)",
+  ];
+  return (
+    <View>
+      <View
+        accessibilityLabel="Home hero"
+        style={[s.hero, { height, backgroundColor: "#F5EADB" }]}
+        onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
+      >
+        {scenes.map((scene, i) => (
+          <Animated.Image
+            key={scene.label}
+            source={scene.image}
+            resizeMode="contain"
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+            onLoadEnd={() =>
+              setLoaded((current) =>
+                current[i]
+                  ? current
+                  : current.map((value, j) => (j === i ? true : value)),
+              )
+            }
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width,
+              height: width / 2,
+              opacity: opacity[i],
+            }}
+          />
+        ))}
+        <LinearGradient
+          colors={["#F5EADB", "rgba(245,234,219,0)"]}
+          style={{
+            position: "absolute",
+            top: height - width / 2 - 1,
+            left: 0,
+            right: 0,
+            height: 44,
+          }}
+          pointerEvents="none"
+        />
+        <LinearGradient
+          colors={gradient}
+          locations={[0, 0.2, 0.62]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={s.copy}>
+          <Text style={[s.heading, { color: "#183320" }]}>
+            Traditional{"\n"}Panjeeri
+          </Text>
+          <Text
+            style={{
+              fontFamily: "serif",
+              fontWeight: "700",
+              fontSize: width < 320 ? 22 : 24,
+              lineHeight: 26,
+              color: "#805025",
+            }}
+          >
+            from Sargodha
+          </Text>
+          <Text style={[s.subtitle, { color: "#46503C" }]}>
+            Pure ingredients.{"\n"}Real nutrition.
+          </Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Shop Now"
+            onPress={onShop}
+            style={s.shop}
+          >
+            <Text style={{ color: "#fff", fontSize: 13, fontWeight: "700" }}>
+              Shop Now
+            </Text>
+            <Ionicons name="arrow-forward" size={18} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={s.dots}>
+        {scenes.map((scene, i) => (
+          <TouchableOpacity
+            key={scene.label}
+            accessibilityRole="button"
+            accessibilityLabel={`Show home image ${i + 1}`}
+            accessibilityState={{ selected: index === i }}
+            onPress={() => {
+              lastInteraction.current = Date.now();
+              setIndex(i);
+            }}
+            style={s.dotTarget}
+          >
+            <View
+              style={{
+                width: i === index ? 14 : 6,
+                height: 6,
+                borderRadius: 4,
+                backgroundColor: i === index ? theme.primary : theme.border,
+              }}
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+const s = StyleSheet.create({
+  hero: { marginHorizontal: 12, borderRadius: 16, overflow: "hidden" },
+  copy: {
+    padding: 16,
+    width: "62%",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  heading: {
+    fontFamily: "serif",
+    fontWeight: "700",
+    fontSize: 30,
+    lineHeight: 30,
+  },
+  subtitle: { fontSize: 12, lineHeight: 17, marginTop: 10, marginBottom: 12 },
+  shop: {
+    backgroundColor: "#1B4332",
+    borderRadius: 8,
+    minHeight: 44,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  dots: { flexDirection: "row", justifyContent: "center" },
+  dotTarget: {
+    width: 32,
+    height: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

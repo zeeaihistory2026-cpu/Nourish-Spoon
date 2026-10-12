@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useMobileStore } from "../services/storeService";
 
 export function Text({ style, ...props }: TextProps) {
-  const defaultColor = useMobileStore(state => state.theme.text);
+  const defaultColor = useMobileStore((state) => state.theme.text);
   const flat = StyleSheet.flatten(style) || {};
   const serif = flat.fontFamily === "serif";
   const bold = Number(flat.fontWeight) >= 600 || flat.fontWeight === "bold";
@@ -24,9 +24,13 @@ export function Text({ style, ...props }: TextProps) {
       : bold
         ? "CormorantGaramond_700Bold"
         : "CormorantGaramond_400Regular"
-    : bold
+    : flat.fontWeight === "bold" || Number(flat.fontWeight) >= 700
       ? "Jost_700Bold"
-      : "Jost_400Regular";
+      : Number(flat.fontWeight) >= 600
+        ? "Jost_600SemiBold"
+        : Number(flat.fontWeight) >= 500
+          ? "Jost_500Medium"
+          : "Jost_400Regular";
   return (
     <NativeText
       {...props}
@@ -42,18 +46,9 @@ export function Text({ style, ...props }: TextProps) {
 export const ART = {
   brand: require("../../assets/website/logo-transparent.png"),
   botanical: require("../../assets/design/botanical.png"),
-  home: require("../../assets/design/home-food.jpg"),
-  splash: require("../../assets/design/splash-food.jpg"),
   onboarding: require("../../assets/design/onboarding-food.jpg"),
   login: require("../../assets/design/login-food.jpg"),
-  contact: require("../../assets/design/contact-food.jpg"),
   founder: require("../../assets/design/founder.jpg"),
-  energyCard: require("../../assets/website/product-1-main.png"),
-  panjeeriCard: require("../../assets/website/product-2-main.png"),
-  energyCatalog: require("../../assets/website/product-1-main.png"),
-  panjeeriCatalog: require("../../assets/website/product-2-main.png"),
-  energyDetail: require("../../assets/website/product-1-main.png"),
-  panjeeriDetail: require("../../assets/website/product-2-main.png"),
   proof: require("../../assets/design/review-proof.png"),
 };
 
@@ -90,25 +85,82 @@ export function Botanical({ full = false }: { full?: boolean }) {
   );
 }
 
-export function Brand({ large = false, website = false }: { large?: boolean; website?: boolean }) {
+export function Brand({
+  large = false,
+  website = false,
+}: {
+  large?: boolean;
+  website?: boolean;
+}) {
   const { theme } = useMobileStore();
-  if (website) return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 7, flexShrink: 1 }}>
-      <Image source={require("../../assets/website/logo-transparent.png")} resizeMode="contain" style={{ width: 38, height: 38, tintColor: '#C9A84C' }} />
-      <View>
-        <Text style={{ fontFamily: "serif", fontSize: 22, lineHeight: 25, fontWeight: "700", color: theme.text }}>Nourish Spoon™</Text>
-        <Text style={{ fontFamily: "serif", fontSize: 14, color: theme.gold }}>Crafted with Love</Text>
+  if (website)
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 7,
+          flexShrink: 1,
+        }}
+      >
+        <Image
+          source={require("../../assets/website/logo-transparent.png")}
+          resizeMode="contain"
+          style={{ width: 38, height: 38, tintColor: "#C9A84C" }}
+        />
+        <View>
+          <Text
+            style={{
+              fontFamily: "serif",
+              fontSize: 22,
+              lineHeight: 25,
+              fontWeight: "700",
+              color: theme.text,
+            }}
+          >
+            Nourish Spoon™
+          </Text>
+          <Text
+            style={{ fontFamily: "serif", fontSize: 14, color: theme.gold }}
+          >
+            Crafted with Love
+          </Text>
+        </View>
       </View>
-    </View>
-  );
+    );
   return (
     <View style={{ alignItems: "center" }}>
-      <Image source={ART.brand} resizeMode="contain" style={{ width: large ? 80 : 46, height: large ? 80 : 46, tintColor: '#C9A84C' }} />
-      <Text style={{ fontFamily: "serif", fontSize: large ? 36 : 24, fontWeight: "700", color: theme.text, marginTop: 7 }}>Nourish Spoon™</Text>
-      <Text style={{ fontFamily: "serif", fontSize: large ? 18 : 14, color: theme.gold }}>Crafted with Love</Text>
+      <Image
+        source={ART.brand}
+        resizeMode="contain"
+        style={{
+          width: large ? 80 : 46,
+          height: large ? 80 : 46,
+          tintColor: "#C9A84C",
+        }}
+      />
+      <Text
+        style={{
+          fontFamily: "serif",
+          fontSize: large ? 36 : 24,
+          fontWeight: "700",
+          color: theme.text,
+          marginTop: 7,
+        }}
+      >
+        Nourish Spoon™
+      </Text>
+      <Text
+        style={{
+          fontFamily: "serif",
+          fontSize: large ? 18 : 14,
+          color: theme.gold,
+        }}
+      >
+        Crafted with Love
+      </Text>
     </View>
   );
-
 }
 
 interface GreenButtonProps {
@@ -139,7 +191,9 @@ export function GreenButton({
       ]}
     >
       <LinearGradient
-        colors={whatsapp ? [theme.whatsapp, theme.whatsapp] : ["#1B4332", "#1B4332"]}
+        colors={
+          whatsapp ? [theme.whatsapp, theme.whatsapp] : ["#1B4332", "#1B4332"]
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{

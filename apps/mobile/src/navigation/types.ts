@@ -19,6 +19,10 @@ export type AppScreen =
   | "Orders"
   | "TrackOrder"
   | "OrderDetails"
+  | "OrderConfirmation"
+  | "OrderTracking"
+  | "Wishlist"
+  | "EditProfile"
   | "Addresses"
   | "Notifications";
 export type RouteParams = {
@@ -27,6 +31,7 @@ export type RouteParams = {
   initialVariant?: ProductVariant;
   section?: MenuSection;
   orderId?: string;
+  category?: string;
 };
 export type AppNavigation = {
   navigate: (name: AppScreen, params?: RouteParams) => void;

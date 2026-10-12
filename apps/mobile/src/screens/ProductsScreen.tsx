@@ -1,21 +1,23 @@
 import { Text } from "../components/DesignPrimitives";
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { Ionicons, FontAwesome, Feather } from "@expo/vector-icons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "../components/Header";
 import { useMobileStore } from "../services/storeService";
-import { ASSETS } from "../constants/assets";
 import { formatPKR } from "@packages/utils";
 import { Product, ProductVariant } from "@packages/types";
+import { ProductArtwork } from "../components/ProductArtwork";
+import { PRODUCT_CATEGORIES } from "@packages/catalog/categories";
 
 interface ProductsScreenProps {
+  initialCategory?: string;
+  favoritesOnly?: boolean;
   onBack: () => void;
   onSelectProduct: (prod: Product) => void;
   onOpenWhatsAppOrder: (prod: Product, variant?: ProductVariant) => void;
@@ -23,49 +25,49 @@ interface ProductsScreenProps {
 }
 
 export const ProductsScreen: React.FC<ProductsScreenProps> = ({
+  initialCategory = "all",
+  favoritesOnly = false,
   onBack,
   onSelectProduct,
   onOpenWhatsAppOrder,
   onAddToCart,
 }) => {
   const { theme, products, favorites, toggleFavorite } = useMobileStore();
-  const [selectedCategory, setSelectedCategory] = useState<
-    "All" | "Energy Balls" | "Panjeeri"
-  >("All");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  useEffect(() => setSelectedCategory(initialCategory), [initialCategory]);
   const searchRef = useRef<TextInput>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVariants, setSelectedVariants] = useState<
     Record<string, string>
-  >({
-    "c0000000-0000-0000-0000-000000000001": "250g",
-    "c0000000-0000-0000-0000-000000000002": "250g",
-  });
+  >({});
 
-  const categories: Array<"All" | "Energy Balls" | "Panjeeri"> = [
-    "All",
-    "Energy Balls",
-    "Panjeeri",
-  ];
+  const categories = PRODUCT_CATEGORIES;
 
   const filteredProducts = products.filter((p) => {
     const matchesCat =
-      selectedCategory === "All" ||
-      (selectedCategory === "Energy Balls" && p.category === "energy_balls") ||
-      (selectedCategory === "Panjeeri" && p.category === "panjeeri");
+      selectedCategory === "all" || p.category === selectedCategory;
 
     const matchesSearch =
       !searchQuery ||
       p.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
-      p.short_description.toLowerCase().includes(searchQuery.trim().toLowerCase());
+      p.short_description
+        .toLowerCase()
+        .includes(searchQuery.trim().toLowerCase());
 
-    return matchesCat && matchesSearch;
+    return (
+      p.active &&
+      p.variants.some((variant) => variant.active) &&
+      matchesCat &&
+      (!favoritesOnly || favorites.includes(p.id)) &&
+      matchesSearch
+    );
   });
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
       <Header
-        title="Products"
+        title={favoritesOnly ? "My Wishlist" : "Products"}
         showBack
         onBack={onBack}
         rightAction="search"
@@ -100,7 +102,12 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
             style={[styles.searchInput, { color: theme.text }]}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={10} onPress={() => setSearchQuery("")}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
+              hitSlop={10}
+              onPress={() => setSearchQuery("")}
+            >
               <Ionicons name="close-circle" size={16} color={theme.textMuted} />
             </TouchableOpacity>
           )}
@@ -109,14 +116,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
         {/* Category Filter Pills */}
         <View style={styles.categoriesRow}>
           {categories.map((cat) => {
-            const isActive = selectedCategory === cat;
+            const isActive = selectedCategory === cat.id;
             return (
               <TouchableOpacity
-                key={cat}
+                key={cat.id}
                 accessibilityRole="button"
-                accessibilityLabel={cat}
+                accessibilityLabel={cat.label}
                 accessibilityState={{ selected: isActive }}
-                onPress={() => setSelectedCategory(cat)}
+                onPress={() => setSelectedCategory(cat.id)}
                 style={[
                   styles.catPill,
                   isActive
@@ -135,7 +142,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                     { color: isActive ? "#FFFFFF" : theme.text },
                   ]}
                 >
-                  {cat}
+                  {cat.label}
                 </Text>
               </TouchableOpacity>
             );
@@ -157,10 +164,14 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
           )}
           {filteredProducts.map((prod) => {
             const isFav = favorites.includes(prod.id);
-            const activeWeight = selectedVariants[prod.id] || "250g";
+            const activeVariants = prod.variants.filter(
+              (variant) => variant.active,
+            );
+            const activeWeight =
+              selectedVariants[prod.id] || activeVariants[0]?.weight;
             const currentVariant =
-              prod.variants.find((v) => v.weight === activeWeight) ||
-              prod.variants[0];
+              activeVariants.find((v) => v.weight === activeWeight) ||
+              activeVariants[0];
 
             return (
               <View
@@ -176,15 +187,7 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                   activeOpacity={0.9}
                   style={styles.cardImageWrapper}
                 >
-                  <Image
-                    source={
-                      prod.name.includes("Energy")
-                        ? require("../../assets/website/product-1-main.png")
-                        : require("../../assets/website/product-2-main.png")
-                    }
-                    style={styles.cardImage}
-                    resizeMode="cover"
-                  />
+                  <ProductArtwork product={prod} />
                   <TouchableOpacity
                     onPress={() => toggleFavorite(prod.id)}
                     accessibilityRole="button"
@@ -208,24 +211,26 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                   </Text>
 
                   {/* Rating */}
-                  <View style={styles.ratingRow}>
-                    <View style={styles.stars}>
-                      {[...Array(5)].map((_, i) => (
-                        <Ionicons
-                          key={i}
-                          name="star"
-                          size={13}
-                          color="#C9A84C"
-                        />
-                      ))}
-                    </View>
-                    <Text style={styles.ratingScore}>
-                      {prod.rating}{" "}
-                      <Text style={styles.reviewCount}>
-                        ({prod.review_count} reviews)
+                  {prod.review_count > 0 && (
+                    <View style={styles.ratingRow}>
+                      <View style={styles.stars}>
+                        {[...Array(5)].map((_, i) => (
+                          <Ionicons
+                            key={i}
+                            name="star"
+                            size={13}
+                            color="#C9A84C"
+                          />
+                        ))}
+                      </View>
+                      <Text style={styles.ratingScore}>
+                        {prod.rating}{" "}
+                        <Text style={styles.reviewCount}>
+                          ({prod.review_count} reviews)
+                        </Text>
                       </Text>
-                    </Text>
-                  </View>
+                    </View>
+                  )}
 
                   <Text
                     style={[styles.cardDesc, { color: theme.textSecondary }]}
@@ -235,74 +240,78 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
 
                   {/* Weight Selector Boxes */}
                   <View style={styles.variantsRow}>
-                    {prod.variants.map((variant) => {
-                      const isSelected = activeWeight === variant.weight;
-                      return (
-                        <TouchableOpacity
-                          key={variant.id}
-                          onPress={() =>
-                            setSelectedVariants({
-                              ...selectedVariants,
-                              [prod.id]: variant.weight,
-                            })
-                          }
-                          style={[
-                            styles.variantBox,
-                            {
-                              borderColor: isSelected
-                                ? theme.primary
-                                : theme.border,
-                            },
-                            isSelected && {
-                              backgroundColor:
-                                theme.mode === "light" ? "#F0F9F3" : "#143622",
-                            },
-                          ]}
-                          activeOpacity={0.85}
-                        >
-                          <View>
-                            <Text
-                              style={[
-                                styles.variantWeight,
-                                { color: theme.textSecondary },
-                              ]}
-                            >
-                              {variant.weight}
-                            </Text>
-                            <Text
-                              style={[
-                                styles.variantPrice,
-                                { color: theme.text },
-                              ]}
-                            >
-                              {formatPKR(
-                                variant.sale_price || variant.regular_price,
-                              )}
-                            </Text>
-                          </View>
-
-                          <View
+                    {prod.variants
+                      .filter((variant) => variant.active)
+                      .map((variant) => {
+                        const isSelected = activeWeight === variant.weight;
+                        return (
+                          <TouchableOpacity
+                            key={variant.id}
+                            onPress={() =>
+                              setSelectedVariants({
+                                ...selectedVariants,
+                                [prod.id]: variant.weight,
+                              })
+                            }
                             style={[
-                              styles.radioCircle,
+                              styles.variantBox,
                               {
                                 borderColor: isSelected
                                   ? theme.primary
                                   : theme.border,
                               },
+                              isSelected && {
+                                backgroundColor:
+                                  theme.mode === "light"
+                                    ? "#F0F9F3"
+                                    : "#143622",
+                              },
                             ]}
+                            activeOpacity={0.85}
                           >
-                            {isSelected && (
-                              <View
+                            <View>
+                              <Text
                                 style={[
-                                  styles.radioDot,
-                                  { backgroundColor: theme.primary },
+                                  styles.variantWeight,
+                                  { color: theme.textSecondary },
                                 ]}
-                              />
-                            )}
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
+                              >
+                                {variant.weight}
+                              </Text>
+                              <Text
+                                style={[
+                                  styles.variantPrice,
+                                  { color: theme.text },
+                                ]}
+                              >
+                                {formatPKR(
+                                  variant.sale_price || variant.regular_price,
+                                )}
+                              </Text>
+                            </View>
+
+                            <View
+                              style={[
+                                styles.radioCircle,
+                                {
+                                  borderColor: isSelected
+                                    ? theme.primary
+                                    : theme.border,
+                                },
+                              ]}
+                            >
+                              {isSelected && (
+                                <View
+                                  style={[
+                                    styles.radioDot,
+                                    { backgroundColor: theme.primary },
+                                  ]}
+                                />
+                              )}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
                   </View>
 
                   {/* Actions Row: WhatsApp (Dominant) + View Product + Cart */}
@@ -324,7 +333,12 @@ export const ProductsScreen: React.FC<ProductsScreenProps> = ({
                         color="#FFFFFF"
                         style={{ marginRight: 4 }}
                       />
-                      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} style={styles.whatsappButtonText}>
+                      <Text
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.85}
+                        style={styles.whatsappButtonText}
+                      >
                         WhatsApp
                       </Text>
                     </TouchableOpacity>
@@ -410,20 +424,21 @@ const styles = StyleSheet.create({
   },
   categoriesRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 6,
     marginBottom: 16,
   },
   catPill: {
+    minHeight: 44,
     paddingVertical: 7,
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   catPillText: {
     textAlign: "center",
-    fontSize: 12.5,
+    fontSize: 11,
     fontWeight: "600",
   },
   productsList: {

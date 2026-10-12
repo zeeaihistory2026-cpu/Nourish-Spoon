@@ -1,111 +1,122 @@
-import { AppNavigation } from "../../navigation/types";
 import React, { useState } from "react";
-import { Linking } from "react-native";
-import * as Clipboard from "expo-clipboard";
+import { View, TouchableOpacity } from "react-native";
+import { AppNavigation } from "../../navigation/types";
 import {
   Page,
   Card,
   Heading,
   Copy,
   Message,
-  Field,
   AccountGate,
+  Choice,
 } from "./components";
-import { GreenButton } from "../../components/DesignPrimitives";
+import { Text } from "../../components/DesignPrimitives";
 import { watchOrders } from "./service";
 import { useAccountData } from "./useAccountData";
+import { useMobileStore } from "../../services/storeService";
 import { formatPKR } from "@packages/utils";
-export function OrdersScreen({
-  navigation,
-  tracking = false,
-}: {
-  navigation: AppNavigation;
-  tracking?: boolean;
-}) {
+import { OrderItems, statusLabel } from "./OrderSummary";
+export function OrdersScreen({ navigation }: { navigation: AppNavigation }) {
   const { user, items, error, loading } = useAccountData(watchOrders);
-  const [number, setNumber] = useState(""),
-    [message, setMessage] = useState("");
-  const valid = /^\d{8,20}$/.test(number.trim());
+  const { theme } = useMobileStore();
+  const [filter, setFilter] = useState("All");
+  const filtered = items.filter(
+    (order) =>
+      filter === "All" ||
+      (filter === "Active"
+        ? !["delivered", "cancelled"].includes(order.status)
+        : filter === "Completed"
+          ? order.status === "delivered"
+          : order.status === "cancelled"),
+  );
   return (
     <Page
-      title={tracking ? "Track Order" : "My Orders"}
+      title="My Orders"
+      subtitle="Your orders, receipts and favourites to reorder."
       back={navigation.goBack}
     >
-      {tracking && (
-        <Card>
-          <Heading>Have a TCS number?</Heading>
-          <Copy>
-            You can also track an earlier WhatsApp order. Copy your consignment
-            number, open TCS, and paste it into their tracking field.
-          </Copy>
-          <Field
-            label="TCS consignment number"
-            value={number}
-            onChangeText={setNumber}
-            keyboardType="number-pad"
-            maxLength={20}
-          />
-          <GreenButton
-            title="Copy & Open TCS"
-            disabled={!valid}
-            onPress={async () => {
-              try {
-                await Clipboard.setStringAsync(number.trim());
-                await Linking.openURL("https://www.tcsexpress.com/track/");
-              } catch {
-                setMessage(
-                  "Unable to open TCS. Your number is " + number.trim(),
-                );
-              }
-            }}
-          />
-          {!!message && <Message>{message}</Message>}
-        </Card>
-      )}
       {!user ? (
         <AccountGate navigate={navigation.navigate} />
       ) : (
         <>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+            {["All", "Active", "Completed", "Cancelled"].map((value) => (
+              <Choice
+                key={value}
+                title={value}
+                selected={filter === value}
+                onPress={() => setFilter(value)}
+              />
+            ))}
+          </View>
           {!!error && <Message>{error}</Message>}
           {loading && <Copy>Loading your orders…</Copy>}
-          {!loading && !error && !items.length && (
+          {!loading && !error && !filtered.length && (
             <Card>
-              <Heading>No orders yet</Heading>
-              <Copy>
-                Orders placed in this app will appear here. For an earlier
-                WhatsApp order, contact Nourish Spoon for your TCS number.
-              </Copy>
-              <GreenButton
-                title="Explore Products"
-                onPress={() => navigation.navigate("Products")}
-              />
+              <Heading>
+                {items.length ? "No orders in this category" : "No orders yet"}
+              </Heading>
+              <Copy>Orders placed in the app will appear here.</Copy>
             </Card>
           )}
-          {items.map((order) => (
+          {filtered.map((order) => (
             <Card key={order.id}>
-              <Heading>{order.order_number}</Heading>
-              <Copy>
-                {new Date(order.created_at).toLocaleDateString()} ·{" "}
-                {order.status.replace(/_/g, " ")}
-                {"\n"}
-                {order.items
-                  .map(
-                    (item) =>
-                      `${item.product_name} ${item.variant_weight} × ${item.quantity}`,
-                  )
-                  .join("\n")}
-              </Copy>
-              <Copy>
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  justifyContent: "space-between",
+                  gap: 6,
+                }}
+              >
+                <Text style={{ fontWeight: "700", fontSize: 17 }}>
+                  {order.order_number}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: theme.primary,
+                    backgroundColor: theme.surfaceWarm,
+                    padding: 6,
+                    borderRadius: 10,
+                  }}
+                >
+                  {statusLabel(order.status)}
+                </Text>
+              </View>
+              <Copy>{new Date(order.created_at).toLocaleDateString()}</Copy>
+              <OrderItems items={order.items} />
+              <Text style={{ fontWeight: "700" }}>
                 {order.total == null
                   ? `Products ${formatPKR(order.subtotal)} · delivery quote pending`
                   : `Total ${formatPKR(order.total)}`}
-              </Copy>
-              <GreenButton
-                title={tracking ? "View Tracking" : "View Order"}
-                onPress={() =>
-                  navigation.navigate("OrderDetails", { orderId: order.id })
-                }
-              />
+              </Text>
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                {[
+                  { title: "View Details", route: "OrderDetails" as const },
+                  { title: "Track Order", route: "OrderTracking" as const },
+                ].map((action) => (
+                  <TouchableOpacity
+                    key={action.title}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${action.title} ${order.order_number}`}
+                    onPress={() =>
+                      navigation.navigate(action.route, { orderId: order.id })
+                    }
+                    style={{
+                      flex: 1,
+                      minHeight: 44,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderWidth: 1,
+                      borderColor: theme.border,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text style={{ fontSize: 14 }}>{action.title}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </Card>
           ))}
         </>

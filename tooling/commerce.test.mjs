@@ -39,11 +39,11 @@ function client(name) {
   };
 }
 const checkout = {
-  request_id: "qa_order_request_001",
+  request_id: `qa_order_request_${Date.now()}`,
   items: [
     {
-      product_id: "c0000000-0000-0000-0000-000000000001",
-      variant_id: "d0000000-0000-0000-0000-000000000001",
+      product_id: "date-and-nuts-energy-balls",
+      variant_id: "date-and-nuts-energy-balls:250g",
       quantity: 2,
       unit_price: 1,
     },
@@ -75,13 +75,21 @@ before(async () => {
 after(async () => {
   if (customer) await deleteApp(customer.app);
   if (owner) await deleteApp(owner.app);
-  if (server) await server.delete();
+  if (server) {
+    await getFirestore(server).doc("products/stock-test").delete();
+    await server.delete();
+  }
 });
 test("checkout uses catalogue prices and retries do not duplicate orders", async () => {
   order = await customer.call("placeOrder", checkout);
-  assert.equal(order.subtotal, 3998);
-  assert.equal(order.total, 4248);
+  assert.equal(order.subtotal, 4398);
+  assert.equal(order.total, 4648);
   assert.equal(order.delivery_city, "Chiniot");
+  assert.deepEqual(
+    order.status_history.map((event) => event.status),
+    ["pending"],
+  );
+  assert.ok(Number.isFinite(Date.parse(order.status_history[0].at)));
   const retry = await customer.call("placeOrder", checkout);
   assert.equal(retry.id, order.id);
 });
@@ -116,7 +124,24 @@ test("owner fulfils stages, supplies TCS and customer reviews once after deliver
     status: "out_for_delivery",
     tracking_number: "12345678901",
   });
-  await owner.call("updateOrder", { id: order.id, status: "delivered" });
+  const delivered = await owner.call("updateOrder", {
+    id: order.id,
+    status: "delivered",
+  });
+  assert.deepEqual(
+    delivered.status_history.map((event) => event.status),
+    ["pending", "confirmed", "preparing", "out_for_delivery", "delivered"],
+  );
+  const repeated = await owner.call("updateOrder", {
+    id: order.id,
+    status: "delivered",
+  });
+  assert.deepEqual(repeated.status_history, delivered.status_history);
+  assert.ok(
+    delivered.status_history.every((event) =>
+      Number.isFinite(Date.parse(event.at)),
+    ),
+  );
   const review = {
     order_id: order.id,
     product_id: checkout.items[0].product_id,
@@ -150,7 +175,10 @@ test("stock transaction prevents concurrent overselling and cancellation restore
     ],
   };
   const results = await Promise.allSettled(
-    ["stock_request_0001", "stock_request_0002"].map((request_id) =>
+    [
+      `stock_request_0001_${Date.now()}`,
+      `stock_request_0002_${Date.now()}`,
+    ].map((request_id) =>
       customer.call("placeOrder", { ...input, request_id }),
     ),
   );

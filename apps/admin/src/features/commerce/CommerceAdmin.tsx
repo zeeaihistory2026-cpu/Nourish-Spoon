@@ -15,6 +15,7 @@ import {
   doc,
   setDoc,
   updateDoc,
+  runTransaction,
 } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { Product, Review } from "@packages/types";
@@ -79,10 +80,7 @@ export default function CommerceAdmin() {
                 doc.data(),
                 INITIAL_PRODUCTS.find(
                   (product) =>
-                    product.category ===
-                    (/panjeeri/i.test(doc.data().name || doc.id)
-                      ? "panjeeri"
-                      : "energy_balls"),
+                    product.id === doc.id || product.slug === doc.data().slug,
                 ),
               ),
             ),
@@ -255,27 +253,49 @@ export default function CommerceAdmin() {
         )}
         {section === "Products" && (
           <>
-            {!products.length && (
+            {INITIAL_PRODUCTS.some(
+              (product) =>
+                !products.some(
+                  (published) =>
+                    published.id === product.id ||
+                    published.slug === product.slug,
+                ),
+            ) && (
               <article>
-                <h3>Import the website catalogue</h3>
+                <h3>Add the updated product catalogue</h3>
                 <p>
-                  Imports two products and published prices. Stock is unmanaged
-                  until you enter quantities. No demo orders or customers are
-                  created.
+                  Adds missing recipes and combos from the owner’s October 12
+                  screenshots. Existing product prices are preserved. Stock is
+                  unmanaged until you enter quantities. Review pack contents
+                  before sale.
                 </p>
                 <button
                   disabled={busy}
                   onClick={() =>
                     run(async () => {
-                      for (const product of INITIAL_PRODUCTS)
-                        await setDoc(
-                          doc(database!, "products", product.id),
-                          product,
-                        );
+                      for (const product of INITIAL_PRODUCTS.filter(
+                        (product) =>
+                          !products.some(
+                            (published) =>
+                              published.id === product.id ||
+                              published.slug === product.slug,
+                          ),
+                      )) {
+                        await runTransaction(database!, async (transaction) => {
+                          const reference = doc(
+                            database!,
+                            "products",
+                            product.id,
+                          );
+                          const existing = await transaction.get(reference);
+                          if (!existing.exists())
+                            transaction.set(reference, product);
+                        });
+                      }
                     })
                   }
                 >
-                  Import Catalogue
+                  Add Missing Products
                 </button>
               </article>
             )}

@@ -33,8 +33,13 @@ import { FAQScreen } from "./src/screens/FAQScreen";
 import { ContactMoreScreen } from "./src/screens/ContactMoreScreen";
 import { AuthScreen } from "./src/screens/AuthScreen";
 import { CartScreen } from "./src/features/commerce/CartScreen";
+import { CartBar } from "./src/features/commerce/CartBar";
 import { CheckoutScreen } from "./src/features/commerce/CheckoutScreen";
 import { AddressesScreen } from "./src/features/commerce/AddressesScreen";
+import { TrackOrderScreen } from "./src/features/commerce/TrackOrderScreen";
+import { OrderTrackingScreen } from "./src/features/commerce/OrderTrackingScreen";
+import { OrderConfirmationScreen } from "./src/features/commerce/OrderConfirmationScreen";
+import { EditProfileScreen } from "./src/features/commerce/EditProfileScreen";
 import { OrdersScreen } from "./src/features/commerce/OrdersScreen";
 import { OrderDetailsScreen } from "./src/features/commerce/OrderDetailsScreen";
 import { NotificationsScreen } from "./src/features/commerce/NotificationsScreen";
@@ -43,12 +48,14 @@ import { subscribeCatalogue } from "./src/features/commerce/catalog";
 import { BottomTabBar, MobileTab } from "./src/components/BottomTabBar";
 import { BurgerMenu } from "./src/components/BurgerMenu";
 import { Product, ProductVariant } from "@packages/types";
+import { clearCheckoutDraft } from "./src/features/commerce/checkoutDraft";
 export type ScreenName = AppScreen;
 type Route = { name: ScreenName; params?: RouteParams };
-const tabs: ScreenName[] = ["Home", "Products", "Reviews", "About", "More"];
+const tabs: ScreenName[] = ["Home", "Products", "Cart", "Orders", "More"];
 function MobileApp() {
   const { showInfo, dialog } = useInfoDialog();
   const { theme, selectProduct, setThemeMode } = useMobileStore();
+  const previousUid = useRef(firebaseAuth?.currentUser?.uid || null);
   const [routes, setRoutes] = useState<Route[]>([{ name: "splash" }]);
   const [menuOpen, setMenuOpen] = useState(false);
   const openMenu = () => {
@@ -91,6 +98,8 @@ function MobileApp() {
     CormorantGaramond_700Bold: require("@expo-google-fonts/cormorant-garamond/700Bold/CormorantGaramond_700Bold.ttf"),
     CormorantGaramond_400Regular_Italic: require("@expo-google-fonts/cormorant-garamond/400Regular_Italic/CormorantGaramond_400Regular_Italic.ttf"),
     Jost_400Regular: require("@expo-google-fonts/jost/400Regular/Jost_400Regular.ttf"),
+    Jost_500Medium: require("@expo-google-fonts/jost/500Medium/Jost_500Medium.ttf"),
+    Jost_600SemiBold: require("@expo-google-fonts/jost/600SemiBold/Jost_600SemiBold.ttf"),
     Jost_700Bold: require("@expo-google-fonts/jost/700Bold/Jost_700Bold.ttf"),
   });
   useEffect(() => {
@@ -106,6 +115,9 @@ function MobileApp() {
     () =>
       firebaseAuth
         ? onAuthStateChanged(firebaseAuth, (user) => {
+            if (previousUid.current && previousUid.current !== user?.uid)
+              clearCheckoutDraft();
+            previousUid.current = user?.uid || null;
             if (user) syncPendingCustomerProfile(user.uid).catch(() => {});
           })
         : undefined,
@@ -115,9 +127,19 @@ function MobileApp() {
   const navigate = useCallback(
     (name: string, params?: Route["params"]) => {
       if (name === "WhatsAppOrder") {
-        const product = params?.initialProduct || useMobileStore.getState().products.find(item => item.active && item.variants.some(size => size.active));
+        const product =
+          params?.initialProduct ||
+          useMobileStore
+            .getState()
+            .products.find(
+              (item) =>
+                item.active && item.variants.some((size) => size.active),
+            );
         if (!product) {
-          showInfo("Products unavailable", "Please contact Nourish Spoon using More for current availability.");
+          showInfo(
+            "Products unavailable",
+            "Please contact Nourish Spoon using More for current availability.",
+          );
           return;
         }
         params = { ...params, initialProduct: product };
@@ -125,7 +147,7 @@ function MobileApp() {
       if (params?.product) selectProduct(params.product);
       setRoutes((prev) =>
         tabs.includes(name as ScreenName)
-          ? [{ name: name as ScreenName }]
+          ? [{ name: name as ScreenName, params }]
           : [...prev, { name: name as ScreenName, params }],
       );
     },
@@ -138,12 +160,16 @@ function MobileApp() {
   }, []);
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (menuOpen) {
+        setMenuOpen(false);
+        return true;
+      }
       if (screen === "Home" || screen === "splash") return false;
       goBack();
       return true;
     });
     return () => sub.remove();
-  }, [screen, goBack]);
+  }, [screen, goBack, menuOpen]);
   const finishSplash = useCallback(() => {
     if (ready) setRoutes([{ name: onboarded ? "Home" : "onboarding" }]);
   }, [ready, onboarded]);
@@ -157,9 +183,18 @@ function MobileApp() {
   };
   const select = (p: Product) => navigate("ProductDetail", { product: p });
   const order = (p?: Product, v?: ProductVariant) => {
-    const product = p || useMobileStore.getState().products.find(item => item.active && item.variants.some(size => size.active));
+    const product =
+      p ||
+      useMobileStore
+        .getState()
+        .products.find(
+          (item) => item.active && item.variants.some((size) => size.active),
+        );
     if (!product) {
-      showInfo("Products unavailable", "Please contact Nourish Spoon using More for current availability.");
+      showInfo(
+        "Products unavailable",
+        "Please contact Nourish Spoon using More for current availability.",
+      );
       return;
     }
     navigate("WhatsAppOrder", { initialProduct: product, initialVariant: v });
@@ -172,12 +207,7 @@ function MobileApp() {
     if (before === useMobileStore.getState().cart)
       showInfo(
         "Cart limit",
-        "Your cart can hold up to 10 different sizes, with 20 of each size. Unavailable sizes cannot be added. Please review it in More → Cart.",
-      );
-    else
-      showInfo(
-        "Added to cart",
-        `${product.name} is in your cart. Open More → Cart to checkout.`,
+        "Your cart can hold up to 10 different sizes, with 20 of each size. Unavailable sizes cannot be added. Tap View Cart to review your items.",
       );
   };
   const nav: AppNavigation = {
@@ -187,22 +217,29 @@ function MobileApp() {
     replace: (name: ScreenName) => setRoutes([{ name }]),
     openMenu,
   };
-  const activeTab: MobileTab =
-    screen === "ProductDetail" || screen === "WhatsAppOrder"
-      ? "Products"
-      : screen === "FAQ" || screen === "PaymentDelivery"
+  const activeTab: MobileTab = [
+    "OrderDetails",
+    "OrderConfirmation",
+    "OrderTracking",
+    "Orders",
+  ].includes(screen)
+    ? "Orders"
+    : ["Cart", "Checkout"].includes(screen)
+      ? "Cart"
+      : [
+            "Wishlist",
+            "EditProfile",
+            "Addresses",
+            "Notifications",
+            "TrackOrder",
+            "FAQ",
+            "More",
+          ].includes(screen)
         ? "More"
-        : [
-              "Cart",
-              "Checkout",
-              "Orders",
-              "TrackOrder",
-              "OrderDetails",
-              "Addresses",
-              "Notifications",
-            ].includes(screen)
-          ? "More"
-          : (screen as MobileTab);
+        : ["ProductDetail", "WhatsAppOrder", "Products"].includes(screen)
+          ? "Products"
+          : ([...routes].reverse().find((route) => tabs.includes(route.name))
+              ?.name as MobileTab) || "Home";
   const hideTabs = ["splash", "onboarding", "Login", "Signup"].includes(screen);
   if (!fontsLoaded && !fontError)
     return <View style={{ flex: 1, backgroundColor: "#FFF9EC" }} />;
@@ -241,15 +278,16 @@ function MobileApp() {
             <HomeScreen
               onNavigateTab={navigate}
               onSelectProduct={select}
-              onOpenWhatsAppOrder={order}
-              onOpenDeliveryInfo={() => navigate("PaymentDelivery")}
               onOpenMenu={openMenu}
               onAddToCart={addToCart}
-              onOpenNotifications={() => navigate("Notifications")}
+              onOpenCart={() => navigate("Cart")}
+              onOpenCategory={(category) => navigate("Products", { category })}
             />
           )}
-          {screen === "Products" && (
+          {(screen === "Products" || screen === "Wishlist") && (
             <ProductsScreen
+              initialCategory={route.params?.category}
+              favoritesOnly={screen === "Wishlist"}
               onBack={goBack}
               onSelectProduct={select}
               onOpenWhatsAppOrder={order}
@@ -286,9 +324,21 @@ function MobileApp() {
           {screen === "Cart" && <CartScreen navigation={nav} />}
           {screen === "Checkout" && <CheckoutScreen navigation={nav} />}
           {screen === "Addresses" && <AddressesScreen navigation={nav} />}
-          {(screen === "Orders" || screen === "TrackOrder") && (
-            <OrdersScreen navigation={nav} tracking={screen === "TrackOrder"} />
+          {screen === "Orders" && <OrdersScreen navigation={nav} />}
+          {screen === "TrackOrder" && <TrackOrderScreen navigation={nav} />}
+          {screen === "OrderTracking" && (
+            <OrderTrackingScreen
+              navigation={nav}
+              orderId={route.params?.orderId || ""}
+            />
           )}
+          {screen === "OrderConfirmation" && (
+            <OrderConfirmationScreen
+              navigation={nav}
+              orderId={route.params?.orderId || ""}
+            />
+          )}
+          {screen === "EditProfile" && <EditProfileScreen navigation={nav} />}
           {screen === "OrderDetails" && (
             <OrderDetailsScreen
               navigation={nav}
@@ -308,10 +358,17 @@ function MobileApp() {
                   { name: screen === "Login" ? "Signup" : "Login" },
                 ])
               }
-              onSuccess={() => navigate("Home")}
+              onSuccess={() =>
+                routes[routes.length - 2]?.name === "Checkout"
+                  ? goBack()
+                  : navigate("Home")
+              }
             />
           )}
         </Animated.View>
+        {["Home", "Products", "ProductDetail"].includes(screen) && (
+          <CartBar onOpen={() => navigate("Cart")} />
+        )}
         {!hideTabs && (
           <BottomTabBar activeTab={activeTab} onSelectTab={navigate} />
         )}
@@ -322,7 +379,15 @@ function MobileApp() {
         onClose={() => setMenuOpen(false)}
         onSelect={(section) => {
           setMenuOpen(false);
-          navigate("PaymentDelivery", { section });
+          if (section === "payment" || section === "delivery")
+            navigate("PaymentDelivery", { section });
+          else if (section === "home") navigate("Home");
+          else if (section === "story") navigate("About");
+          else if (section === "reviews") navigate("Reviews");
+          else
+            navigate("Products", {
+              category: section === "products" ? "all" : section,
+            });
         }}
       />
     </SafeAreaView>

@@ -17,13 +17,6 @@ function installNativeLaunch(projectRoot) {
     fs.writeFileSync(path.join(resource('mipmap-anydpi'), name), '<inset xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/nourish_launch_icon" />');
   }
   fs.copyFileSync(path.join(projectRoot, "assets/website/logo-transparent.png"), path.join(resource("drawable-nodpi"), "nourish_launch_logo.png"));
-  fs.copyFileSync(path.join(projectRoot, "assets/website/banner-1.png"), path.join(resource("drawable-nodpi"), "nourish_launch_food.png"));
-  const fonts = [
-    ["cormorant-garamond/700Bold/CormorantGaramond_700Bold.ttf", "nourish_display_bold.ttf"],
-    ["cormorant-garamond/400Regular/CormorantGaramond_400Regular.ttf", "nourish_display_regular.ttf"],
-    ["jost/400Regular/Jost_400Regular.ttf", "nourish_body_regular.ttf"],
-  ];
-  for (const [source, target] of fonts) fs.copyFileSync(require.resolve(`@expo-google-fonts/${source}`, { paths: [projectRoot] }), path.join(resource("font"), target));
   const base = `<resources><style name="Theme.Nourish.Launch" parent="AppTheme"><item name="android:windowBackground">@drawable/nourish_launch_icon</item><item name="android:statusBarColor">#FDF6E3</item><item name="android:navigationBarColor">#FDF6E3</item><item name="android:windowLightStatusBar">true</item><item name="android:windowLightNavigationBar">true</item></style></resources>`;
   fs.writeFileSync(path.join(resource("values"), "nourish_launch_styles.xml"), base);
   fs.writeFileSync(path.join(resource("values-v31"), "nourish_launch_styles.xml"), base.replace("</style>", `<item name="android:windowSplashScreenBackground">#FDF6E3</item><item name="android:windowSplashScreenAnimatedIcon">@drawable/nourish_launch_icon</item><item name="android:windowSplashScreenIconBackgroundColor">#FDF6E3</item></style>`));

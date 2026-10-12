@@ -1,34 +1,44 @@
-# Delivery and QA notes
+# UI review and QA — 1.0.3
 
-The app follows the website's Cormorant Garamond/Jost typography, forest/cream/gold palette, artwork and six promotional banners. Hero images preserve their full framing; swipe, dots and autoplay remain, and previous/next arrows are removed. Autoplay pauses in the background and for reduced motion. The transparent logo replaces the textured square in the launch, header, menu and account screens; UI logo color is the website gold.
+This is the pre-APK design review requested on October 12, 2026. A new 1.0.3 APK has not been built. The previously released 1.0.2 APK remains unchanged.
 
-The native launch photo and app splash preserve the complete panjeeri/laddu image. Android 12's initial system-managed splash has a centered padded icon on cream, followed by the photo/text launch screen. Home cards have matching heights and aligned cart controls. Product WhatsApp/View/cart actions share one row at 320px and 360px. Detail actions and navigation occupy separate layout space. Scrollable screens end with 20px clearance above navigation. Custom city fields accept cities outside any predefined list.
+## Changes
 
-More contains cart, order history, tracking, saved addresses, notifications, FAQ, account and contact tools. The burger menu contains delivery information and payment methods. Published website reviews and their individual proof images are bundled. Nutrition/storage values are website figures, not a laboratory verification; allergen descriptions are based on published ingredients.
+- Logo-only Android and app launch; complete transparent mark, centered and contained. App transition waits for successful image loading.
+- One 228px minimum-height hero with stable text/button and three gently crossfading 2:1 cream food backgrounds. Full images use contain with a smooth top/left fade rather than different image heights. No standalone page carousel or arrows. Rotation respects reduced motion and background state.
+- Compact category shortcuts, equal serif-title product cards, combo section and directly accessible cart. Home/Products/Cart/Orders/More tabs follow the shopping flow.
+- Cream cart/profile cards, a three-step checkout, separate confirmation/receipt/tracking screens, and shop/business drawer destinations distinct from personal tools in More.
+- Memory-only checkout draft preserves address, payment step and idempotency key across navigation; signing out clears it.
+- Verified the live website fonts on October 12: Cormorant Garamond headings, Jost body/buttons. Local Jost 400/500/600/700 files are bundled.
+- Nine owner-supplied product records with twelve size/pack choices, including sugar/no-added-sugar Panjeeri and six combos.
+- Product cards share a 3:2 frame. A single combo artwork replaces the two-thumbnail composition. Single-product photography remains the website originals.
+- No category-based cart substitution. Old/unavailable cart records must be removed before checkout.
+- Recipe-specific nutrition/reviews are not assumed. New recipe FAQ copy acknowledges added-sugar choices.
+- Missing-product import in the owner dashboard preserves existing records through Firestore transactions.
 
-## Checks completed on 2026-10-12
+## Verification
 
-- Mobile TypeScript check and native release compilation.
-- Admin TypeScript/production build after extracting editors and removing demo pages/assets.
-- Eight backend domain/catalogue tests: authoritative pricing, unknown fees, first-order policy, malformed quantities/overselling, custom cities, order stages and legacy Firebase product compatibility.
-- Five Firestore rules tests: owner privacy, protected order writes, address schema/privacy, untamperable notifications and private reviews/auth handoff.
-- Five callable integration tests: idempotent checkout, customer privilege rejection, fulfilment/TCS/review rules, concurrent stock/cancellation and one-use auth handoff.
-- Browser QA: signup, sign-in, password visibility and field validation, search/filtering, cart quantities, custom-city checkout, saved-address create/edit/remove, order navigation, notification navigation and menu separation. Website reviews, image framing and small-phone layout were visually inspected.
-- APK v2 signature validation, Android package/version and ARM64/minimum SDK inspection.
+Mobile TypeScript and admin production build passed. Nine backend domain/catalogue tests passed. Five Firestore security tests and five local callable integration tests passed with the updated catalogue, including authoritative prices, idempotency, stock races, fulfilment/TCS/reviews one-use native auth handoff, and recorded status history without repeated-stage duplication. The rule-test source now resolves its rules path relative to the module, so it runs correctly from the repository root or tooling folder.
 
-The 26-screen gallery consists of actual browser renders. Commerce screenshots use isolated demo data, including illustrative delivery fees. They are not Android device screenshots. A final APK signature/build check does not establish physical-device startup, keyboard, safe areas or provider login; those still require a connected phone/emulator.
+The 56-image screen gallery contains actual browser renders at 360×800 and a 320×720 home check. Commerce/account previews use isolated local test data; displayed test delivery fees and TCS numbers are illustrative. It includes logo launch, onboarding, all three hero backgrounds, products/categories/combos, details/search/cart, guest and signed-in checkout, sign-in/signup/password reset, profile editing, wishlist, menu/payment/delivery, reviews/proof, story/profile/support, addresses, orders/tracking/notifications and FAQ.
 
-## Live-service limits
+Email login, signup validation/creation, password visibility/reset, sign-out, profile/address saving, product search, wishlist, quantity controls, successful checkout/confirmation and draft retention were exercised against isolated services. At 320px both home Add buttons have identical Y coordinates and 44px heights.
 
-The existing Firebase project handles email accounts and its public catalogue. Revised rules, commerce functions and native social Hosting bridge are prepared and tested locally but not deployed. CLI account authorization is unavailable. Google needs enabled/configured Firebase provider access; Apple additionally needs an Apple Developer account and provider credentials, which have not been supplied. The app keeps guest WhatsApp ordering available and reports service errors without pretending an order succeeded.
+These are browser previews, not Android device screenshots. Physical-device startup, keyboard, safe areas and social-provider login still require Android verification. The new native release has not been compiled in this review phase.
 
-Notifications are in-app updates; background push is not implemented. TCS scans open on the official TCS website, without a private carrier API integration. Payments are confirmed manually. Coupons, loyalty and Urdu translation are not included. See `docs/backend-deployment.md` for deployment and owner handover, including cleanup of the earlier residual live QA account.
+## Live limits and source artwork
 
-Dependency audit remains open: mobile dependencies report 26 advisories (7 moderate, 19 high), including transitive Expo/Metro/Firebase build tooling. The earlier critical advisory was resolved. Breaking downgrade suggestions from `npm audit fix --force` were not applied. Review supported upstream upgrades before production distribution. The admin build also warns about its large Firebase bundle.
+Email accounts use the existing Firebase project. New catalogue import/rules/functions/social hosting are pending authorized deployment. Apple credentials are unavailable. Guest WhatsApp ordering remains available; failures must not be treated as successful orders.
 
-## Rebuilding and signing
+The combo artwork is AI-assisted reconstruction of the supplied screenshot, corrected using the official chef-hat logo. It is illustrative packaging artwork rather than a pixel-identical extraction. Source and exact built-in imagegen prompts are in `docs/design/combo-artwork.md`. The three cream hero backgrounds were also generated using the supplied references. Exact prompts and asset paths are in `docs/design/hero-artwork.md`. No fabricated ratings or nutrition badges were added.
 
-Install dependencies and configure `apps/mobile/.env` from the template. Use JDK 17, Android SDK/build tools 36 and NDK 28.2.13676358. From `apps/mobile/android`:
+The previous dependency audit remains open: 26 mobile advisories (7 moderate, 19 high), and the admin build warns about its Firebase bundle size. Breaking downgrade suggestions were not applied.
+
+## Next native build
+
+Version 1.0.3 / code 4, ARM64, Android 7+. Keep the existing ignored signing key. V1, V2 and V3 signing are explicitly configured; signature and archive verification must be repeated after compilation. Do not regenerate or clean the Android project.
+
+From `apps/mobile/android`, with JDK 17, SDK/build tools 36 and NDK 28.2.13676358:
 
 ```powershell
 $env:NODE_ENV = 'production'
@@ -36,7 +46,4 @@ $env:NOURISH_NDK_VERSION = '28.2.13676358'
 .\gradlew.bat :app:assembleRelease '-Pnourish.ndkVersion=28.2.13676358' '-PreactNativeArchitectures=arm64-v8a' '-Pkotlin.compiler.execution.strategy=in-process' '-Dorg.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=1024m' --max-workers=1 --no-parallel --console=plain
 ```
 
-Output: `apps/mobile/android/app/build/outputs/apk/release/app-release.apk`, version 1.0.2 / code 3, ARM64, Android 7+.
-
-Private signing remains in the ignored `apps/mobile/private-signing` folder, outside generated native files. Back up the JKS and signing properties securely. Certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee3459409980f31600e51bb0`. Version 1.0.2 uses the same key as 1.0.1 and can update that preview. It cannot update the old 1.0.0 preview signed by the lost earlier key.
-Final APK SHA-256: `35773A9800C34D4A1446619A36D034BA9909F7AC0BDF7FAD986C5E297A92DBAA`. Size: 41,423,010 bytes. The bundle contains the live project ID and transparent-logo asset; demo project IDs and QA passwords are absent. Final package inspection confirms obsolete external-storage/overlay permissions are absent.
+Private signing: `apps/mobile/private-signing`. Certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee3459409980f31600e51bb0`. The key matches 1.0.1/1.0.2; it does not match the lost 1.0.0 key.

@@ -37,6 +37,7 @@ export type Purchase = {
     | "delivered"
     | "cancelled";
   tracking_number: string;
+  status_history?: { status: Purchase["status"]; at: string }[];
   subtotal: number;
   discount: number;
   delivery_fee: number | null;

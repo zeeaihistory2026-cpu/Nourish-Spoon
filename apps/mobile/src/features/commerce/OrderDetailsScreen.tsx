@@ -1,7 +1,6 @@
 import { AppNavigation } from "../../navigation/types";
 import React, { useState } from "react";
 import { View, Linking } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import {
   Page,
@@ -15,14 +14,7 @@ import {
 import { useAccountData } from "./useAccountData";
 import { watchOrders, call, commerceError } from "./service";
 import { useMobileStore } from "../../services/storeService";
-import { formatPKR } from "@packages/utils";
-const stages = [
-  ["pending", "Awaiting confirmation"],
-  ["confirmed", "Order confirmed"],
-  ["preparing", "Preparing your order"],
-  ["out_for_delivery", "Dispatched"],
-  ["delivered", "Delivered"],
-];
+import { OrderItems, OrderTotals, statusLabel } from "./OrderSummary";
 export function OrderDetailsScreen({
   navigation,
   orderId,
@@ -85,96 +77,28 @@ export function OrderDetailsScreen({
               {"\n"}
               {order.customer_phone}
             </Copy>
-            {order.items.map((item) => (
-              <View
-                key={item.variant_id}
-                style={{
-                  flexDirection: "row",
-                  gap: 12,
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={{ flex: 1 }}>
-                  {item.product_name} · {item.variant_weight} × {item.quantity}
-                </Text>
-                <Text>{formatPKR(item.total_price)}</Text>
-              </View>
-            ))}
             <Copy>
-              Products: {formatPKR(order.subtotal)}
-              {"\n"}Delivery:{" "}
-              {order.delivery_fee == null
-                ? "Awaiting quote"
-                : formatPKR(order.delivery_fee)}
-              {"\n"}Total:{" "}
-              {order.total == null
-                ? "Awaiting confirmation"
-                : formatPKR(order.total)}
-              {"\n"}Payment: {order.payment_status.replace(/_/g, " ")}
+              {statusLabel(order.status)} ·{" "}
+              {new Date(order.created_at).toLocaleString()}
+            </Copy>
+            <OrderItems items={order.items} />
+            <OrderTotals
+              subtotal={order.subtotal}
+              fee={order.delivery_fee}
+              total={order.total}
+            />
+            <Copy>
+              Payment: {order.payment_status.replace(/_/g, " ")} ·{" "}
+              {order.payment_method_code.replace(/_/g, " ")}
             </Copy>
             {order.is_gift && (
               <Copy>Gift message: {order.gift_message || "No message"}</Copy>
             )}
           </Card>
-          <Card>
-            <Heading>Order progress</Heading>
-            {order.status === "cancelled" ? (
-              <Copy>This order was cancelled.</Copy>
-            ) : (
-              stages.map(([status, label], index) => (
-                <View
-                  key={status}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 10,
-                    paddingVertical: 5,
-                  }}
-                >
-                  <Text style={{ color: theme.primary }}>
-                    {index <=
-                    stages.findIndex(([value]) => value === order.status)
-                      ? "●"
-                      : "○"}
-                  </Text>
-                  <Text>{label}</Text>
-                </View>
-              ))
-            )}
-          </Card>
-          <Card>
-            <Heading>TCS tracking</Heading>
-            {order.tracking_number ? (
-              <>
-                <Copy>Consignment number: {order.tracking_number}</Copy>
-                <GreenButton
-                  title="Copy Tracking Number"
-                  onPress={async () => {
-                    try {
-                      await Clipboard.setStringAsync(order.tracking_number);
-                      setMessage("Tracking number copied.");
-                    } catch {
-                      setMessage("Could not copy the number.");
-                    }
-                  }}
-                />
-                <GreenButton
-                  title="Open Official TCS Tracking"
-                  onPress={() => open("https://www.tcsexpress.com/track/")}
-                />
-                <Copy>
-                  Paste the consignment number on TCS. Delivery scans are shown
-                  by TCS; the app’s order stages are updated by Nourish Spoon.
-                </Copy>
-              </>
-            ) : (
-              <Copy>
-                {order.delivery_method_code === "tcs_nationwide"
-                  ? "Your consignment number will appear after Nourish Spoon dispatches the parcel."
-                  : "This order does not use TCS delivery."}
-              </Copy>
-            )}
-          </Card>
+          <GreenButton
+            title="Track Order"
+            onPress={() => navigation.navigate("OrderTracking", { orderId })}
+          />
           <Card>
             <GreenButton
               title="Order These Items Again"
