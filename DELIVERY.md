@@ -1,6 +1,6 @@
-# UI review and QA — 1.0.3
+# Release verification — 1.0.3
 
-This is the pre-APK design review requested on October 12, 2026. A new 1.0.3 APK has not been built. The previously released 1.0.2 APK remains unchanged.
+The October 12 design review contains 56 actual browser screenshots, published before the APK build. The signed 1.0.3 APK was built and verified on October 13, 2026. The previous 1.0.2 release remains available.
 
 ## Changes
 
@@ -24,7 +24,7 @@ The 56-image screen gallery contains actual browser renders at 360×800 and a 32
 
 Email login, signup validation/creation, password visibility/reset, sign-out, profile/address saving, product search, wishlist, quantity controls, successful checkout/confirmation and draft retention were exercised against isolated services. At 320px both home Add buttons have identical Y coordinates and 44px heights.
 
-These are browser previews, not Android device screenshots. Physical-device startup, keyboard, safe areas and social-provider login still require Android verification. The new native release has not been compiled in this review phase.
+These are browser previews, not Android device screenshots. Physical-device startup, keyboard, safe areas and social-provider login still require Android verification. Android release compilation and fatal lint checks passed. The APK package parses as com.nourishspoon.app, version 1.0.3/code 4, ARM64, minimum API 24 and target API 36. V2/V3 signatures passed and V1/JAR was checked independently. The certificate matches 1.0.1/1.0.2. ZIP integrity and 16KB page/4-byte alignment passed. The packaged bundle contains the live Firebase project and the local medium/semibold fonts, with no demo project, QA email or QA password. Four unused legacy avatar/review images were removed.
 
 ## Live limits and source artwork
 
@@ -34,9 +34,9 @@ The combo artwork is AI-assisted reconstruction of the supplied screenshot, corr
 
 The previous dependency audit remains open: 26 mobile advisories (7 moderate, 19 high), and the admin build warns about its Firebase bundle size. Breaking downgrade suggestions were not applied.
 
-## Next native build
+## Native build
 
-Version 1.0.3 / code 4, ARM64, Android 7+. Keep the existing ignored signing key. V1, V2 and V3 signing are explicitly configured; signature and archive verification must be repeated after compilation. Do not regenerate or clean the Android project.
+Version 1.0.3 / code 4, ARM64, Android 7+. Keep the existing ignored signing key. V1, V2 and V3 signing are explicitly configured; repeat signature and archive verification after future compilation. Do not regenerate or clean the Android project.
 
 From `apps/mobile/android`, with JDK 17, SDK/build tools 36 and NDK 28.2.13676358:
 
@@ -47,3 +47,10 @@ $env:NOURISH_NDK_VERSION = '28.2.13676358'
 ```
 
 Private signing: `apps/mobile/private-signing`. Certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee3459409980f31600e51bb0`. The key matches 1.0.1/1.0.2; it does not match the lost 1.0.0 key.
+
+## Downloads
+
+- Screens: https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-ui-review
+- APK: https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-preview
+- APK bytes: 48,413,097. SHA-256: `12c0fe4eac4e501b0c93c226c859416f74c57772b546138293b8e241a860bb20`.
+- Copies are saved in `F:/Downloads`. No Android device was attached for an installation/runtime test.

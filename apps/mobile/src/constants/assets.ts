@@ -18,11 +18,6 @@ export const ASSETS = {
   iconDeliveryFoodpanda: require('../../assets/icons/icon_delivery_foodpanda.png'),
   iconDeliveryPickup: require('../../assets/icons/icon_delivery_pickup.png'),
 
-  // Avatars
-  avatarMisbah: require('../../assets/avatars/avatar_misbah.png'),
-  avatarRakshanda: require('../../assets/avatars/avatar_rakshanda.png'),
-  avatarShahjehan: require('../../assets/avatars/avatar_shahjehan.png'),
-  reviewWhatsappBubble: require('../../assets/design/review-proof.png'),
 
   // Ingredients
   ingredients: {

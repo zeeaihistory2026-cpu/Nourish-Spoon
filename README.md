@@ -36,3 +36,7 @@ The owner dashboard manages products, variant stock/prices, orders, payments, TC
 Existing email accounts are live. The new catalogue import, commerce functions, revised rules and hosted social bridge are **not deployed**. Firebase CLI account authorization is still required. Apple additionally requires Apple Developer provider credentials. Google/Apple buttons do not establish working live providers.
 
 Notifications are in-app, TCS opens its official site, and payments are manual. Push notifications, a payment gateway, loyalty, coupons and Urdu are not included. See [deployment](docs/backend-deployment.md), [architecture](docs/architecture.md) and [QA notes](DELIVERY.md).
+
+## Reviewed release
+
+The [56-screen review](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-ui-review) was published before the [signed 1.0.3 APK](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-preview). Android compilation, package/signature/alignment checks and isolated account/commerce QA passed. No physical Android installation was tested; live commerce/social deployment remains pending as described above.

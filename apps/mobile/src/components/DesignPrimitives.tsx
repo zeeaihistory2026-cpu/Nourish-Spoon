@@ -49,7 +49,6 @@ export const ART = {
   onboarding: require("../../assets/design/onboarding-food.jpg"),
   login: require("../../assets/design/login-food.jpg"),
   founder: require("../../assets/design/founder.jpg"),
-  proof: require("../../assets/design/review-proof.png"),
 };
 
 export function Botanical({ full = false }: { full?: boolean }) {
