@@ -34,7 +34,7 @@ export function ContactMoreScreen({
   const [account, setAccount] = useState<User | null>(
     firebaseAuth?.currentUser || null,
   );
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState<string | undefined>();
   const orders = useAccountData(watchOrders),
     addresses = useAccountData(watchAddresses);
   useEffect(
@@ -43,7 +43,7 @@ export function ContactMoreScreen({
     [],
   );
   useEffect(() => {
-    setPhone("");
+    setPhone(undefined);
     if (account && db)
       return onSnapshot(
         doc(db, "users", account.uid),
@@ -154,13 +154,26 @@ export function ContactMoreScreen({
               <Text style={{ fontSize: 13, color: c.textSecondary }}>
                 {account?.email || "Sign in for a personal experience"}
               </Text>
-              {!!phone && <Copy>{phone}</Copy>}
+              {account && (
+                <Copy>
+                  {phone ?? "Loading number…"}
+                  {phone === "" ? " " : ""}
+                </Copy>
+              )}
             </View>
           </View>
           <GreenButton
             title={account ? "Edit Profile" : "Sign In / Create Account"}
             onPress={() =>
-              navigation.navigate(account ? "EditProfile" : "Login")
+              account
+                ? navigation.navigate("EditProfile", {
+                    profile: {
+                      uid: account.uid,
+                      fullName: account.displayName || "",
+                      phone,
+                    },
+                  })
+                : navigation.navigate("Login")
             }
           />
         </Card>

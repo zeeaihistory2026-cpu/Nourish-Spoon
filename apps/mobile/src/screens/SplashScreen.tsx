@@ -38,5 +38,5 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  logo: { width: 128, height: 128, tintColor: "#C9A84C" },
+  logo: { width: 224, height: 224, tintColor: "#C9A84C" },
 });

@@ -29,7 +29,7 @@ The October 12 owner catalogue includes two Panjeeri recipes, two Energy Ball si
 
 ## Features and deployment
 
-Email accounts, persistent cart/favorites, search/category/size selection, custom delivery city, saved addresses, checkout, order history/reordering, gift messages, fulfilment stages, manual payment confirmation, TCS links, in-app updates, and delivered-purchase reviews. Fulfilment changes record timestamps; older stages without timestamps remain explicitly unavailable. Home, Products, Cart, Orders and More are the five main tabs. More contains profile, wishlist, addresses, TCS lookup, notifications and support. The drawer contains shopping categories, story, reviews, delivery information and payment methods, with no duplicate account tools.
+Email accounts, persistent cart/favorites, search/category/size selection, custom delivery city, saved addresses, checkout, order history/reordering, gift messages, fulfilment stages, manual payment confirmation, TCS links, in-app updates, and delivered-purchase reviews. Fulfilment changes record timestamps; older stages without timestamps remain explicitly unavailable. Home, Products, Cart, Orders and More are the five main tabs. More contains profile, wishlist, addresses, TCS lookup, notifications and support. The drawer contains shopping categories, story, reviews, delivery information and payment methods, with no duplicate account tools and a Shop Now action below the promotional image.
 
 The owner dashboard manages products, variant stock/prices, orders, payments, TCS numbers, review moderation and delivery settings. Owner access requires verified `info@nourishspoon.com` or an admin custom claim. Missing catalogue records can be imported without replacing existing records.
 
@@ -39,4 +39,4 @@ Notifications are in-app, TCS opens its official site, and payments are manual. 
 
 ## Reviewed release
 
-The [56-screen review](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-ui-review) was published before the [signed 1.0.3 APK](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-preview). Android compilation, package/signature/alignment checks and isolated account/commerce QA passed. No physical Android installation was tested; live commerce/social deployment remains pending as described above.
+The [60-screen review](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.4-ui-review) is available alongside the [1.0.4 APK release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.4-preview). The release corrects the large-to-small launch logo transition, profile phone prefill/optional saving, matching hero copy and fixed hero action placement. The hero was measured in all three states at five widths. See [QA notes](DELIVERY.md) for verification and live-service limits.

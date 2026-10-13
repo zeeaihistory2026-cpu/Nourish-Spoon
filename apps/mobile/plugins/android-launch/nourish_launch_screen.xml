@@ -2,6 +2,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/nourish_launch_overlay" android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="#FDF6E3" android:fitsSystemWindows="true" android:importantForAccessibility="noHideDescendants">
-    <ImageView android:layout_width="128dp" android:layout_height="128dp" android:layout_gravity="center"
+    <ImageView android:id="@+id/nourish_launch_mark" android:layout_width="224dp" android:layout_height="224dp" android:layout_gravity="center"
         android:src="@drawable/nourish_launch_logo" android:tint="#C9A84C" android:scaleType="fitCenter" android:contentDescription="Nourish Spoon logo" />
 </FrameLayout>

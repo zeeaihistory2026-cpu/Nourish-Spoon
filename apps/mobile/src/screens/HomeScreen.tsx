@@ -10,7 +10,6 @@ import { PRODUCT_CATEGORIES } from "@packages/catalog/categories";
 import { Product, ProductVariant } from "@packages/types";
 
 interface Props {
-  onNavigateTab: (tab: string) => void;
   onSelectProduct: (product: Product) => void;
   onOpenMenu: () => void;
   onAddToCart: (product: Product, variant?: ProductVariant) => void;
@@ -18,7 +17,6 @@ interface Props {
   onOpenCategory: (category: string) => void;
 }
 export function HomeScreen({
-  onNavigateTab,
   onSelectProduct,
   onOpenMenu,
   onAddToCart,
@@ -71,7 +69,7 @@ export function HomeScreen({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 6 }}
       >
-        <HomeHero onShop={() => onNavigateTab("Products")} />
+        <HomeHero onShop={onOpenCategory} />
         <View style={s.categories}>
           {PRODUCT_CATEGORIES.filter((category) => category.id !== "all").map(
             (category) => (

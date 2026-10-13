@@ -18,19 +18,28 @@ const scenes = [
   {
     image: require("../../assets/hero/panjeeri.png"),
     label: "Homemade Panjeeri",
+    heading: "Traditional\nPanjeeri",
+    subtitle: "Pure ingredients.\nReal nutrition.",
+    category: "panjeeri",
   },
   {
     image: require("../../assets/hero/energy-balls.png"),
     label: "Date-nut energy balls and wholesome ingredients",
+    heading: "Date & Nuts\nEnergy Balls",
+    subtitle: "Natural energy.\nHandcrafted with love.",
+    category: "energy_balls",
   },
   {
     image: require("../../assets/hero/ingredients.png"),
     label: "Wholesome nuts and dates",
+    heading: "Wholesome\nIngredients",
+    subtitle: "Premium nuts & dates.\nPure, naturally yours.",
+    category: "all",
   },
 ];
 
-/** Stable copy and geometry, with three decorative backgrounds crossfading behind it. */
-export function HomeHero({ onShop }: { onShop: () => void }) {
+/** Each background shares stable geometry and its own matching copy and shop destination. */
+export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
   const { theme } = useMobileStore();
   const { fontScale } = useWindowDimensions();
   const [width, setWidth] = useState(0);
@@ -46,6 +55,7 @@ export function HomeHero({ onShop }: { onShop: () => void }) {
   ).current;
   const lastInteraction = useRef(0);
   const height = Math.max(228, Math.ceil(220 * fontScale));
+  const imageHeight = Math.min(height, width / 2);
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
       .then(setReduceMotion)
@@ -115,7 +125,7 @@ export function HomeHero({ onShop }: { onShop: () => void }) {
               bottom: 0,
               left: 0,
               width,
-              height: width / 2,
+              height: imageHeight,
               opacity: opacity[i],
             }}
           />
@@ -124,7 +134,7 @@ export function HomeHero({ onShop }: { onShop: () => void }) {
           colors={["#F5EADB", "rgba(245,234,219,0)"]}
           style={{
             position: "absolute",
-            top: height - width / 2 - 1,
+            top: height - imageHeight - 1,
             left: 0,
             right: 0,
             height: 44,
@@ -139,8 +149,20 @@ export function HomeHero({ onShop }: { onShop: () => void }) {
           style={StyleSheet.absoluteFill}
         />
         <View style={s.copy}>
-          <Text style={[s.heading, { color: "#183320" }]}>
-            Traditional{"\n"}Panjeeri
+          <Text
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            style={[
+              s.heading,
+              {
+                color: "#183320",
+                fontSize: width < 320 ? 26 : 30,
+                height: Math.ceil(60 * fontScale),
+              },
+            ]}
+          >
+            {scenes[index].heading}
           </Text>
           <Text
             style={{
@@ -153,13 +175,21 @@ export function HomeHero({ onShop }: { onShop: () => void }) {
           >
             from Sargodha
           </Text>
-          <Text style={[s.subtitle, { color: "#46503C" }]}>
-            Pure ingredients.{"\n"}Real nutrition.
+          <Text
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            style={[
+              s.subtitle,
+              { color: "#46503C", height: Math.ceil(34 * fontScale) },
+            ]}
+          >
+            {scenes[index].subtitle}
           </Text>
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Shop Now"
-            onPress={onShop}
+            onPress={() => onShop(scenes[index].category)}
             style={s.shop}
           >
             <Text style={{ color: "#fff", fontSize: 13, fontWeight: "700" }}>
@@ -202,7 +232,7 @@ const s = StyleSheet.create({
     padding: 16,
     width: "62%",
     flex: 1,
-    justifyContent: "center",
+    paddingTop: 18,
     alignItems: "flex-start",
   },
   heading: {
@@ -213,6 +243,9 @@ const s = StyleSheet.create({
   },
   subtitle: { fontSize: 12, lineHeight: 17, marginTop: 10, marginBottom: 12 },
   shop: {
+    position: "absolute",
+    left: 16,
+    bottom: 16,
     backgroundColor: "#1B4332",
     borderRadius: 8,
     minHeight: 44,

@@ -1,34 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { View, useWindowDimensions } from "react-native";
 import { updateProfile } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { AppNavigation } from "../../navigation/types";
+import { AppNavigation, RouteParams } from "../../navigation/types";
 import { firebaseAuth, db, saveCustomerProfile } from "../../services/firebase";
-import { Page, Card, Copy, Field, Message, AccountGate } from "./components";
+import { Page, Card, Copy, Field, AccountGate } from "./components";
 import { GreenButton } from "../../components/DesignPrimitives";
+import { useInfoDialog } from "../../components/InfoDialog";
 import { commerceError } from "./service";
 export function EditProfileScreen({
   navigation,
+  initialProfile,
 }: {
   navigation: AppNavigation;
+  initialProfile?: RouteParams["profile"];
 }) {
+  const { fontScale } = useWindowDimensions();
   const user = firebaseAuth?.currentUser;
-  const [name, setName] = useState(user?.displayName || ""),
-    [phone, setPhone] = useState(""),
-    [message, setMessage] = useState(""),
-    [busy, setBusy] = useState(false),
-    [loading, setLoading] = useState(true);
+  const cached = initialProfile?.uid === user?.uid ? initialProfile : undefined;
+  const [name, setName] = useState(cached?.fullName || user?.displayName || "");
+  const [phone, setPhone] = useState(cached?.phone || "");
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(cached?.phone === undefined);
+  const phoneEdited = useRef(false);
+  const { showInfo, dialog } = useInfoDialog();
   useEffect(() => {
-    let active = true;
-    if (!db || !user) {
+    // More already has a live account snapshot. Reuse it rather than repeat a slow read.
+    if (cached?.phone !== undefined || !db || !user) {
       setLoading(false);
       return;
     }
+    let active = true;
     getDoc(doc(db, "users", user.uid))
       .then((snapshot) => {
-        if (active) setPhone(snapshot.data()?.phone || "");
+        // A delayed response must never replace a number the customer typed or cleared.
+        if (active && !phoneEdited.current)
+          setPhone(snapshot.data()?.phone || "");
       })
-      .catch((error) => {
-        if (active) setMessage(commerceError(error));
+      .catch(() => {
+        if (active) setStatus("Number unavailable.");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -39,28 +50,33 @@ export function EditProfileScreen({
   }, [user?.uid]);
   async function save() {
     if (busy || !user) return;
+    const cleanPhone = phone.trim();
     if (
       !name.trim() ||
-      (phone && !/^(?:\+?92|0)?3\d{9}$/.test(phone.replace(/[\s()-]/g, "")))
+      (phoneEdited.current &&
+        cleanPhone &&
+        !/^(?:\+?92|0)?3\d{9}$/.test(cleanPhone.replace(/[\s()-]/g, "")))
     ) {
-      setMessage(
+      showInfo(
+        "Check profile details",
         "Enter your name and a valid Pakistani mobile number, or leave the number empty.",
       );
       return;
     }
     setBusy(true);
-    setMessage("");
+    setStatus("");
     try {
+      // Omit an untouched phone so a save during loading cannot erase its server value.
       await saveCustomerProfile(
         user.uid,
         name.trim(),
         user.email || "",
-        phone.trim(),
+        phoneEdited.current ? cleanPhone : undefined,
       );
       await updateProfile(user, { displayName: name.trim() });
-      setMessage("Profile saved.");
+      setStatus("Profile saved.");
     } catch (error) {
-      setMessage(commerceError(error));
+      showInfo("Unable to save profile", commerceError(error));
     } finally {
       setBusy(false);
     }
@@ -71,11 +87,11 @@ export function EditProfileScreen({
       subtitle="Your details, kept up to date."
       back={navigation.goBack}
     >
+      {dialog}
       {!user ? (
         <AccountGate navigate={navigation.navigate} />
       ) : (
         <Card>
-          {loading && <Copy>Loading your details…</Copy>}
           <Field
             label="Full name"
             value={name}
@@ -91,15 +107,28 @@ export function EditProfileScreen({
           <Field
             label="Mobile number (optional)"
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={(value) => {
+              phoneEdited.current = true;
+              setPhone(value);
+              setStatus("");
+            }}
             keyboardType="phone-pad"
             autoComplete="tel"
             maxLength={30}
           />
-          {!!message && <Message>{message}</Message>}
+          <View
+            style={{
+              height: Math.ceil(42 * fontScale),
+              justifyContent: "center",
+            }}
+          >
+            <Copy>
+              {status || (loading ? "Loading number…" : "Number is optional.")}
+            </Copy>
+          </View>
           <GreenButton
             title={busy ? "Saving…" : "Save Profile"}
-            disabled={busy || loading}
+            disabled={busy}
             onPress={save}
           />
         </Card>

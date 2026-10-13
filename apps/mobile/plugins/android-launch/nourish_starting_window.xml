@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item><shape android:shape="rectangle"><solid android:color="#FDF6E3" /></shape></item>
+  <item android:width="224dp" android:height="224dp" android:gravity="center">
+    <bitmap android:src="@drawable/nourish_launch_logo" android:gravity="fill" android:filter="true" android:tint="#C9A84C" />
+  </item>
+</layer-list>

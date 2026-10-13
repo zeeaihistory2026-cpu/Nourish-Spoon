@@ -1,42 +1,30 @@
-# Release verification â€” 1.0.3
+# Release verification — 1.0.4
 
-The October 12 design review contains 56 actual browser screenshots, published before the APK build. The signed 1.0.3 APK was built and verified on October 13, 2026. The previous 1.0.2 release remains available.
+October 13, 2026. The 60-screen browser gallery and updated three-scene hero comparison were shown before the APK build. Previous releases remain available on GitHub.
 
 ## Changes
 
-- Logo-only Android and app launch; complete transparent mark, centered and contained. App transition waits for successful image loading.
-- One 228px minimum-height hero with stable text/button and three gently crossfading 2:1 cream food backgrounds. Full images use contain with a smooth top/left fade rather than different image heights. No standalone page carousel or arrows. Rotation respects reduced motion and background state.
-- Compact category shortcuts, equal serif-title product cards, combo section and directly accessible cart. Home/Products/Cart/Orders/More tabs follow the shopping flow.
-- Cream cart/profile cards, a three-step checkout, separate confirmation/receipt/tracking screens, and shop/business drawer destinations distinct from personal tools in More.
-- Memory-only checkout draft preserves address, payment step and idempotency key across navigation; signing out clears it.
-- Verified the live website fonts on October 12: Cormorant Garamond headings, Jost body/buttons. Local Jost 400/500/600/700 files are bundled.
-- Nine owner-supplied product records with twelve size/pack choices, including sugar/no-added-sugar Panjeeri and six combos.
-- Product cards share a 3:2 frame. A single combo artwork replaces the two-thumbnail composition. Single-product photography remains the website originals.
-- No category-based cart substitution. Old/unavailable cart records must be removed before checkout.
-- Recipe-specific nutrition/reviews are not assumed. New recipe FAQ copy acknowledges added-sugar choices.
-- Missing-product import in the owner dashboard preserves existing records through Firestore transactions.
+- The native launch keeps the larger gold logo seen first in the owner's video: a complete 224dp mark, centered on cream, with one 3% zoom over 240ms. Android 12+ removes the platform exit animation. The native surface remains until the destination page finishes its fade, avoiding a second smaller React logo. Android 7–11 starting-window artwork uses the same size. System-disabled animations are respected.
+- All hero images use one contained frame. Its height is bounded by the hero height, avoiding overflow on larger displays. Shop Now stays 16px from the left and bottom; fixed two-line heading/subtitle slots and narrow-screen typography prevent text from repositioning it. Image, product copy and shopping destination change together. Rotation respects reduced motion and app background state.
+- Edit Profile receives the current user's already-loaded phone/name from More. The optional fallback read cannot overwrite a typed or cleared phone. Saving a name during loading omits the untouched phone instead of clearing the server value. Blank phone saves are allowed. A fixed status area prevents form shrinkage. Failed profile writes retain their queue and an older completed write cannot remove a newer pending edit.
+- Shop Now appears directly below the drawer's food image/copy and closes the drawer to open all products. Business/shopping destinations remain separate from personal tools in More.
+- Header controls have 44px touch targets. Page fades use a 180ms ease-out. Website Cormorant Garamond and Jost fonts, cream/forest/gold palette and existing artwork are retained. No duplicate animations or additional startup photos were introduced.
 
-## Verification
+## QA evidence
 
-Mobile TypeScript and admin production build passed. Nine backend domain/catalogue tests passed. Five Firestore security tests and five local callable integration tests passed with the updated catalogue, including authoritative prices, idempotency, stock races, fulfilment/TCS/reviews one-use native auth handoff, and recorded status history without repeated-stage duplication. The rule-test source now resolves its rules path relative to the module, so it runs correctly from the repository root or tooling folder.
+Mobile TypeScript passed. Five new profile persistence regressions passed: untouched-number preservation, explicit empty number, queued-number preservation, failed-write retry and overlapping-write cleanup. Nine domain/catalogue tests, five Firebase security tests and five local callable integration tests passed: 24 checks total.
 
-The 56-image screen gallery contains actual browser renders at 360Ã—800 and a 320Ã—720 home check. Commerce/account previews use isolated local test data; displayed test delivery fees and TCS numbers are illustrative. It includes logo launch, onboarding, all three hero backgrounds, products/categories/combos, details/search/cart, guest and signed-in checkout, sign-in/signup/password reset, profile editing, wishlist, menu/payment/delivery, reviews/proof, story/profile/support, addresses, orders/tracking/notifications and FAQ.
+The actual 360×800 browser renders cover launch, three onboarding screens, every hero state, product categories/search/details/combos, cart, guest and signed-in checkout, confirmation/receipt/tracking, accounts/forms, wishlist, addresses, notices, menu/payment/delivery, reviews/proof, story and support. Narrow-screen renders include 320×720 Home, Energy Balls hero and checkout. Test delivery fees, addresses and TCS numbers are illustrative local fixtures.
 
-Email login, signup validation/creation, password visibility/reset, sign-out, profile/address saving, product search, wishlist, quantity controls, successful checkout/confirmation and draft retention were exercised against isolated services. At 320px both home Add buttons have identical Y coordinates and 44px heights.
+All 15 hero combinations at widths 320, 360, 393, 430 and 768 had the same 44px Shop Now action at x=16/y=168 within the 228px hero. All three image frames were identical and stayed within the hero bounds. Images share a 1774×887 source size. Profile prefill was immediate, clearing a number remained empty after saving, and measured field/Save positions did not move. Checkout retained entered details across sign-in and payment instructions; an isolated order completed and appeared in Orders. Search, category filters, favourites, quantity controls, reorder, account navigation, drawer Shop Now and sign-out were exercised. Browser console checks produced no application errors.
 
-These are browser previews, not Android device screenshots. Physical-device startup, keyboard, safe areas and social-provider login still require Android verification. Android release compilation and fatal lint checks passed. The APK package parses as com.nourishspoon.app, version 1.0.3/code 4, ARM64, minimum API 24 and target API 36. V2/V3 signatures passed and V1/JAR was checked independently. The certificate matches 1.0.1/1.0.2. ZIP integrity and 16KB page/4-byte alignment passed. The packaged bundle contains the live Firebase project and the local medium/semibold fonts, with no demo project, QA email or QA password. Four unused legacy avatar/review images were removed.
+These are browser renders, not Android-device screenshots. Realme startup, keyboard, system bars and provider login still need device verification.
 
-## Live limits and source artwork
+## Native artifact
 
-Email accounts use the existing Firebase project. New catalogue import/rules/functions/social hosting are pending authorized deployment. Apple credentials are unavailable. Guest WhatsApp ordering remains available; failures must not be treated as successful orders.
+Version 1.0.4 / code 5. ARM64, minimum Android API 24, target API 36. Android release compilation and fatal lint passed. Package parsing, V2/V3 signatures, independently forced V1/JAR verification, ZIP CRC integrity and 16KB page/4-byte alignment all passed. The packaged bundle contains the live Firebase project and exact Jost medium/semibold font files, with no demo project or QA credentials. No Android device was connected for installation/runtime testing. Keep the existing ignored signing key; do not clean/regenerate the native project.
 
-The combo artwork is AI-assisted reconstruction of the supplied screenshot, corrected using the official chef-hat logo. It is illustrative packaging artwork rather than a pixel-identical extraction. Source and exact built-in imagegen prompts are in `docs/design/combo-artwork.md`. The three cream hero backgrounds were also generated using the supplied references. Exact prompts and asset paths are in `docs/design/hero-artwork.md`. No fabricated ratings or nutrition badges were added.
-
-The previous dependency audit remains open: 26 mobile advisories (7 moderate, 19 high), and the admin build warns about its Firebase bundle size. Breaking downgrade suggestions were not applied.
-
-## Native build
-
-Version 1.0.3 / code 4, ARM64, Android 7+. Keep the existing ignored signing key. V1, V2 and V3 signing are explicitly configured; repeat signature and archive verification after future compilation. Do not regenerate or clean the Android project.
+Certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee3459409980f31600e51bb0`. This matches 1.0.1–1.0.3 and does not match the lost 1.0.0 key.
 
 From `apps/mobile/android`, with JDK 17, SDK/build tools 36 and NDK 28.2.13676358:
 
@@ -46,11 +34,17 @@ $env:NOURISH_NDK_VERSION = '28.2.13676358'
 .\gradlew.bat :app:assembleRelease '-Pnourish.ndkVersion=28.2.13676358' '-PreactNativeArchitectures=arm64-v8a' '-Pkotlin.compiler.execution.strategy=in-process' '-Dorg.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=1024m' --max-workers=1 --no-parallel --console=plain
 ```
 
-Private signing: `apps/mobile/private-signing`. Certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee3459409980f31600e51bb0`. The key matches 1.0.1/1.0.2; it does not match the lost 1.0.0 key.
-
 ## Downloads
 
-- Screens: https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-ui-review
-- APK: https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.3-preview
-- APK bytes: 48,413,097. SHA-256: `12c0fe4eac4e501b0c93c226c859416f74c57772b546138293b8e241a860bb20`.
-- Copies are saved in `F:/Downloads`. No Android device was attached for an installation/runtime test.
+- Screens: https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.4-ui-review
+- APK: https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.4-preview
+- Screen ZIP contains 60 original PNGs, full-size HTML gallery, seven review sheets and the hero comparison.
+- APK: 48,415,514 bytes; SHA-256 `833a28b56cdcb664e258d0028188622183bb873174d9f57424460bac89ce5a3a`.
+- Screen ZIP: 10,319,265 bytes; SHA-256 `106d6aa0c3e3aafc51fbe0309fca2c28e64d259718c9a9784235c3c8f5b8b642`.
+- Both files are also saved in `F:/Downloads`.
+
+## Live-service limits
+
+Existing Firebase email accounts remain live. New catalogue import, commerce functions/rules and hosted Google/Apple bridge are not deployed: Firebase CLI owner authorization is required. Apple Developer credentials are unavailable. Local commerce/social-handoff tests do not establish working live providers or live checkout. WhatsApp order preparation remains available. Payment methods are manual advance transfers; TCS opens its official tracking site.
+
+Artwork provenance and exact imagegen prompts remain in `docs/design/hero-artwork.md` and `docs/design/combo-artwork.md`. The previous dependency audit remains open: 26 mobile advisories (7 moderate, 19 high); admin Firebase bundle-size warning. Breaking downgrade suggestions were not applied.

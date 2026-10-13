@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, Brand } from "./DesignPrimitives";
+import { Text, Brand, GreenButton } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 
 export type MenuSection = "payment" | "delivery";
@@ -169,6 +169,11 @@ export function BurgerMenu({
               >
                 Wholesome goodness.{"\n"}Crafted with Love.
               </Text>
+              <GreenButton
+                title="Shop Now"
+                onPress={() => onSelect("products")}
+                style={{ marginHorizontal: 12, marginBottom: 12 }}
+              />
             </View>
             <Text
               style={{

@@ -32,6 +32,7 @@ export type RouteParams = {
   section?: MenuSection;
   orderId?: string;
   category?: string;
+  profile?: { uid: string; fullName: string; phone?: string };
 };
 export type AppNavigation = {
   navigate: (name: AppScreen, params?: RouteParams) => void;

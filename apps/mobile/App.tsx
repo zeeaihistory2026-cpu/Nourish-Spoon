@@ -7,6 +7,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   Animated,
+  Easing,
   AccessibilityInfo,
   Keyboard,
   NativeModules,
@@ -86,6 +87,7 @@ function MobileApp() {
     const animation = Animated.timing(screenOpacity, {
       toValue: 1,
       duration: 180,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: Platform.OS !== "web",
     });
     animation.start();
@@ -176,6 +178,12 @@ function MobileApp() {
   const hideNativeLaunch = useCallback(() => {
     if (Platform.OS === "android") NativeModules.NourishLaunchScreen?.hide();
   }, []);
+  useEffect(() => {
+    if (screen === "splash" || (screen === "onboarding" && !ready)) return;
+    // Keep the native logo visible until the destination page's fade has finished.
+    const timer = setTimeout(hideNativeLaunch, reduceMotion ? 0 : 220);
+    return () => clearTimeout(timer);
+  }, [screen, ready, reduceMotion, hideNativeLaunch]);
   const completeOnboarding = () => {
     setOnboarded(true);
     AsyncStorage.setItem("nourish:onboarded", "true").catch(() => {});
@@ -242,7 +250,7 @@ function MobileApp() {
               ?.name as MobileTab) || "Home";
   const hideTabs = ["splash", "onboarding", "Login", "Signup"].includes(screen);
   if (!fontsLoaded && !fontError)
-    return <View style={{ flex: 1, backgroundColor: "#FFF9EC" }} />;
+    return <View style={{ flex: 1, backgroundColor: "#FDF6E3" }} />;
   return (
     <SafeAreaView
       style={{
@@ -268,15 +276,12 @@ function MobileApp() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <Animated.View style={{ flex: 1, opacity: screenOpacity }} key={screen}>
-          {screen === "splash" && (
-            <SplashScreen onFinish={finishSplash} onReady={hideNativeLaunch} />
-          )}
+          {screen === "splash" && <SplashScreen onFinish={finishSplash} />}
           {screen === "onboarding" && (
             <OnboardingScreen onComplete={completeOnboarding} />
           )}
           {screen === "Home" && (
             <HomeScreen
-              onNavigateTab={navigate}
               onSelectProduct={select}
               onOpenMenu={openMenu}
               onAddToCart={addToCart}
@@ -338,7 +343,12 @@ function MobileApp() {
               orderId={route.params?.orderId || ""}
             />
           )}
-          {screen === "EditProfile" && <EditProfileScreen navigation={nav} />}
+          {screen === "EditProfile" && (
+            <EditProfileScreen
+              navigation={nav}
+              initialProfile={route.params?.profile}
+            />
+          )}
           {screen === "OrderDetails" && (
             <OrderDetailsScreen
               navigation={nav}

@@ -46,22 +46,44 @@ export function Header({
         <Brand website />
       )}
       {rightAction === "none" ? (
-        <View style={{ width: 40 }} />
+        <View style={{ width: 44 }} />
       ) : (
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={
-            rightAction === "search" ? "Search products" : rightAction === "cart" ? "Open cart" : "Notifications"
+            rightAction === "search"
+              ? "Search products"
+              : rightAction === "cart"
+                ? "Open cart"
+                : "Notifications"
           }
-          onPress={rightAction === "search" ? onSearch : rightAction === "cart" ? onCart : onNotification}
+          onPress={
+            rightAction === "search"
+              ? onSearch
+              : rightAction === "cart"
+                ? onCart
+                : onNotification
+          }
           style={[styles.circle, { backgroundColor: theme.surface }]}
         >
           <Ionicons
-            name={rightAction === "search" ? "search" : rightAction === "cart" ? "bag-outline" : "notifications-outline"}
+            name={
+              rightAction === "search"
+                ? "search"
+                : rightAction === "cart"
+                  ? "bag-outline"
+                  : "notifications-outline"
+            }
             size={23}
             color={theme.text}
           />
-          {rightAction === 'cart' && cartCount > 0 && <View style={styles.cartBadge}><Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>{cartCount > 99 ? '99+' : cartCount}</Text></View>}
+          {rightAction === "cart" && cartCount > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>
+                {cartCount > 99 ? "99+" : cartCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       )}
     </View>
@@ -75,9 +97,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   circle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -97,7 +119,7 @@ const styles = StyleSheet.create({
     height: 17,
     paddingHorizontal: 3,
     borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
