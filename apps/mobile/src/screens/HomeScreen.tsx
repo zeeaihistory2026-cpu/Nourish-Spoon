@@ -1,5 +1,6 @@
 import React from "react";
-import { View, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { HomeHero } from "../components/HomeHero";
 import { Header } from "../components/Header";

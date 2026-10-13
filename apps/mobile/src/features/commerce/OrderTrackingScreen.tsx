@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { View, Linking } from "react-native";
+import React from "react";
+import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import * as Clipboard from "expo-clipboard";
 import { AppNavigation } from "../../navigation/types";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import { useMobileStore } from "../../services/storeService";
@@ -19,7 +18,6 @@ export function OrderTrackingScreen({
   const { items, error, loading } = useAccountData(watchOrders);
   const { theme } = useMobileStore();
   const order = items.find((item) => item.id === orderId);
-  const [message, setMessage] = useState("");
   return (
     <Page title="Order Tracking" back={navigation.goBack}>
       {!!error && <Message>{error}</Message>}
@@ -151,23 +149,12 @@ export function OrderTrackingScreen({
                   {order.tracking_number}
                 </Text>
                 <GreenButton
-                  title="Copy & Open Official TCS"
-                  onPress={async () => {
-                    try {
-                      await Clipboard.setStringAsync(order.tracking_number);
-                      await Linking.openURL(
-                        "https://www.tcsexpress.com/track/",
-                      );
-                      setMessage(
-                        "Number copied. Paste it into the TCS tracking field.",
-                      );
-                    } catch {
-                      setMessage(
-                        "Unable to open TCS. Consignment: " +
-                          order.tracking_number,
-                      );
-                    }
-                  }}
+                  title="Track with TCS"
+                  onPress={() =>
+                    navigation.navigate("TcsTracking", {
+                      trackingNumber: order.tracking_number,
+                    })
+                  }
                 />
                 <Copy>
                   Live courier scans are provided by TCS. The stages above are
@@ -194,7 +181,6 @@ export function OrderTrackingScreen({
           </Card>
         </>
       )}
-      {!!message && <Message>{message}</Message>}
     </Page>
   );
 }

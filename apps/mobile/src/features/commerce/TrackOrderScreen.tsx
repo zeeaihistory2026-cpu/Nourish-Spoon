@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Linking, View, TouchableOpacity } from "react-native";
-import * as Clipboard from "expo-clipboard";
+import { View } from "react-native";
+import { TouchableOpacity } from "../../components/AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { AppNavigation } from "../../navigation/types";
 import {
@@ -38,8 +38,8 @@ export function TrackOrderScreen({
       <Card>
         <Heading>Have a TCS number?</Heading>
         <Copy>
-          For an earlier WhatsApp order, paste your consignment number. We’ll
-          copy it for the official TCS tracking page.
+          Enter the consignment number from your order or WhatsApp message to
+          check it with TCS inside the app.
         </Copy>
         <Field
           label="TCS consignment number"
@@ -49,21 +49,19 @@ export function TrackOrderScreen({
             setMessage("");
           }}
           keyboardType="number-pad"
+          placeholder="Enter your TCS number"
           maxLength={20}
         />
         <GreenButton
-          title="Copy & Open TCS"
-          disabled={!/^\d{8,20}$/.test(number.trim())}
-          onPress={async () => {
-            try {
-              await Clipboard.setStringAsync(number.trim());
-              await Linking.openURL("https://www.tcsexpress.com/track/");
-              setMessage(
-                "Number copied. Paste it into the TCS tracking field.",
-              );
-            } catch {
-              setMessage("Unable to open TCS. Your number is " + number.trim());
+          title="Track Shipment"
+          onPress={() => {
+            if (!/^\d{8,20}$/.test(number.trim())) {
+              setMessage("Enter a valid TCS consignment number (8–20 digits).");
+              return;
             }
+            navigation.navigate("TcsTracking", {
+              trackingNumber: number.trim(),
+            });
           }}
         />
         {!!message && <Message>{message}</Message>}

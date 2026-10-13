@@ -5,9 +5,9 @@ import {
   ScrollView,
   TextInput,
   TextInputProps,
-  TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { TouchableOpacity } from "../../components/AppTouchable";
 import { Header } from "../../components/Header";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import { useMobileStore } from "../../services/storeService";

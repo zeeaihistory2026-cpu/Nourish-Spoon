@@ -29,3 +29,13 @@ node --test commerce.test.mjs
 ```
 
 `seed-emulator.cjs` seeds only local emulator fixtures, including test delivery fees. Export a separate browser preview with `EXPO_NO_DOTENV=1`, the demo project's public values and `EXPO_PUBLIC_FIREBASE_EMULATOR_HOST=127.0.0.1`. Never include that emulator variable in a release. The admin equivalent is `VITE_FIREBASE_EMULATOR_HOST`; it rejects any project other than the demo project.
+
+## Rewards and promos
+
+Prepared defaults approved by the owner: 1 point per Rs.100 of product spend after discounts; Rs.1 per redeemed point; minimum 100 points per redemption; 200 points for the inviter after the friend's first paid and delivered order. Delivery fees do not earn points or receive discounts. PROMO10 gives 10% off products. An explicit paused PROMO10 document overrides its default availability.
+
+Deploy the new callable functions and rules before enabling these features for customers. The owner dashboard's Rewards section manages rates and can create, pause, cap, or expire codes. Wallets and history are server-managed. Checkout validates the coupon and wallet in the order transaction. Paid delivery credits once; cancellation/refund restores redemptions and reverses earnings/referral bonuses once. Reversal may leave a negative balance when earned points were already spent; redemption remains blocked until the balance recovers.
+
+Referrals require a verified email, a different customer's registered code and no prior orders. A customer can apply one code before their first order. Sharing alone never awards points. Local emulator tests cover pricing, duplicate settlement, concurrent redemption, refunds, owner permissions and wallet privacy. Production deployment remains pending.
+
+TCS number entry and the official courier page stay within Android through a WebView. Courier scans are supplied by TCS; this is not a private TCS API integration. Nourish Spoon's order stages are supplied separately by the order backend. A Copy button is retained if the courier changes its form. The browser preview embeds TCS but cannot autofill its cross-origin field.

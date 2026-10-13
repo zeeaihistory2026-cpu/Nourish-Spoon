@@ -72,6 +72,8 @@ export function OrderConfirmationScreen({
             <OrderItems items={order.items} />
             <OrderTotals
               subtotal={order.subtotal}
+              promoDiscount={order.promo_discount}
+              rewardDiscount={order.reward_discount}
               fee={order.delivery_fee}
               total={order.total}
             />

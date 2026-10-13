@@ -40,6 +40,11 @@ export type Purchase = {
   status_history?: { status: Purchase["status"]; at: string }[];
   subtotal: number;
   discount: number;
+  promo_code?: string;
+  promo_discount?: number;
+  reward_discount?: number;
+  points_redeemed?: number;
+  points_earned?: number;
   delivery_fee: number | null;
   total: number | null;
   quote_pending: boolean;

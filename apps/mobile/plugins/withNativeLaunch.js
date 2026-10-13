@@ -62,6 +62,14 @@ function installNativeLaunch(projectRoot) {
       `<item name="android:windowSplashScreenBackground">#FDF6E3</item><item name="android:windowSplashScreenAnimatedIcon">@drawable/nourish_launch_icon</item><item name="android:windowSplashScreenIconBackgroundColor">#FDF6E3</item></style>`,
     ),
   );
+  const inputStyles = path.join(resource("values"), "styles.xml");
+  if (fs.existsSync(inputStyles)) {
+    let styles = fs.readFileSync(inputStyles, "utf8");
+    if (!styles.includes("android:autofilledHighlight")) {
+      styles = styles.replace('<style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">', '<style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar"><item name="android:autofilledHighlight" tools:targetApi="26">@android:color/transparent</item>');
+      fs.writeFileSync(inputStyles, styles);
+    }
+  }
   const activity = path.join(java, "MainActivity.kt");
   let source = fs.readFileSync(activity, "utf8");
   if (!source.includes("NourishLaunchScreen.show(this)"))

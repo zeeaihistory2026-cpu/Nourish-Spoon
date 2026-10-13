@@ -113,6 +113,8 @@ export async function markNotice(id: string) {
   });
 }
 export type CheckoutInput = {
+  promo_code?: string;
+  reward_points?: number;
   request_id: string;
   items: CartLine[];
   address: Omit<SavedAddress, "id" | "label">;

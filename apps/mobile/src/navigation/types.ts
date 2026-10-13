@@ -18,19 +18,23 @@ export type AppScreen =
   | "Checkout"
   | "Orders"
   | "TrackOrder"
+  | "TcsTracking"
   | "OrderDetails"
   | "OrderConfirmation"
   | "OrderTracking"
   | "Wishlist"
   | "EditProfile"
   | "Addresses"
-  | "Notifications";
+  | "Notifications"
+  | "Rewards"
+  | "Referrals";
 export type RouteParams = {
   product?: Product;
   initialProduct?: Product;
   initialVariant?: ProductVariant;
   section?: MenuSection;
   orderId?: string;
+  trackingNumber?: string;
   category?: string;
   profile?: { uid: string; fullName: string; phone?: string };
 };

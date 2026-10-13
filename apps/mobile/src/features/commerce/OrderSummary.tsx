@@ -70,10 +70,14 @@ export function OrderTotals({
   subtotal,
   fee,
   total,
+  promoDiscount = 0,
+  rewardDiscount = 0,
 }: {
   subtotal: number;
   fee: number | null;
   total: number | null;
+  promoDiscount?: number;
+  rewardDiscount?: number;
 }) {
   const { theme } = useMobileStore();
   return (
@@ -88,6 +92,30 @@ export function OrderTotals({
         <Copy>Products subtotal</Copy>
         <Text>{formatPKR(subtotal)}</Text>
       </View>
+      {!!promoDiscount && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            gap: 8,
+          }}
+        >
+          <Copy>Promo discount</Copy>
+          <Text>− {formatPKR(promoDiscount)}</Text>
+        </View>
+      )}
+      {!!rewardDiscount && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            gap: 8,
+          }}
+        >
+          <Copy>Points discount</Copy>
+          <Text>− {formatPKR(rewardDiscount)}</Text>
+        </View>
+      )}
       <View
         style={{
           flexDirection: "row",

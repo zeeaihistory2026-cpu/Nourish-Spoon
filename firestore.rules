@@ -33,6 +33,13 @@ service cloud.firestore {
     match /settings/{id} { allow read: if true; allow write: if admin(); }
     match /reviews/{id} { allow read: if resource.data.status == 'approved' || admin() || (signedIn() && resource.data.customer_uid == request.auth.uid); allow write: if admin(); }
     match /orders/{id} { allow read: if admin() || (signedIn() && resource.data.customer_uid == request.auth.uid); allow write: if false; }
+    match /rewardWallets/{uid} {
+      allow read: if admin() || (signedIn() && request.auth.uid == uid);
+      allow write: if false;
+      match /history/{id} { allow read: if admin() || (signedIn() && request.auth.uid == uid); allow write: if false; }
+    }
+    match /promoCodes/{id} { allow read: if admin(); allow write: if false; }
+    match /referralCodes/{id} { allow read, write: if false; }
     match /{document=**} { allow read, write: if false; }
   }
 }

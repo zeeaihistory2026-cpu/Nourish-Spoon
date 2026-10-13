@@ -10,19 +10,20 @@ initializeApp();
 const db = getFirestore();
 const options = { region: "us-central1", maxInstances: 5 };
 function signedIn(request) {
-  if (!request.auth)
+  if (
+    !request.auth ||
+    request.auth.token.firebase?.sign_in_provider === "anonymous"
+  )
     throw new HttpsError("unauthenticated", "Please sign in first.");
   return request.auth.uid;
 }
 function owner(request) {
   signedIn(request);
-  if (
-    !(
-      request.auth.token.admin === true ||
-      (request.auth.token.email_verified === true &&
-        request.auth.token.email === "info@nourishspoon.com")
-    )
-  )
+  if (!(
+    request.auth.token.admin === true ||
+    (request.auth.token.email_verified === true &&
+      request.auth.token.email === "info@nourishspoon.com")
+  ))
     throw new HttpsError(
       "permission-denied",
       "Verified owner access is required.",
@@ -47,6 +48,15 @@ function callable(action) {
     }
   });
 }
+const loyalty = require("./rewards")({ db, callable, signedIn, owner });
+for (const name of [
+  "getRewards",
+  "applyReferral",
+  "quoteOrder",
+  "saveRewardsSettings",
+  "savePromoCode",
+])
+  exports[name] = loyalty[name];
 exports.placeOrder = callable(async (request) => {
   const uid = signedIn(request),
     input = request.data;
@@ -86,8 +96,10 @@ exports.placeOrder = callable(async (request) => {
       input.delivery_method,
       !customer.data()?.has_order,
     );
+    const discounts = await loyalty.checkout(tx, uid, input, priced);
     const order = {
       ...priced,
+      ...discounts.result,
       customer_uid: uid,
       customer_name: shipping.name,
       customer_phone: shipping.phone,
@@ -133,6 +145,7 @@ exports.placeOrder = callable(async (request) => {
           : {}),
       });
     }
+    discounts.apply(orderRef.id);
     tx.set(orderRef, order);
     tx.set(db.doc(`users/${uid}`), { has_order: true }, { merge: true });
     return { id: orderRef.id, ...order };
@@ -157,6 +170,11 @@ exports.updateOrder = callable(async (request) => {
       ];
     }
     if (request.data.payment_status) {
+      if (
+        order.payment_status === "refunded" &&
+        request.data.payment_status !== "refunded"
+      )
+        throw new Error("A refunded payment cannot be reopened.");
       if (
         !["awaiting_payment", "submitted", "paid", "refunded"].includes(
           request.data.payment_status,
@@ -190,6 +208,7 @@ exports.updateOrder = callable(async (request) => {
       !(patch.tracking_number || order.tracking_number)
     )
       throw new Error("Enter the TCS number before dispatch.");
+    const settleRewards = await loyalty.settlement(tx, ref.id, order, patch);
     if (patch.status === "cancelled") {
       const productIds = [
         ...new Set(order.items.map((item) => item.product_id)),
@@ -222,6 +241,7 @@ exports.updateOrder = callable(async (request) => {
         });
       });
     }
+    settleRewards();
     tx.update(ref, patch);
     return { id: ref.id, ...order, ...patch };
   });

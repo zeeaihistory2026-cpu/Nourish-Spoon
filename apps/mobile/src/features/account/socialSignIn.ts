@@ -17,6 +17,8 @@ export async function socialSignIn(provider: "google" | "apple") {
       provider === "google"
         ? new GoogleAuthProvider()
         : new OAuthProvider("apple.com");
+    if (provider === "google")
+      oauth.setCustomParameters({ prompt: "select_account" });
     await signInWithPopup(firebaseAuth, oauth);
     return;
   }

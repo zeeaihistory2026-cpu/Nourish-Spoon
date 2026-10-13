@@ -17,5 +17,8 @@ const screenshots = [
 
 // Snapshot of the publicly displayed testimonials on 2026-10-11.
 // Relative source dates are retained as provenance, not displayed as live dates.
-export const WEBSITE_REVIEWS = publishedReviews.map((review, index) => ({ ...review, screenshotSource: screenshots[index] }));
+export const WEBSITE_REVIEWS = publishedReviews.map((review, index) => ({
+  ...review,
+  screenshotSource: screenshots[index],
+}));
 export type WebsiteReview = (typeof WEBSITE_REVIEWS)[number];

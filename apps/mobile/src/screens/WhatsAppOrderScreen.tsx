@@ -5,11 +5,11 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   TextInput,
   Switch,
   Linking,
 } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "../components/Header";
 import { useMobileStore } from "../services/storeService";
@@ -21,12 +21,14 @@ import {
 } from "@packages/utils";
 import { Product, ProductVariant } from "@packages/types";
 import { ProductArtwork } from "../components/ProductArtwork";
+import { firebaseAuth } from "../services/firebase";
 
 interface WhatsAppOrderScreenProps {
   initialProduct?: Product;
   initialVariant?: ProductVariant;
   onBack: () => void;
   onOrderSuccess?: () => void;
+  onRequireSignIn: () => void;
 }
 
 export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
@@ -34,6 +36,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
   initialVariant,
   onBack,
   onOrderSuccess,
+  onRequireSignIn,
 }) => {
   const { showInfo, dialog } = useInfoDialog();
   const { theme, products } = useMobileStore();
@@ -66,6 +69,10 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
   };
 
   const handleSendOrder = async () => {
+    if (!firebaseAuth?.currentUser || firebaseAuth.currentUser.isAnonymous) {
+      onRequireSignIn();
+      return;
+    }
     if (
       !customerName.trim() ||
       !customerPhone.trim() ||

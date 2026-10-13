@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Image, ScrollView, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Image, ScrollView, useWindowDimensions } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Text,

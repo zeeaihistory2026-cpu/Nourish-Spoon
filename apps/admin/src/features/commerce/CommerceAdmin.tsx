@@ -1,5 +1,6 @@
 import { OrderEditor } from "./OrderEditor";
 import { ProductEditor } from "./ProductEditor";
+import { RewardsAdmin } from "./RewardsAdmin";
 import React, { useEffect, useState } from "react";
 import {
   User,
@@ -24,7 +25,7 @@ import { INITIAL_PRODUCTS } from "@packages/catalog/websiteSnapshot";
 import { normalizeProduct } from "@packages/catalog/normalizeProduct";
 import { auth, database, functions, configured } from "./firebase";
 import "./admin.css";
-type Section = "Orders" | "Products" | "Reviews" | "Delivery";
+type Section = "Orders" | "Products" | "Reviews" | "Delivery" | "Rewards";
 export default function CommerceAdmin() {
   const [user, setUser] = useState<User | null>(auth?.currentUser || null),
     [allowed, setAllowed] = useState(false);
@@ -211,17 +212,17 @@ export default function CommerceAdmin() {
       <aside>
         <h1>Nourish Spoon</h1>
         <p>Owner dashboard</p>
-        {(["Orders", "Products", "Reviews", "Delivery"] as Section[]).map(
-          (name) => (
-            <button
-              className={section === name ? "" : "secondary"}
-              key={name}
-              onClick={() => setSection(name)}
-            >
-              {name}
-            </button>
-          ),
-        )}
+        {(
+          ["Orders", "Products", "Reviews", "Delivery", "Rewards"] as Section[]
+        ).map((name) => (
+          <button
+            className={section === name ? "" : "secondary"}
+            key={name}
+            onClick={() => setSection(name)}
+          >
+            {name}
+          </button>
+        ))}
         <button className="secondary" onClick={() => signOut(auth!)}>
           Sign Out
         </button>
@@ -229,6 +230,7 @@ export default function CommerceAdmin() {
       <main className="admin-shell">
         <h2>{section}</h2>
         <p role="alert">{error}</p>
+        {section === "Rewards" && <RewardsAdmin />}
         {section === "Orders" && (
           <>
             {!orders.length && (

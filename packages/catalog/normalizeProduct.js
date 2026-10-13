@@ -3,7 +3,11 @@
 export function normalizeProduct(id, raw, fallback = {}) {
   const category =
     raw.category ||
-    (/combo|nourishment.pack/i.test(raw.name || id) ? 'combos' : /panjeeri/i.test(raw.name || id) ? "panjeeri" : "energy_balls");
+    (/combo|nourishment.pack/i.test(raw.name || id)
+      ? "combos"
+      : /panjeeri/i.test(raw.name || id)
+        ? "panjeeri"
+        : "energy_balls");
   const variants = (raw.variants || []).map((value, index) => {
     const weight =
       value.weight ||
@@ -43,11 +47,11 @@ export function normalizeProduct(id, raw, fallback = {}) {
       fallback.short_description ||
       raw.description ||
       "",
-    ingredients: raw.ingredients?.every(
-      (value) => typeof value === "object" && value.slug,
-    )
-      ? raw.ingredients
-      : fallback.ingredients || [],
+    ingredients:
+      raw.ingredients?.length &&
+      raw.ingredients.every((value) => typeof value === "object" && value.slug)
+        ? raw.ingredients
+        : fallback.ingredients || [],
     nutrition_facts: raw.nutrition_facts || fallback.nutrition_facts || [],
     storage_instructions:
       raw.storage_instructions || fallback.storage_instructions || "",

@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { TouchableOpacity } from "./AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { Product, ProductVariant } from "@packages/types";
 import { formatPKR } from "@packages/utils";

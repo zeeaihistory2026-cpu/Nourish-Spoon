@@ -1,5 +1,6 @@
 import React from "react";
-import { View, TouchableOpacity, Image } from "react-native";
+import { View, Image } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { useInfoDialog } from "../components/InfoDialog";
 import { Text } from "../components/DesignPrimitives";

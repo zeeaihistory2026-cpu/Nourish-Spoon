@@ -19,6 +19,7 @@ const functionsRequire = createRequire(
   new URL("../functions/package.json", import.meta.url),
 );
 const { getFirestore } = functionsRequire("firebase-admin/firestore");
+const { getAuth: adminAuth } = functionsRequire("firebase-admin/auth");
 let customer, owner, server, order;
 const config = {
   apiKey: "demo-key",
@@ -59,6 +60,10 @@ const checkout = {
 };
 before(async () => {
   server = await seed();
+  // Reset only the isolated customer reward wallet so repeated runs start fresh.
+  await getFirestore(server).recursiveDelete(
+    getFirestore(server).doc("rewardWallets/qa-customer"),
+  );
   customer = client("customer-test");
   owner = client("owner-test");
   await signInWithEmailAndPassword(
@@ -205,4 +210,110 @@ test("social handoff requires correct verifier and cannot be replayed", async ()
   await assert.rejects(
     customer.call("redeemNativeSession", { code, verifier }),
   );
+});
+test("promo quotes, paid-delivered points and referrals are authoritative and awarded once", async () => {
+  const baseline = await customer.call("getRewards", {});
+  assert.equal(baseline.balance, 43);
+  await assert.rejects(
+    customer.call("savePromoCode", {
+      code: "FREE",
+      active: true,
+      type: "percent",
+      value: 100,
+    }),
+  );
+  const suffix = Date.now();
+  await adminAuth(server).createUser({
+    uid: `friend-${suffix}`,
+    email: `friend-${suffix}@example.invalid`,
+    password: "NourishQA!2026",
+    emailVerified: true,
+  });
+  const friend = client(`friend-${suffix}`);
+  try {
+    await signInWithEmailAndPassword(
+      friend.auth,
+      `friend-${suffix}@example.invalid`,
+      "NourishQA!2026",
+    );
+    const wallet = await friend.call("getRewards", {});
+    await assert.rejects(
+      friend.call("applyReferral", { code: wallet.referral_code }),
+    );
+    await friend.call("applyReferral", { code: baseline.referral_code });
+    await assert.rejects(
+      friend.call("applyReferral", { code: baseline.referral_code }),
+    );
+    const input = {
+      ...checkout,
+      request_id: `referral_order_${suffix}`,
+      promo_code: "promo10",
+      discount: 999999,
+      reward_points: 0,
+    };
+    const quote = await friend.call("quoteOrder", input);
+    assert.equal(quote.promo_discount, 439);
+    assert.equal(quote.delivery_fee, 250);
+    assert.equal(quote.total, 4209);
+    await assert.rejects(
+      friend.call("quoteOrder", { ...input, reward_points: 100 }),
+    );
+    const placed = await friend.call("placeOrder", input);
+    assert.equal(placed.total, quote.total);
+    assert.equal((await friend.call("getRewards", {})).balance, 0);
+    for (const status of [
+      "confirmed",
+      "preparing",
+      "out_for_delivery",
+      "delivered",
+    ])
+      await owner.call("updateOrder", {
+        id: placed.id,
+        status,
+        payment_status: "paid",
+        tracking_number: "12345678901",
+      });
+    await owner.call("updateOrder", { id: placed.id, status: "delivered" });
+    assert.equal((await friend.call("getRewards", {})).balance, 39);
+    assert.equal((await customer.call("getRewards", {})).balance, 243);
+    await assert.rejects(
+      friend.call("applyReferral", { code: baseline.referral_code }),
+    );
+    const attempts = await Promise.allSettled(
+      [1, 2].map((i) =>
+        customer.call("placeOrder", {
+          ...input,
+          request_id: `redeem_${suffix}_${i}`,
+          reward_points: 200,
+        }),
+      ),
+    );
+    assert.equal(
+      attempts.filter((result) => result.status === "fulfilled").length,
+      1,
+    );
+    const redeemed = attempts.find(
+      (result) => result.status === "fulfilled",
+    ).value;
+    assert.equal(redeemed.reward_discount, 200);
+    assert.equal((await customer.call("getRewards", {})).balance, 43);
+    await owner.call("updateOrder", { id: redeemed.id, status: "cancelled" });
+    await owner.call("updateOrder", { id: redeemed.id, status: "cancelled" });
+    assert.equal((await customer.call("getRewards", {})).balance, 243);
+    await owner.call("updateOrder", {
+      id: placed.id,
+      payment_status: "refunded",
+    });
+    await owner.call("updateOrder", {
+      id: placed.id,
+      payment_status: "refunded",
+    });
+    assert.equal((await friend.call("getRewards", {})).balance, 0);
+    assert.equal((await customer.call("getRewards", {})).balance, 43);
+    await assert.rejects(
+      owner.call("updateOrder", { id: placed.id, payment_status: "paid" }),
+    );
+  } finally {
+    await deleteApp(friend.app);
+  }
 });

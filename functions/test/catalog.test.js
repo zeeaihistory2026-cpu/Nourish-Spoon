@@ -2,6 +2,19 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const { normalizeProduct } = require("../lib/normalizeProduct");
 const { priceOrder } = require("../src/domain");
+test("empty legacy ingredient lists retain supplied display defaults", () => {
+  const fallback = {
+    ingredients: [{ slug: "khoya", name: "Khoya (milk)" }],
+    nutrition_facts: [],
+  };
+  const recipe = normalizeProduct(
+    "classic-panjeeri-with-sugar",
+    { ingredients: [] },
+    fallback,
+  );
+  assert.deepEqual(recipe.ingredients, fallback.ingredients);
+  assert.deepEqual(recipe.nutrition_facts, []);
+});
 test("combo names classify separately and retain their own price and variant identity", () => {
   const combo = normalizeProduct("family-combo", {
     name: "Family Combo Panjeeri x Energy Balls",

@@ -5,10 +5,10 @@ import {
   StyleSheet,
   View,
   Image,
-  TouchableOpacity,
   StyleProp,
   ViewStyle,
 } from "react-native";
+import { TouchableOpacity } from "./AppTouchable";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMobileStore } from "../services/storeService";
@@ -47,7 +47,6 @@ export const ART = {
   brand: require("../../assets/website/logo-transparent.png"),
   botanical: require("../../assets/design/botanical.png"),
   onboarding: require("../../assets/design/onboarding-food.jpg"),
-  login: require("../../assets/design/login-food.jpg"),
   founder: require("../../assets/design/founder.jpg"),
 };
 
@@ -87,9 +86,11 @@ export function Botanical({ full = false }: { full?: boolean }) {
 export function Brand({
   large = false,
   website = false,
+  textColor,
 }: {
   large?: boolean;
   website?: boolean;
+  textColor?: string;
 }) {
   const { theme } = useMobileStore();
   if (website)
@@ -114,7 +115,7 @@ export function Brand({
               fontSize: 22,
               lineHeight: 25,
               fontWeight: "700",
-              color: theme.text,
+              color: textColor || theme.text,
             }}
           >
             Nourish Spoon™

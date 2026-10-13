@@ -42,6 +42,25 @@ before(async () => {
 after(async () => {
   await env?.cleanup();
 });
+test("reward wallets are private and customers cannot credit points or create promos", async () => {
+  await env.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), "rewardWallets/alice"), {
+      balance: 100,
+    });
+  });
+  const alice = env.authenticatedContext("alice").firestore();
+  await assertSucceeds(getDoc(doc(alice, "rewardWallets/alice")));
+  await assertFails(
+    getDoc(
+      doc(env.authenticatedContext("bob").firestore(), "rewardWallets/alice"),
+    ),
+  );
+  await assertFails(
+    updateDoc(doc(alice, "rewardWallets/alice"), { balance: 99999 }),
+  );
+  await assertFails(setDoc(doc(alice, "promoCodes/FREE"), { value: 100 }));
+  await assertFails(getDoc(doc(alice, "referralCodes/SECRET")));
+});
 test("orders readable only by purchaser or verified owner", async () => {
   await assertSucceeds(
     getDoc(doc(env.authenticatedContext("alice").firestore(), "orders/o")),

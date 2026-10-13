@@ -55,6 +55,7 @@ export type Product = {
   sort_order: number;
   variants: ProductVariant[];
   ingredients?: Ingredient[];
+  ingredient_notes?: string;
   nutrition_facts?: NutritionFact[];
 };
 

@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { Modal, View, ScrollView, StyleSheet } from "react-native";
+import { TouchableOpacity } from "./AppTouchable";
 import { Text, GreenButton } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 
@@ -21,7 +16,7 @@ export function useInfoDialog() {
     <Modal
       visible={!!message}
       transparent
-      animationType="fade"
+      animationType="none"
       onRequestClose={close}
     >
       <View style={styles.backdrop}>

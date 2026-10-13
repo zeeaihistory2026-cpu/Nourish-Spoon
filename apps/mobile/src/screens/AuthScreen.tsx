@@ -1,28 +1,39 @@
 import { useInfoDialog } from "../components/InfoDialog";
 import React, { useState, useRef } from "react";
 import {
+  Image,
   View,
   ScrollView,
-  Image,
   TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
 } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Text,
   Botanical,
   Brand,
-  ART,
   GreenButton,
 } from "../components/DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
-import { firebaseAuth, isFirebaseConfigured, saveCustomerProfile, accountError } from '../services/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
+import {
+  firebaseAuth,
+  isFirebaseConfigured,
+  saveCustomerProfile,
+  accountError,
+} from "../services/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile,
+} from "firebase/auth";
 import { AuthInput } from "../components/AuthInput";
-import { socialSignIn } from '../features/account/socialSignIn';
+import { validateAccount } from "../features/account/validateAccount";
+import { useReducedMotion } from "../hooks/useReducedMotion";
+import { socialSignIn } from "../features/account/socialSignIn";
 
 export function AuthScreen({
   signup = false,
@@ -49,10 +60,18 @@ export function AuthScreen({
   const confirmRef = useRef<TextInput>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [validationTick, setValidationTick] = useState(0);
+  const reduceMotion = useReducedMotion();
+  const invalid = (key: string) => ({
+    error: errors[key],
+    validationTick,
+    reduceMotion,
+  });
   const configured = () => {
     if (!isFirebaseConfigured) {
       setMessage(
-        "Account services are not configured yet. You can still browse and order as a guest.",
+        "Account services are not configured yet. You can still browse the products.",
       );
       return false;
     }
@@ -61,38 +80,42 @@ export function AuthScreen({
   const submit = async () => {
     if (busy) return;
     setMessage("");
-    if (
-      !email.trim() ||
-      !password ||
-      (signup && (!name.trim() || !phone.trim()))
-    ) {
-      setMessage("Please complete all required fields.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-    if (signup && !/^(?:\+?92|0)?3\d{9}$/.test(phone.replace(/[\s()-]/g, ""))) {
-      setMessage("Please enter a valid Pakistani mobile number.");
-      return;
-    }
-    if (signup && (password.length < 8 || password !== confirm)) {
-      setMessage(
-        "Use at least 8 characters and make sure both passwords match.",
-      );
+    const invalidFields = validateAccount(signup, {
+      email,
+      password,
+      name,
+      phone,
+      confirm,
+    });
+    setErrors(invalidFields);
+    if (Object.keys(invalidFields).length) {
+      setValidationTick((value) => value + 1);
+      setMessage("Check the highlighted fields.");
       return;
     }
     if (!configured()) return;
     setBusy(true);
     try {
       if (signup) {
-        const { user } = await createUserWithEmailAndPassword(firebaseAuth!, email.trim().toLowerCase(), password);
+        const { user } = await createUserWithEmailAndPassword(
+          firebaseAuth!,
+          email.trim().toLowerCase(),
+          password,
+        );
         await updateProfile(user, { displayName: name.trim() });
         // Profile synchronization must not block a successfully created account.
-        saveCustomerProfile(user.uid, name.trim(), email.trim().toLowerCase(), phone.trim()).catch(() => {});
+        saveCustomerProfile(
+          user.uid,
+          name.trim(),
+          email.trim().toLowerCase(),
+          phone.trim(),
+        ).catch(() => {});
       } else {
-        await signInWithEmailAndPassword(firebaseAuth!, email.trim().toLowerCase(), password);
+        await signInWithEmailAndPassword(
+          firebaseAuth!,
+          email.trim().toLowerCase(),
+          password,
+        );
       }
       onSuccess();
     } catch (error: any) {
@@ -120,12 +143,22 @@ export function AuthScreen({
       setBusy(false);
     }
   };
-  const social = async (provider: 'google' | 'apple') => {
+  const social = async (provider: "google" | "apple") => {
     if (busy || !configured()) return;
-    setBusy(true); setMessage('');
-    try { await socialSignIn(provider); onSuccess(); }
-    catch (error: any) { setMessage(error.code ? accountError(error) : error.message || 'Could not complete sign-in.'); }
-    finally { setBusy(false); }
+    setBusy(true);
+    setMessage("");
+    try {
+      await socialSignIn(provider);
+      onSuccess();
+    } catch (error: any) {
+      setMessage(
+        error.code
+          ? accountError(error)
+          : error.message || "Could not complete sign-in.",
+      );
+    } finally {
+      setBusy(false);
+    }
   };
   return (
     <KeyboardAvoidingView
@@ -188,11 +221,15 @@ export function AuthScreen({
         <View style={{ paddingHorizontal: signup ? 32 : 24 }}>
           {signup && (
             <AuthInput
+              {...invalid("name")}
               label="Full Name"
               icon="person-outline"
               showLabel
               value={name}
-              onChangeText={setName}
+              onChangeText={(value) => {
+                setName(value);
+                setErrors((previous) => ({ ...previous, name: "" }));
+              }}
               placeholder="Enter your full name"
               autoCapitalize="words"
               autoComplete="name"
@@ -203,14 +240,16 @@ export function AuthScreen({
           )}
           <AuthInput
             ref={emailRef}
+            {...invalid("email")}
             label="Email Address"
             icon="mail-outline"
             showLabel={signup}
             value={email}
-            onChangeText={setEmail}
-            placeholder={
-              signup ? "Enter your email address" : "Email Address"
-            }
+            onChangeText={(value) => {
+              setEmail(value);
+              setErrors((previous) => ({ ...previous, email: "" }));
+            }}
+            placeholder={signup ? "Enter your email address" : "Email Address"}
             autoCapitalize="none"
             autoComplete="email"
             textContentType="emailAddress"
@@ -223,11 +262,15 @@ export function AuthScreen({
           {signup && (
             <AuthInput
               ref={phoneRef}
+              {...invalid("phone")}
               label="Phone Number"
               icon="call-outline"
               showLabel
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={(value) => {
+                setPhone(value);
+                setErrors((previous) => ({ ...previous, phone: "" }));
+              }}
               placeholder="Enter your phone number"
               keyboardType="phone-pad"
               autoComplete="tel"
@@ -238,12 +281,16 @@ export function AuthScreen({
           )}
           <AuthInput
             ref={passwordRef}
+            {...invalid("password")}
             label="Password"
             icon="lock-closed-outline"
             showLabel={signup}
             password
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(value) => {
+              setPassword(value);
+              setErrors((previous) => ({ ...previous, password: "" }));
+            }}
             placeholder={signup ? "Create a password" : "Password"}
             autoCapitalize="none"
             autoComplete={signup ? "new-password" : "current-password"}
@@ -256,12 +303,16 @@ export function AuthScreen({
           {signup && (
             <AuthInput
               ref={confirmRef}
+              {...invalid("confirm")}
               label="Confirm Password"
               icon="lock-closed-outline"
               showLabel
               password
               value={confirm}
-              onChangeText={setConfirm}
+              onChangeText={(value) => {
+                setConfirm(value);
+                setErrors((previous) => ({ ...previous, confirm: "" }));
+              }}
               placeholder="Re-enter your password"
               autoCapitalize="none"
               autoComplete="new-password"
@@ -329,8 +380,45 @@ export function AuthScreen({
               </Text>
             </Text>
           )}
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-            {(['google', 'apple'] as const).map(provider => <TouchableOpacity key={provider} accessibilityRole="button" accessibilityLabel={`Continue with ${provider === 'google' ? 'Google' : 'Apple'}`} disabled={busy} onPress={() => social(provider)} style={{ flex: 1, minHeight: 48, borderWidth: 1, borderColor: c.border, borderRadius: 10, backgroundColor: c.surface, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8, opacity: busy ? 0.6 : 1 }}><Ionicons name={provider === 'google' ? 'logo-google' : 'logo-apple'} size={21} color={c.text} /><Text numberOfLines={1} style={{ fontSize: 14, color: c.text }}>{provider === 'google' ? 'Google' : 'Apple'}</Text></TouchableOpacity>)}
+          <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
+            {(["google", "apple"] as const).map((provider) => (
+              <TouchableOpacity
+                key={provider}
+                accessibilityRole="button"
+                accessibilityLabel={`Continue with ${provider === "google" ? "Google" : "Apple"}`}
+                disabled={busy}
+                onPress={() => social(provider)}
+                style={{
+                  flex: 1,
+                  minHeight: 48,
+                  borderWidth: 1,
+                  borderColor: c.border,
+                  borderRadius: 10,
+                  backgroundColor: "#FFFFFF",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  gap: 8,
+                  opacity: busy ? 0.6 : 1,
+                }}
+              >
+                {provider === "google" ? (
+                  <Image
+                    source={require("../../assets/icons/google-signin.png")}
+                    style={{ width: 20, height: 20 }}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Ionicons name="logo-apple" size={21} color="#000000" />
+                )}
+                <Text
+                  numberOfLines={1}
+                  style={{ fontSize: 14, color: "#183320" }}
+                >
+                  {provider === "google" ? "Google" : "Apple"}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
           <TouchableOpacity
             accessibilityRole="button"
@@ -354,20 +442,15 @@ export function AuthScreen({
           </TouchableOpacity>
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Continue as guest"
+            accessibilityLabel="Browse products"
             onPress={onBack}
             style={{ alignItems: "center", paddingBottom: 12 }}
           >
             <Text style={{ color: c.primary, fontSize: 12 }}>
-              Continue as guest
+              Browse products
             </Text>
           </TouchableOpacity>
         </View>
-        <Image
-          source={ART.login}
-          style={{ width: "100%", height: width / 2.76 }}
-          resizeMode="cover"
-        />
       </ScrollView>
     </KeyboardAvoidingView>
   );

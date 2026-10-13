@@ -6,9 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { TrustBadges } from "../components/TrustBadges";
 import { useMobileStore } from "../services/storeService";
@@ -207,7 +207,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
           </View>
 
           {/* 4 Trust Badges */}
-          {prod.category === "energy_balls" && (
+          {(prod.category === "energy_balls" || isPanjeeri) && (
             <TrustBadges variant="product" />
           )}
 
@@ -256,43 +256,68 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                 style={[
                   styles.ingredientItem,
                   {
-                    width: isPanjeeri
-                      ? width < 360
-                        ? "23%"
-                        : "14.8%"
-                      : width < 360
-                        ? "23%"
-                        : "17.8%",
+                    width: isPanjeeri ? "31.8%" : width < 360 ? "23%" : "17.8%",
                     borderWidth: isPanjeeri ? 0 : 1,
                   },
                   { backgroundColor: theme.surface, borderColor: theme.border },
                 ]}
               >
-                <Image
-                  source={
-                    (ASSETS.ingredients as any)[ing.slug.replace(/-/g, "_")] ||
-                    ASSETS.ingredients.dates
-                  }
-                  style={[
-                    styles.ingredientImage,
-                    {
-                      width: isPanjeeri ? 42 : 48,
-                      height: isPanjeeri ? 42 : 40,
-                      borderRadius: isPanjeeri ? 25 : 0,
-                    },
-                  ]}
-                  resizeMode="contain"
-                />
+                {(ASSETS.ingredients as any)[ing.slug.replace(/-/g, "_")] ? (
+                  <Image
+                    source={
+                      (ASSETS.ingredients as any)[ing.slug.replace(/-/g, "_")]
+                    }
+                    style={[
+                      styles.ingredientImage,
+                      {
+                        width: isPanjeeri ? 42 : 48,
+                        height: isPanjeeri ? 42 : 40,
+                        borderRadius: isPanjeeri ? 25 : 0,
+                      },
+                    ]}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View
+                    style={{
+                      height: 44,
+                      justifyContent: "center",
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Ionicons
+                      name={
+                        ing.slug === "khoya"
+                          ? "nutrition-outline"
+                          : ing.slug === "sugar"
+                            ? "cube-outline"
+                            : "leaf-outline"
+                      }
+                      size={28}
+                      color={theme.primary}
+                    />
+                  </View>
+                )}
                 <Text
-                  style={[styles.ingredientName, { color: theme.text }]}
-                  numberOfLines={2}
+                  style={[
+                    styles.ingredientName,
+                    { color: theme.text },
+                    isPanjeeri && { fontSize: 12, lineHeight: 16 },
+                  ]}
                 >
                   {ing.name}
                 </Text>
               </View>
             ))}
           </View>
+          {!!prod.ingredient_notes && <Copy>{prod.ingredient_notes}</Copy>}
           <View style={{ marginTop: 18, gap: 12 }}>
+            {isPanjeeri && (
+              <Card>
+                <Heading>About this recipe</Heading>
+                <Copy>{prod.description}</Copy>
+              </Card>
+            )}
             <Card>
               <Heading>Nutrition per 100g</Heading>
               {prod.nutrition_facts?.map((fact) => (

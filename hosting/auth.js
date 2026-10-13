@@ -16,6 +16,7 @@ button.addEventListener('click', async () => {
   button.disabled = true; message.textContent = 'Opening secure sign-in…';
   try {
     const oauth = provider === 'google' ? new GoogleAuthProvider() : new OAuthProvider('apple.com');
+    if (provider === "google") oauth.setCustomParameters({ prompt: "select_account" });
     await signInWithPopup(getAuth(app), oauth);
     const result = await httpsCallable(getFunctions(app, 'us-central1'), 'issueNativeSession')({ challenge });
     // Only an expiring, one-use code travels through the deep link. Redemption requires the app's secret verifier.

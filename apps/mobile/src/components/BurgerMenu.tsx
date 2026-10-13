@@ -4,12 +4,14 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
+import { TouchableOpacity } from "./AppTouchable";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, Brand, GreenButton } from "./DesignPrimitives";
+import { LinearGradient } from "expo-linear-gradient";
+import { Text, Brand } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 
 export type MenuSection = "payment" | "delivery";
@@ -72,22 +74,24 @@ const groups: {
 ];
 export function BurgerMenu({
   visible,
-  reduceMotion,
+  activeDestination,
   onClose,
   onSelect,
 }: {
   visible: boolean;
-  reduceMotion: boolean;
+  activeDestination?: MenuDestination;
   onClose: () => void;
   onSelect: (destination: MenuDestination) => void;
 }) {
   const { theme } = useMobileStore();
+  const { fontScale } = useWindowDimensions();
+  const [bannerWidth, setBannerWidth] = React.useState(0);
   return (
     <Modal
       visible={visible}
       transparent
       statusBarTranslucent
-      animationType={reduceMotion ? "none" : "fade"}
+      animationType="none"
       onRequestClose={onClose}
     >
       <View style={s.backdrop}>
@@ -99,7 +103,10 @@ export function BurgerMenu({
         />
         <SafeAreaView
           accessibilityViewIsModal
-          style={[s.panel, { backgroundColor: theme.background }]}
+          style={[
+            s.panel,
+            { backgroundColor: theme.background, borderColor: theme.border },
+          ]}
           edges={["top", "bottom"]}
         >
           <View style={s.top}>
@@ -110,11 +117,12 @@ export function BurgerMenu({
               onPress={onClose}
               style={s.close}
             >
-              <Ionicons name="close" size={25} color={theme.text} />
+              <Ionicons name="close" size={23} color={theme.primary} />
             </TouchableOpacity>
           </View>
           <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 20 }}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 6 }}
           >
             {groups.map((group) => (
               <View key={group.label}>
@@ -122,7 +130,7 @@ export function BurgerMenu({
                   style={{
                     fontSize: 10,
                     letterSpacing: 2,
-                    color: theme.textMuted,
+                    color: theme.isDark ? theme.gold : "#A6862A",
                     marginTop: 20,
                     marginBottom: 6,
                   }}
@@ -135,57 +143,143 @@ export function BurgerMenu({
                     accessibilityRole="button"
                     accessibilityLabel={item.title}
                     onPress={() => onSelect(item.destination)}
-                    style={[s.item, { borderColor: theme.borderSubtle }]}
+                    style={[
+                      s.item,
+                      item.destination === activeDestination && {
+                        backgroundColor: theme.primary,
+                      },
+                    ]}
                   >
                     <Ionicons
                       name={item.icon}
                       size={22}
-                      color={theme.primary}
+                      color={
+                        item.destination === activeDestination
+                          ? theme.isDark
+                            ? theme.background
+                            : "#FFFFFF"
+                          : theme.primary
+                      }
                     />
-                    <Text style={s.label}>{item.title}</Text>
+                    <Text
+                      style={[
+                        s.label,
+                        { color: theme.text },
+                        item.destination === activeDestination && {
+                          color: theme.isDark ? theme.background : "#FFFFFF",
+                          fontWeight: "600",
+                        },
+                      ]}
+                    >
+                      {item.title}
+                    </Text>
                     <Ionicons
                       name="chevron-forward"
                       size={16}
-                      color={theme.textSecondary}
+                      color="#B7AF99"
                     />
                   </TouchableOpacity>
                 ))}
               </View>
             ))}
-            <View style={[s.banner, { backgroundColor: "#F5EADB" }]}>
-              <Image
-                source={require("../../assets/hero/panjeeri.png")}
-                resizeMode="contain"
-                style={{ width: "100%", height: 118 }}
-              />
+          </ScrollView>
+          <View
+            onLayout={(event) => setBannerWidth(event.nativeEvent.layout.width)}
+            style={[
+              s.banner,
+              {
+                backgroundColor: "#F5EADB",
+                height: Math.max(160, 155 * fontScale),
+              },
+            ]}
+          >
+            <Image
+              source={require("../../assets/hero/panjeeri.png")}
+              resizeMode="contain"
+              style={{
+                position: "absolute",
+                bottom: 0,
+                width: "100%",
+                height: bannerWidth / 2,
+              }}
+            />
+            <LinearGradient
+              colors={["#F5EADB", "rgba(245,234,219,0)"]}
+              style={{
+                position: "absolute",
+                top: Math.max(160, 155 * fontScale) - bannerWidth / 2 - 1,
+                left: 0,
+                right: 0,
+                height: 36,
+              }}
+            />
+            <LinearGradient
+              colors={[
+                "#F5EADB",
+                "rgba(245,234,219,0.7)",
+                "rgba(245,234,219,0)",
+              ]}
+              locations={[0, 0.2, 0.65]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <View
+              style={{
+                position: "absolute",
+                top: 14,
+                left: 14,
+                width: "70%",
+                gap: 7,
+              }}
+            >
               <Text
+                numberOfLines={2}
+                adjustsFontSizeToFit
                 style={{
                   fontFamily: "serif",
                   fontSize: 22,
                   fontWeight: "700",
                   color: "#183320",
-                  padding: 12,
+                  lineHeight: 24,
                 }}
               >
-                Wholesome goodness.{"\n"}Crafted with Love.
+                Wholesome{"\n"}goodness.
               </Text>
-              <GreenButton
-                title="Shop Now"
+              <Text
+                style={{
+                  color: "#805025",
+                  fontSize: 12,
+                }}
+              >
+                Crafted with Love.
+              </Text>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Shop Now"
                 onPress={() => onSelect("products")}
-                style={{ marginHorizontal: 12, marginBottom: 12 }}
-              />
+                hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+                style={{
+                  alignSelf: "flex-start",
+                  marginTop: 3,
+                  minHeight: 32,
+                  paddingHorizontal: 10,
+                  borderRadius: 8,
+                  backgroundColor: "#1B4332",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Text
+                  style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}
+                >
+                  Shop Now
+                </Text>
+                <Ionicons name="arrow-forward" size={14} color="#fff" />
+              </TouchableOpacity>
             </View>
-            <Text
-              style={{
-                color: theme.textSecondary,
-                fontSize: 12,
-                lineHeight: 18,
-                marginTop: 12,
-              }}
-            >
-              Your profile, wishlist, addresses and updates are in More.
-            </Text>
-          </ScrollView>
+          </View>
         </SafeAreaView>
       </View>
     </Modal>
@@ -193,7 +287,15 @@ export function BurgerMenu({
 }
 const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: "#00000070" },
-  panel: { width: "86%", maxWidth: 340, flex: 1 },
+  panel: {
+    width: "86%",
+    maxWidth: 340,
+    flex: 1,
+    borderTopRightRadius: 28,
+    borderBottomRightRadius: 28,
+    overflow: "hidden",
+    borderRightWidth: 1,
+  },
   top: {
     flexDirection: "row",
     alignItems: "center",
@@ -207,15 +309,27 @@ const s = StyleSheet.create({
     height: 44,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#C9A84C70",
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF0F",
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    minHeight: 50,
+    gap: 14,
+    minHeight: 48,
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    marginBottom: 2,
   },
-  label: { flex: 1, fontFamily: "serif", fontSize: 20, fontWeight: "700" },
-  banner: { marginTop: 20, borderRadius: 14, overflow: "hidden" },
+  label: { flex: 1, fontSize: 15, color: "#FDF6E3" },
+  banner: {
+    marginTop: 10,
+    marginHorizontal: 14,
+    marginBottom: 14,
+    borderRadius: 14,
+    overflow: "hidden",
+  },
 });

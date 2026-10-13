@@ -1,5 +1,6 @@
 import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { TouchableOpacity } from "./AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { useMobileStore } from "../services/storeService";
 import { Text } from "./DesignPrimitives";

@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Linking,
-} from "react-native";
+import { View, ScrollView, StyleSheet, Linking } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import {
   onAuthStateChanged,
@@ -17,26 +12,22 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { firebaseAuth, db } from "../services/firebase";
 import { useMobileStore } from "../services/storeService";
 import { Header } from "../components/Header";
-import { Text, GreenButton } from "../components/DesignPrimitives";
+import { Text } from "../components/DesignPrimitives";
 import { useInfoDialog } from "../components/InfoDialog";
 import { AppNavigation } from "../navigation/types";
-import { Card, Copy } from "../features/commerce/components";
-import { useAccountData } from "../features/commerce/useAccountData";
-import { watchOrders, watchAddresses } from "../features/commerce/service";
+import { Copy } from "../features/commerce/components";
 
 export function ContactMoreScreen({
   navigation,
 }: {
   navigation: AppNavigation;
 }) {
-  const { theme: c, settings, favorites, setThemeMode } = useMobileStore();
+  const { theme: c, settings, setThemeMode } = useMobileStore();
   const { showInfo, dialog } = useInfoDialog();
   const [account, setAccount] = useState<User | null>(
     firebaseAuth?.currentUser || null,
   );
   const [phone, setPhone] = useState<string | undefined>();
-  const orders = useAccountData(watchOrders),
-    addresses = useAccountData(watchAddresses);
   useEffect(
     () =>
       firebaseAuth ? onAuthStateChanged(firebaseAuth, setAccount) : undefined,
@@ -75,6 +66,24 @@ export function ContactMoreScreen({
     action: () => void;
   }[] = [
     {
+      title: "My Orders",
+      sub: "Track, manage and reorder",
+      icon: "receipt-outline",
+      action: () => navigation.navigate("Orders"),
+    },
+    {
+      title: "My Points",
+      sub: "Your rewards and points history",
+      icon: "gift-outline",
+      action: () => navigation.navigate("Rewards"),
+    },
+    {
+      title: "Refer & Earn",
+      sub: "Invite friends and earn 200 points",
+      icon: "people-outline",
+      action: () => navigation.navigate("Referrals"),
+    },
+    {
       title: "My Wishlist",
       sub: "Your favourite products",
       icon: "heart-outline",
@@ -87,8 +96,8 @@ export function ContactMoreScreen({
       action: () => navigation.navigate("Addresses"),
     },
     {
-      title: "Track a TCS Parcel",
-      sub: "Track an earlier WhatsApp order",
+      title: "Track Order",
+      sub: "Order progress and TCS tracking",
       icon: "car-outline",
       action: () => navigation.navigate("TrackOrder"),
     },
@@ -138,11 +147,19 @@ export function ContactMoreScreen({
           My Profile
         </Text>
         <Copy>Manage your account and preferences.</Copy>
-        <Card>
+        <View
+          style={[
+            s.card,
+            {
+              backgroundColor: c.surface,
+              borderColor: c.isDark ? c.border : "#EFE3C2",
+            },
+          ]}
+        >
           <View style={s.identity}>
-            <View style={[s.avatar, { backgroundColor: c.goldWarm }]}>
+            <View style={[s.avatar, { backgroundColor: "#C9A84C" }]}>
               <Text
-                style={{ fontFamily: "serif", fontSize: 36, color: c.primary }}
+                style={{ fontFamily: "serif", fontSize: 36, color: "#FFFFFF" }}
               >
                 {(account?.displayName || "Guest").slice(0, 1).toUpperCase()}
               </Text>
@@ -162,168 +179,226 @@ export function ContactMoreScreen({
               )}
             </View>
           </View>
-          <GreenButton
-            title={account ? "Edit Profile" : "Sign In / Create Account"}
-            onPress={() =>
-              account
-                ? navigation.navigate("EditProfile", {
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            {account ? (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Edit Profile"
+                onPress={() =>
+                  navigation.navigate("EditProfile", {
                     profile: {
                       uid: account.uid,
                       fullName: account.displayName || "",
                       phone,
                     },
                   })
-                : navigation.navigate("Login")
-            }
-          />
-        </Card>
-        <Card>
-          <View style={s.stats}>
-            {[
-              {
-                label: "Orders",
-                value: !account
-                  ? "—"
-                  : orders.error || orders.loading
-                    ? "—"
-                    : orders.items.length,
-                icon: "cube-outline" as const,
-                action: () => navigation.navigate("Orders"),
-              },
-              {
-                label: "Wishlist",
-                value: favorites.length,
-                icon: "heart-outline" as const,
-                action: () => navigation.navigate("Wishlist"),
-              },
-              {
-                label: "Addresses",
-                value: !account
-                  ? "—"
-                  : addresses.error || addresses.loading
-                    ? "—"
-                    : addresses.items.length,
-                icon: "location-outline" as const,
-                action: () => navigation.navigate("Addresses"),
-              },
-            ].map((stat) => (
-              <TouchableOpacity
-                key={stat.label}
-                accessibilityRole="button"
-                accessibilityLabel={`Open ${stat.label.toLowerCase()}`}
-                onPress={stat.action}
-                style={s.stat}
-              >
-                <Ionicons name={stat.icon} size={24} color={c.primary} />
-                <Text style={s.name}>{stat.value}</Text>
-                <Text style={{ fontSize: 12 }}>{stat.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Card>
-        {rows.map((row) => (
-          <TouchableOpacity
-            key={row.title}
-            accessibilityRole="button"
-            accessibilityLabel={row.title}
-            onPress={row.action}
-            style={[
-              s.row,
-              {
-                backgroundColor: c.isDark ? c.surface : "#FFFCF5",
-                borderColor: c.border,
-              },
-            ]}
-          >
-            <View style={[s.icon, { backgroundColor: c.goldWarm }]}>
-              <Ionicons name={row.icon} size={23} color={c.primary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={s.label}>{row.title}</Text>
-              <Text style={{ fontSize: 12, color: c.textSecondary }}>
-                {row.sub}
-              </Text>
-            </View>
-            <Ionicons
-              name="chevron-forward"
-              size={17}
-              color={c.textSecondary}
-            />
-          </TouchableOpacity>
-        ))}
-        <Card>
-          <Text style={s.label}>Get in Touch</Text>
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            {[
-              {
-                label: "WhatsApp",
-                icon: "chatbubble-outline" as const,
-                url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
-              },
-              {
-                label: "Call",
-                icon: "call-outline" as const,
-                url: `tel:${settings.whatsapp_number}`,
-              },
-              {
-                label: "Email",
-                icon: "mail-outline" as const,
-                url: `mailto:${settings.contact_email}`,
-              },
-            ].map((item) => (
-              <TouchableOpacity
-                key={item.label}
-                accessibilityRole="button"
-                accessibilityLabel={item.label}
-                onPress={() => open(item.url)}
-                style={[s.contact, { borderColor: c.border }]}
-              >
-                <Ionicons name={item.icon} size={20} color={c.primary} />
-                <Text style={{ fontSize: 12 }}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <Copy>
-            {settings.business_address}
-            {"\n"}
-            {settings.business_hours}
-          </Copy>
-        </Card>
-        <Card>
-          <Text style={s.label}>Appearance</Text>
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            {(["light", "dark"] as const).map((mode) => (
-              <TouchableOpacity
-                key={mode}
-                accessibilityRole="button"
-                accessibilityLabel={`${mode === "light" ? "Light" : "Dark"} theme`}
-                accessibilityState={{ selected: c.mode === mode }}
-                onPress={() => setThemeMode(mode)}
+                }
                 style={[
-                  s.contact,
+                  s.profileButton,
                   {
-                    borderColor: c.border,
-                    backgroundColor:
-                      c.mode === mode ? c.surfaceWarm : c.surface,
+                    borderColor: "#C9A84C",
+                    backgroundColor: c.isDark ? c.surface : "#FFFFFF",
                   },
                 ]}
               >
-                <Ionicons
-                  name={mode === "light" ? "sunny-outline" : "moon-outline"}
-                  size={20}
-                  color={c.primary}
-                />
-                <Text>{mode === "light" ? "Light" : "Dark"}</Text>
+                <Ionicons name="create-outline" size={17} color="#A6862A" />
+                <Text
+                  style={{ fontSize: 14, color: "#A6862A", fontWeight: "500" }}
+                >
+                  Edit Profile
+                </Text>
               </TouchableOpacity>
-            ))}
+            ) : (
+              <>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Sign In"
+                  onPress={() => navigation.navigate("Login")}
+                  style={[
+                    s.profileButton,
+                    { borderColor: "#C9A84C", backgroundColor: "#FFFFFF" },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: "#A6862A",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Sign In
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Create Account"
+                  onPress={() => navigation.navigate("Signup")}
+                  style={[
+                    s.profileButton,
+                    { backgroundColor: "#1B4332", borderColor: "#1B4332" },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: "#FFFFFF",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Create Account
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
-        </Card>
+        </View>
+        <View
+          style={[
+            s.group,
+            {
+              backgroundColor: c.isDark ? c.surface : "#FFFFFF",
+              borderColor: c.isDark ? c.border : "#EFE3C2",
+            },
+          ]}
+        >
+          {rows.map((row, index) => (
+            <TouchableOpacity
+              key={row.title}
+              accessibilityRole="button"
+              accessibilityLabel={row.title}
+              accessibilityHint={row.sub}
+              onPress={row.action}
+              style={[
+                s.row,
+                {
+                  borderBottomWidth: index < rows.length - 1 ? 1 : 0,
+                  borderColor: c.isDark ? c.border : "#F3ECD8",
+                },
+              ]}
+            >
+              <Ionicons name={row.icon} size={22} color={c.primary} />
+              <Text style={s.label}>{row.title}</Text>
+              <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={s.section}>Get in Touch</Text>
+        <View
+          style={[
+            s.group,
+            {
+              backgroundColor: c.surface,
+              borderColor: c.isDark ? c.border : "#EFE3C2",
+            },
+          ]}
+        >
+          {[
+            {
+              label: "WhatsApp",
+              icon: "logo-whatsapp" as const,
+              url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
+            },
+            {
+              label: "Call",
+              icon: "call-outline" as const,
+              url: `tel:${settings.whatsapp_number}`,
+            },
+            {
+              label: "Email",
+              icon: "mail-outline" as const,
+              url: `mailto:${settings.contact_email}`,
+            },
+          ].map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              accessibilityRole="button"
+              accessibilityLabel={item.label}
+              onPress={() => open(item.url)}
+              style={[
+                s.row,
+                {
+                  borderBottomWidth: 1,
+                  borderColor: c.isDark ? c.border : "#F3ECD8",
+                },
+              ]}
+            >
+              <Ionicons name={item.icon} size={22} color={c.primary} />
+              <Text style={s.label}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
+            </TouchableOpacity>
+          ))}
+          <View style={{ paddingHorizontal: 16, paddingVertical: 10 }}>
+            <Text
+              style={{ fontSize: 12, lineHeight: 18, color: c.textSecondary }}
+            >
+              {settings.business_address}
+              {"\n"}
+              {settings.business_hours}
+            </Text>
+          </View>
+        </View>
+        <Text style={s.section}>App Settings</Text>
+        <View
+          style={[
+            s.group,
+            {
+              backgroundColor: c.surface,
+              borderColor: c.isDark ? c.border : "#EFE3C2",
+            },
+          ]}
+        >
+          <View style={s.row}>
+            <Ionicons name="moon-outline" size={22} color={c.primary} />
+            <Text style={s.label}>Dark Mode</Text>
+            <TouchableOpacity
+              accessibilityRole="switch"
+              accessibilityLabel="Dark mode"
+              aria-checked={c.isDark}
+              accessibilityState={{ checked: c.isDark }}
+              onPress={() => setThemeMode(c.isDark ? "light" : "dark")}
+              style={{ width: 48, height: 44, justifyContent: "center" }}
+            >
+              <View
+                style={{
+                  width: 48,
+                  height: 28,
+                  borderRadius: 14,
+                  backgroundColor: c.isDark ? "#1B4332" : "#E2D8BC",
+                }}
+              >
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 3,
+                    left: c.isDark ? 23 : 3,
+                    width: 22,
+                    height: 22,
+                    borderRadius: 11,
+                    backgroundColor: "#FFFFFF",
+                    shadowColor: "#000000",
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 2,
+                    elevation: 2,
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
         {account && (
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Sign Out"
             onPress={logout}
-            style={[s.row, { borderColor: c.danger }]}
+            style={[
+              s.row,
+              s.group,
+              {
+                borderColor: c.isDark ? c.border : "#EFE3C2",
+                backgroundColor: c.surface,
+              },
+            ]}
           >
             <Ionicons name="log-out-outline" size={24} color={c.danger} />
             <Text style={{ color: c.danger, fontSize: 16 }}>Sign Out</Text>
@@ -334,7 +409,26 @@ export function ContactMoreScreen({
   );
 }
 const s = StyleSheet.create({
-  content: { padding: 16, paddingBottom: 20, gap: 10 },
+  content: { padding: 18, paddingBottom: 20, gap: 10 },
+  profileButton: {
+    flex: 1,
+    minHeight: 44,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1.5,
+    borderRadius: 24,
+  },
+  card: { padding: 16, gap: 12, borderRadius: 18, borderWidth: 1 },
+  group: { borderRadius: 18, borderWidth: 1, overflow: "hidden" },
+  section: {
+    fontFamily: "serif",
+    fontWeight: "700",
+    fontSize: 23,
+    marginTop: 4,
+  },
   heading: {
     fontFamily: "serif",
     fontWeight: "700",
@@ -343,50 +437,25 @@ const s = StyleSheet.create({
   },
   identity: { flexDirection: "row", gap: 12, alignItems: "center" },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     justifyContent: "center",
     alignItems: "center",
   },
   name: {
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 24,
-    lineHeight: 27,
+    fontSize: 21,
+    lineHeight: 25,
   },
-  stats: { flexDirection: "row", gap: 6 },
-  stat: { flex: 1, alignItems: "center", gap: 4, paddingVertical: 6 },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    padding: 12,
-    minHeight: 66,
-    borderWidth: 1,
-    borderRadius: 14,
-  },
-  icon: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  label: {
-    fontFamily: "serif",
-    fontWeight: "700",
-    fontSize: 21,
-    lineHeight: 24,
-  },
-  contact: {
-    flex: 1,
+    gap: 13,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     minHeight: 48,
-    padding: 8,
-    borderWidth: 1,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
   },
+  label: { flex: 1, fontSize: 15, lineHeight: 21 },
 });

@@ -2,13 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
   AppState,
-  Animated,
-  Platform,
+  Image,
   StyleSheet,
-  TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
+import { TouchableOpacity } from "./AppTouchable";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "./DesignPrimitives";
@@ -50,9 +49,6 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
     AppState.currentState !== "background" &&
       AppState.currentState !== "inactive",
   );
-  const opacity = useRef(
-    scenes.map((_, i) => new Animated.Value(i === 0 ? 1 : 0)),
-  ).current;
   const lastInteraction = useRef(0);
   const height = Math.max(228, Math.ceil(220 * fontScale));
   const imageHeight = Math.min(height, width / 2);
@@ -72,19 +68,6 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
       app.remove();
     };
   }, []);
-  useEffect(() => {
-    const animation = Animated.parallel(
-      opacity.map((value, i) =>
-        Animated.timing(value, {
-          toValue: i === index ? 1 : 0,
-          duration: reduceMotion ? 0 : 650,
-          useNativeDriver: Platform.OS !== "web",
-        }),
-      ),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [index, reduceMotion, opacity]);
   const ready = loaded.every(Boolean);
   useEffect(() => {
     if (!ready || reduceMotion || !foreground) return;
@@ -107,7 +90,7 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
         onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       >
         {scenes.map((scene, i) => (
-          <Animated.Image
+          <Image
             key={scene.label}
             source={scene.image}
             resizeMode="contain"
@@ -126,7 +109,7 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
               left: 0,
               width,
               height: imageHeight,
-              opacity: opacity[i],
+              opacity: i === index ? 1 : 0,
             }}
           />
         ))}

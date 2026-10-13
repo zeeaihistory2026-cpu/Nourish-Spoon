@@ -1,12 +1,7 @@
 import { Text } from "../components/DesignPrimitives";
 import React, { useEffect, useState, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { View, StyleSheet, ScrollView, TextInput } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "../components/Header";
 import { useMobileStore } from "../services/storeService";

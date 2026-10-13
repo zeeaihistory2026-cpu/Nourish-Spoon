@@ -7,11 +7,11 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  TouchableOpacity,
   SafeAreaView,
   StatusBar,
   Linking,
 } from "react-native";
+import { TouchableOpacity } from "../components/AppTouchable";
 import { useStore } from "../services/storeService";
 import { ASSETS } from "../constants/assets";
 import { BottomTabBar } from "../components/BottomTabBar";

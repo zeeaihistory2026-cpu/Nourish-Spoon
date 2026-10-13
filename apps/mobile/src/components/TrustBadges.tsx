@@ -13,33 +13,66 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
 }) => {
   const { theme } = useMobileStore();
 
-  if (variant === "home") return (
-    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, justifyContent: "center", paddingVertical: 14 }}>
-      {["No Preservatives", "100% Natural", "Small Batch", "Airtight Packed"].map(title => (
-        <View key={title} style={{ width: "46%", flexDirection: "row", alignItems: "center", gap: 6 }}>
-          <View style={{ width: 18, height: 18, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: theme.primary }}>
-            <Ionicons name="checkmark" size={12} color="#fff" />
+  if (variant === "home")
+    return (
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: 10,
+          justifyContent: "center",
+          paddingVertical: 14,
+        }}
+      >
+        {[
+          "No Preservatives",
+          "100% Natural",
+          "Small Batch",
+          "Airtight Packed",
+        ].map((title) => (
+          <View
+            key={title}
+            style={{
+              width: "46%",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <View
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 9,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: theme.primary,
+              }}
+            >
+              <Ionicons name="checkmark" size={12} color="#fff" />
+            </View>
+            <Text style={{ fontSize: 12, color: theme.primary, flexShrink: 1 }}>
+              {title}
+            </Text>
           </View>
-          <Text style={{ fontSize: 12, color: theme.primary, flexShrink: 1 }}>{title}</Text>
-        </View>
-      ))}
-    </View>
-  );
+        ))}
+      </View>
+    );
 
   const badges = [
-          { title: "Freshly\nMade", icon: "leaf-outline", lib: "ionicons" },
-          {
-            title: "Airtight\nPacked",
-            icon: "archive-outline",
-            lib: "ionicons",
-          },
-          {
-            title: "No\nPreservatives",
-            icon: "flask-outline",
-            lib: "ionicons",
-          },
-          { title: "100%\nNatural", icon: "sprout-outline", lib: "material" },
-        ];
+    { title: "Freshly\nMade", icon: "leaf-outline", lib: "ionicons" },
+    {
+      title: "Airtight\nPacked",
+      icon: "archive-outline",
+      lib: "ionicons",
+    },
+    {
+      title: "No\nPreservatives",
+      icon: "flask-outline",
+      lib: "ionicons",
+    },
+    { title: "100%\nNatural", icon: "sprout-outline", lib: "material" },
+  ];
 
   return (
     <View
