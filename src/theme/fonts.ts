@@ -30,6 +30,8 @@ export const FONT_MAP = {
 };
 
 export function useAppFonts(): boolean {
-  const [loaded] = useFonts(FONT_MAP);
-  return loaded;
+  const [loaded, error] = useFonts(FONT_MAP);
+  // A failed font load (e.g. a slow network on web) falls back to system fonts
+  // instead of holding the app on the splash screen forever.
+  return loaded || error !== null;
 }

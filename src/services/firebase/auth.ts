@@ -13,10 +13,15 @@ import {
 import { doc, onSnapshot, setDoc } from '@react-native-firebase/firestore';
 
 import type { UserProfile } from '../../types';
-import { db, firebaseAuth } from './config';
+import { db, firebaseAuth, firebaseAvailable } from './config';
 import { serverTimestamp } from './firestore';
 
 export function observeAuth(callback: (user: User | null) => void): () => void {
+  if (!firebaseAvailable) {
+    // No Firebase on this platform (web demo): report a signed-out session.
+    callback(null);
+    return () => {};
+  }
   return onAuthStateChanged(firebaseAuth, callback);
 }
 
