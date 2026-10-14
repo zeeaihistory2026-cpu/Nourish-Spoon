@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nourish Spoon",
     "slug": "nourish-spoon",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/website/logo-transparent.png",
     "userInterfaceStyle": "automatic",
@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.nourishspoon.app"
     },
     "android": {
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./assets/website/logo-transparent.png",
         "backgroundColor": "#FDF6E3"

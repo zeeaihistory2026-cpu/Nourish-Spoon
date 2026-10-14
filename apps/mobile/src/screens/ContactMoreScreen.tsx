@@ -346,16 +346,19 @@ export function ContactMoreScreen({
             {
               label: "WhatsApp",
               icon: "logo-whatsapp" as const,
+              color: "#25D366",
               url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
             },
             {
               label: "Call",
               icon: "call-outline" as const,
+              color: c.isDark ? "#60A5FA" : "#2563EB",
               url: `tel:${settings.whatsapp_number}`,
             },
             {
               label: "Email",
               icon: "mail-outline" as const,
+              color: c.isDark ? "#FF7A70" : "#EA4335",
               url: `mailto:${settings.contact_email}`,
             },
           ].map((item) => (
@@ -376,7 +379,7 @@ export function ContactMoreScreen({
                 borderColor: c.border,
               }}
             >
-              <Ionicons name={item.icon} size={22} color={c.primary} />
+              <Ionicons name={item.icon} size={22} color={item.color} />
               <Text style={{ fontSize: 12 }}>{item.label}</Text>
             </TouchableOpacity>
           ))}
