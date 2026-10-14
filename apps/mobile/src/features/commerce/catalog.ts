@@ -6,7 +6,7 @@ import {
   INITIAL_REVIEWS,
 } from "@packages/catalog/websiteSnapshot";
 import { normalizeProduct } from "@packages/catalog/normalizeProduct";
-import { Review } from "@packages/types";
+import { Product, Review } from "@packages/types";
 function matchesProduct(
   product: (typeof INITIAL_PRODUCTS)[number],
   id: string,
@@ -19,42 +19,46 @@ function matchesProduct(
       product.name.trim().toLowerCase() === raw.name.trim().toLowerCase())
   );
 }
+export function mergeCatalogueDocuments(
+  documents: Array<{ id: string; data: () => Record<string, any> }>,
+): Product[] {
+  // Retired records must be excluded from BOTH published entries and fallback matching.
+  // Otherwise a retired Energy Balls record can hide its bundled replacement by name.
+  const currentDocs = documents.filter(
+    (document) =>
+      !["date-nut-balls", "homemade-panjeeri"].includes(document.id),
+  );
+  const published = currentDocs
+    .map((document) =>
+      normalizeProduct(
+        document.id,
+        document.data(),
+        INITIAL_PRODUCTS.find((product) =>
+          matchesProduct(product, document.id, document.data()),
+        ),
+      ),
+    )
+    .filter((product) => product.active && product.variants.length);
+  const products = [
+    ...INITIAL_PRODUCTS.filter(
+      (product) =>
+        !currentDocs.some((document) =>
+          matchesProduct(product, document.id, document.data()),
+        ),
+    ),
+    ...published,
+  ];
+  return products.sort((a, b) => a.sort_order - b.sort_order);
+}
 export function subscribeCatalogue() {
   if (!db) return () => {};
   const products = onSnapshot(
     collection(db, "products"),
     (snapshot) => {
-      // Before the owner imports the catalogue, bundled website content remains available for browsing.
       if (snapshot.empty) return;
-      const published = snapshot.docs
-        // These two old generic SKUs are superseded by the owner's recipe-specific catalogue.
-        .filter(
-          (doc) => !["date-nut-balls", "homemade-panjeeri"].includes(doc.id),
-        )
-        .map((doc) =>
-          normalizeProduct(
-            doc.id,
-            doc.data(),
-            INITIAL_PRODUCTS.find((product) =>
-              matchesProduct(product, doc.id, doc.data()),
-            ),
-          ),
-        )
-        .filter((product) => product.active && product.variants.length);
-      // Bundled owner additions stay browsable until imported; a published exact SKU
-      // overrides its snapshot, including an inactive SKU (which stays hidden).
-      const products = [
-        ...INITIAL_PRODUCTS.filter(
-          (product) =>
-            !snapshot.docs.some((doc) =>
-              matchesProduct(product, doc.id, doc.data()),
-            ),
-        ),
-        ...published,
-      ];
       useMobileStore
         .getState()
-        .setProducts(products.sort((a, b) => a.sort_order - b.sort_order));
+        .setProducts(mergeCatalogueDocuments(snapshot.docs));
     },
     () => {},
   );
