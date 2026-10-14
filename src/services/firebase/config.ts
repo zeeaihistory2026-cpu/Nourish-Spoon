@@ -5,10 +5,26 @@ import { getFunctions, type Functions } from '@react-native-firebase/functions';
 import { getStorage, type FirebaseStorage } from '@react-native-firebase/storage';
 
 // The default app is initialized natively from google-services.json /
-// GoogleService-Info.plist, so we only ever look it up here.
-export const app: FirebaseApp = getApp();
+// GoogleService-Info.plist, so we only ever look it up here. The web build has
+// no native config and therefore no default app; it runs in demo mode only, so
+// we must not throw at import time or the whole bundle fails to start.
+function lookupDefaultApp(): FirebaseApp | null {
+  try {
+    return getApp();
+  } catch {
+    return null;
+  }
+}
 
-export const firebaseAuth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
-export const cloudFunctions: Functions = getFunctions(app);
-export const firebaseStorage: FirebaseStorage = getStorage(app);
+const defaultApp = lookupDefaultApp();
+
+/** False when no Firebase app is configured for this platform (e.g. web). */
+export const firebaseAvailable = defaultApp !== null;
+
+// When Firebase is unavailable these handles are never initialized; every
+// caller is either gated on demo mode or on `firebaseAvailable`.
+export const app = defaultApp as FirebaseApp;
+export const firebaseAuth = (defaultApp ? getAuth(defaultApp) : null) as Auth;
+export const db = (defaultApp ? getFirestore(defaultApp) : null) as Firestore;
+export const cloudFunctions = (defaultApp ? getFunctions(defaultApp) : null) as Functions;
+export const firebaseStorage = (defaultApp ? getStorage(defaultApp) : null) as FirebaseStorage;
