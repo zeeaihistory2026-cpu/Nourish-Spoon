@@ -14,6 +14,7 @@ function installNativeLaunch(projectRoot) {
   for (const name of [
     "NourishLaunchScreen.kt",
     "NourishLaunchScreenPackage.kt",
+    "NourishLogoView.kt",
   ])
     fs.copyFileSync(path.join(templates, name), path.join(java, name));
   fs.copyFileSync(
@@ -50,6 +51,8 @@ function installNativeLaunch(projectRoot) {
     path.join(projectRoot, "assets/website/logo-transparent.png"),
     path.join(resource("drawable-nodpi"), "nourish_launch_logo.png"),
   );
+  fs.copyFileSync(path.join(templates, "nourish_logo_strokes.json"), path.join(resource("raw"), "nourish_logo_strokes.json"));
+  fs.copyFileSync(path.join(templates, "nourish_launch_logo_vector.xml"), path.join(resource("drawable"), "nourish_launch_logo_vector.xml"));
   const base = `<resources><style name="Theme.Nourish.Launch" parent="AppTheme"><item name="android:windowBackground">@drawable/nourish_starting_window</item><item name="android:statusBarColor">#FDF6E3</item><item name="android:navigationBarColor">#FDF6E3</item><item name="android:windowLightStatusBar">true</item><item name="android:windowLightNavigationBar">true</item></style></resources>`;
   fs.writeFileSync(
     path.join(resource("values"), "nourish_launch_styles.xml"),
@@ -59,7 +62,7 @@ function installNativeLaunch(projectRoot) {
     path.join(resource("values-v31"), "nourish_launch_styles.xml"),
     base.replace(
       "</style>",
-      `<item name="android:windowSplashScreenBackground">#FDF6E3</item><item name="android:windowSplashScreenAnimatedIcon">@drawable/nourish_launch_icon</item><item name="android:windowSplashScreenIconBackgroundColor">#FDF6E3</item></style>`,
+      `<item name="android:windowSplashScreenBackground">#FDF6E3</item><item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item><item name="android:windowSplashScreenIconBackgroundColor">#FDF6E3</item></style>`,
     ),
   );
   const inputStyles = path.join(resource("values"), "styles.xml");
