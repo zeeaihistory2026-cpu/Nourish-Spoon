@@ -33,9 +33,10 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
 }) => {
   const { showInfo, dialog } = useInfoDialog();
   const { width } = useWindowDimensions();
-  const { theme, selectedProduct, favorites, toggleFavorite } =
+  const { theme, products, selectedProduct, favorites, toggleFavorite } =
     useMobileStore();
-  const prod = product || selectedProduct;
+  const requested = product || selectedProduct;
+  const prod = products.find((item) => item.id === requested.id) || requested;
   const isFav = favorites.includes(prod.id);
 
   const [selectedWeight, setSelectedWeight] = useState<string>(
@@ -45,6 +46,13 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
     prod.variants.find((v) => v.weight === selectedWeight) || prod.variants[0];
 
   const isPanjeeri = prod.category === "panjeeri";
+  const ingredientArtwork = (slug: string) => {
+    const key = slug.replace(/-/g, "_");
+    return (
+      (isPanjeeri ? (ASSETS.panjeeriIngredients as any)[key] : undefined) ||
+      (ASSETS.ingredients as any)[key]
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -220,9 +228,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
           >
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               {prod.ingredients?.length
-                ? isPanjeeri
-                  ? "Key Ingredients"
-                  : "Premium Ingredients"
+                ? "Premium Ingredients"
                 : "Recipe information"}
             </Text>
             <TouchableOpacity
@@ -256,23 +262,22 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                 style={[
                   styles.ingredientItem,
                   {
-                    width: isPanjeeri ? "31.8%" : width < 360 ? "23%" : "17.8%",
-                    borderWidth: isPanjeeri ? 0 : 1,
+                    width: width < 380 ? "23%" : "17.8%",
+                    borderWidth: 1,
                   },
                   { backgroundColor: theme.surface, borderColor: theme.border },
                 ]}
               >
-                {(ASSETS.ingredients as any)[ing.slug.replace(/-/g, "_")] ? (
+                {ingredientArtwork(ing.slug) ? (
                   <Image
-                    source={
-                      (ASSETS.ingredients as any)[ing.slug.replace(/-/g, "_")]
-                    }
+                    source={ingredientArtwork(ing.slug)}
+                    accessibilityLabel={ing.name}
                     style={[
                       styles.ingredientImage,
                       {
-                        width: isPanjeeri ? 42 : 48,
-                        height: isPanjeeri ? 42 : 40,
-                        borderRadius: isPanjeeri ? 25 : 0,
+                        width: 48,
+                        height: 40,
+                        borderRadius: 0,
                       },
                     ]}
                     resizeMode="contain"
@@ -298,13 +303,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
                     />
                   </View>
                 )}
-                <Text
-                  style={[
-                    styles.ingredientName,
-                    { color: theme.text },
-                    isPanjeeri && { fontSize: 12, lineHeight: 16 },
-                  ]}
-                >
+                <Text style={[styles.ingredientName, { color: theme.text }]}>
                   {ing.name}
                 </Text>
               </View>
@@ -346,7 +345,7 @@ export const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
               <Copy>
                 {prod.category === "energy_balls"
                   ? "Contains tree nuts, milk (ghee), and sesame."
-                  : "The supplied Panjeeri description includes nuts, ghee and khoya (milk). Confirm the full ingredient and allergen list, including wheat and sesame, with our team."}{" "}
+                  : "Contains tree nuts, wheat (semolina), and milk (ghee and khoya). Confirm the complete ingredient list for your selected recipe with our team."}{" "}
                 Cross-contact information is not confirmed; contact us if you
                 have an allergy.
               </Copy>

@@ -8,6 +8,12 @@ export function normalizeProduct(id, raw, fallback = {}) {
       : /panjeeri/i.test(raw.name || id)
         ? "panjeeri"
         : "energy_balls");
+  // Earlier imports used generic nuts/seeds cards; replace only that known placeholder list.
+  const placeholderIngredients =
+    category === "panjeeri" &&
+    raw.ingredients?.some((ingredient) => ingredient.slug === "nuts") &&
+    raw.ingredients?.some((ingredient) => ingredient.slug === "seeds") &&
+    fallback.ingredients?.some((ingredient) => ingredient.slug === "almonds");
   const variants = (raw.variants || []).map((value, index) => {
     const weight =
       value.weight ||
@@ -48,10 +54,14 @@ export function normalizeProduct(id, raw, fallback = {}) {
       raw.description ||
       "",
     ingredients:
+      !placeholderIngredients &&
       raw.ingredients?.length &&
       raw.ingredients.every((value) => typeof value === "object" && value.slug)
         ? raw.ingredients
         : fallback.ingredients || [],
+    ingredient_notes: placeholderIngredients
+      ? fallback.ingredient_notes
+      : raw.ingredient_notes || fallback.ingredient_notes || "",
     nutrition_facts: raw.nutrition_facts || fallback.nutrition_facts || [],
     storage_instructions:
       raw.storage_instructions || fallback.storage_instructions || "",

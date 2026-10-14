@@ -93,3 +93,39 @@ test("canonical sale-price removal never resurrects a legacy sale price", () => 
   assert.equal(product.variants[0].sale_price, null);
   assert.equal(product.legacy_stock, null);
 });
+
+test("generic Panjeeri cards upgrade to website ingredients without changing server prices", () => {
+  const fallback = {
+    ingredients: [
+      { slug: "almonds", name: "Almonds" },
+      { slug: "semolina", name: "Semolina" },
+    ],
+    ingredient_notes: "Website recipe",
+  };
+  const recipe = normalizeProduct(
+    "panjeeri",
+    {
+      category: "panjeeri",
+      active: true,
+      ingredients: [
+        { slug: "nuts", name: "Nuts" },
+        { slug: "seeds", name: "Seeds" },
+      ],
+      variants: [{ weight: "250g", regular_price: 1800 }],
+    },
+    fallback,
+  );
+  assert.deepEqual(recipe.ingredients, fallback.ingredients);
+  assert.equal(recipe.ingredient_notes, "Website recipe");
+  assert.equal(recipe.variants[0].regular_price, 1800);
+  assert.equal(recipe.active, true);
+  const published = [{ slug: "cashews", name: "Cashews" }];
+  assert.deepEqual(
+    normalizeProduct(
+      "panjeeri",
+      { category: "panjeeri", ingredients: published },
+      fallback,
+    ).ingredients,
+    published,
+  );
+});

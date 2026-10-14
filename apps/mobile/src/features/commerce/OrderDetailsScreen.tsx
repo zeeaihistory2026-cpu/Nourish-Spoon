@@ -1,4 +1,5 @@
 import { AppNavigation } from "../../navigation/types";
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useState } from "react";
 import { View, Linking } from "react-native";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
@@ -30,6 +31,7 @@ export function OrderDetailsScreen({
     [comment, setComment] = useState(""),
     [productId, setProductId] = useState(""),
     [busy, setBusy] = useState(false);
+  const form = useFormValidation();
   async function open(url: string) {
     try {
       await Linking.openURL(url);
@@ -39,10 +41,14 @@ export function OrderDetailsScreen({
   }
   async function review() {
     if (!order || busy) return;
-    if (!comment.trim()) {
-      setMessage("Write your review before submitting.");
+    if (
+      !form.validate(
+        comment.trim()
+          ? {}
+          : { comment: "Write your review before submitting." },
+      )
+    )
       return;
-    }
     setBusy(true);
     try {
       await call("submitReview", {
@@ -60,7 +66,11 @@ export function OrderDetailsScreen({
     }
   }
   return (
-    <Page title="Order Details" back={navigation.goBack}>
+    <Page
+      validationTick={form.validationTick}
+      title="Order Details"
+      back={navigation.goBack}
+    >
       {!!error && <Message>{error}</Message>}
       {loading && <Copy>Loading order…</Copy>}
       {!loading && !order && !error && (
@@ -163,7 +173,7 @@ export function OrderDetailsScreen({
                 multiline
                 maxLength={1000}
                 value={comment}
-                onChangeText={setComment}
+                {...form.bind("comment", setComment)}
               />
               <GreenButton
                 title={busy ? "Submitting…" : "Submit Review"}

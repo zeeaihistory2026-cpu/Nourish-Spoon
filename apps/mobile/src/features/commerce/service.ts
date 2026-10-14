@@ -1,3 +1,4 @@
+import { commerceEnabled } from "./availability";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import {
   collection,
@@ -28,6 +29,12 @@ function uid() {
 }
 export async function call<T>(name: string, data: unknown): Promise<T> {
   database();
+  if (!commerceEnabled)
+    throw new Error(
+      name === "quoteOrder"
+        ? "Offers and points are not activated yet. No discount has been applied."
+        : "Online ordering is not activated yet. Your cart is saved; send it on WhatsApp to place your order.",
+    );
   return (
     await httpsCallable(
       getFunctions(firebaseAuth!.app, "us-central1"),

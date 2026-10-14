@@ -165,9 +165,41 @@ export function ContactMoreScreen({
               </Text>
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={s.name}>
-                {account?.displayName || "Welcome, Guest"}
-              </Text>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+              >
+                {account && (
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="Edit Profile"
+                    onPress={() =>
+                      navigation.navigate("EditProfile", {
+                        profile: {
+                          uid: account.uid,
+                          fullName: account.displayName || "",
+                          phone,
+                        },
+                      })
+                    }
+                    style={{
+                      width: 44,
+                      height: 44,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: -10,
+                    }}
+                  >
+                    <Ionicons
+                      name="create-outline"
+                      size={20}
+                      color={c.primary}
+                    />
+                  </TouchableOpacity>
+                )}
+                <Text style={[s.name, { flex: 1 }]}>
+                  {account?.displayName || "Welcome, Guest"}
+                </Text>
+              </View>
               <Text style={{ fontSize: 13, color: c.textSecondary }}>
                 {account?.email || "Sign in for a personal experience"}
               </Text>
@@ -179,36 +211,8 @@ export function ContactMoreScreen({
               )}
             </View>
           </View>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            {account ? (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Edit Profile"
-                onPress={() =>
-                  navigation.navigate("EditProfile", {
-                    profile: {
-                      uid: account.uid,
-                      fullName: account.displayName || "",
-                      phone,
-                    },
-                  })
-                }
-                style={[
-                  s.profileButton,
-                  {
-                    borderColor: "#C9A84C",
-                    backgroundColor: c.isDark ? c.surface : "#FFFFFF",
-                  },
-                ]}
-              >
-                <Ionicons name="create-outline" size={17} color="#A6862A" />
-                <Text
-                  style={{ fontSize: 14, color: "#A6862A", fontWeight: "500" }}
-                >
-                  Edit Profile
-                </Text>
-              </TouchableOpacity>
-            ) : (
+          {!account && (
+            <View style={{ flexDirection: "row", gap: 10 }}>
               <>
                 <TouchableOpacity
                   accessibilityRole="button"
@@ -249,8 +253,8 @@ export function ContactMoreScreen({
                   </Text>
                 </TouchableOpacity>
               </>
-            )}
-          </View>
+            </View>
+          )}
         </View>
         <View
           style={[
@@ -282,62 +286,6 @@ export function ContactMoreScreen({
             </TouchableOpacity>
           ))}
         </View>
-        <Text style={s.section}>Get in Touch</Text>
-        <View
-          style={[
-            s.group,
-            {
-              backgroundColor: c.surface,
-              borderColor: c.isDark ? c.border : "#EFE3C2",
-            },
-          ]}
-        >
-          {[
-            {
-              label: "WhatsApp",
-              icon: "logo-whatsapp" as const,
-              url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
-            },
-            {
-              label: "Call",
-              icon: "call-outline" as const,
-              url: `tel:${settings.whatsapp_number}`,
-            },
-            {
-              label: "Email",
-              icon: "mail-outline" as const,
-              url: `mailto:${settings.contact_email}`,
-            },
-          ].map((item) => (
-            <TouchableOpacity
-              key={item.label}
-              accessibilityRole="button"
-              accessibilityLabel={item.label}
-              onPress={() => open(item.url)}
-              style={[
-                s.row,
-                {
-                  borderBottomWidth: 1,
-                  borderColor: c.isDark ? c.border : "#F3ECD8",
-                },
-              ]}
-            >
-              <Ionicons name={item.icon} size={22} color={c.primary} />
-              <Text style={s.label}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
-            </TouchableOpacity>
-          ))}
-          <View style={{ paddingHorizontal: 16, paddingVertical: 10 }}>
-            <Text
-              style={{ fontSize: 12, lineHeight: 18, color: c.textSecondary }}
-            >
-              {settings.business_address}
-              {"\n"}
-              {settings.business_hours}
-            </Text>
-          </View>
-        </View>
-        <Text style={s.section}>App Settings</Text>
         <View
           style={[
             s.group,
@@ -385,6 +333,53 @@ export function ContactMoreScreen({
               </View>
             </TouchableOpacity>
           </View>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 10,
+            justifyContent: "center",
+            paddingVertical: 4,
+          }}
+        >
+          {[
+            {
+              label: "WhatsApp",
+              icon: "logo-whatsapp" as const,
+              url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
+            },
+            {
+              label: "Call",
+              icon: "call-outline" as const,
+              url: `tel:${settings.whatsapp_number}`,
+            },
+            {
+              label: "Email",
+              icon: "mail-outline" as const,
+              url: `mailto:${settings.contact_email}`,
+            },
+          ].map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              accessibilityRole="button"
+              accessibilityLabel={item.label}
+              onPress={() => open(item.url)}
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: 54,
+                gap: 4,
+                borderRadius: 14,
+                backgroundColor: c.surface,
+                borderWidth: 1,
+                borderColor: c.border,
+              }}
+            >
+              <Ionicons name={item.icon} size={22} color={c.primary} />
+              <Text style={{ fontSize: 12 }}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
         {account && (
           <TouchableOpacity

@@ -1,3 +1,5 @@
+import { commerceEnabled } from "./availability";
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useState } from "react";
 import { Share, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -22,11 +24,17 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
   const [code, setCode] = useState(""),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false);
+  const form = useFormValidation();
   async function apply() {
-    if (busy || !code.trim()) {
-      setNotice("Enter your friend’s code.");
+    if (busy) return;
+    if (
+      !form.validate(
+        /^[A-Z0-9]{4,24}$/.test(code.trim().toUpperCase())
+          ? {}
+          : { code: "Enter a valid friend’s referral code." },
+      )
+    )
       return;
-    }
     setBusy(true);
     setNotice("");
     try {
@@ -41,6 +49,7 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
   }
   return (
     <Page
+      validationTick={form.validationTick}
       title="Refer & Earn"
       subtitle="Share something wholesome with a friend."
       back={navigation.goBack}
@@ -50,6 +59,20 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
       ) : (
         <>
           {!!error && <Message>{error}</Message>}
+          {!commerceEnabled && (
+            <Card>
+              <Heading>Refer & Earn 200 points</Heading>
+              <Copy>
+                Referral codes become available when rewards are activated. The
+                bonus is awarded after your friend’s first paid, delivered
+                order.
+              </Copy>
+              <GreenButton
+                title="Shop Products"
+                onPress={() => navigation.navigate("Products")}
+              />
+            </Card>
+          )}
           {account && (
             <>
               <Card>
@@ -131,7 +154,7 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
                     <Field
                       label="Friend’s referral code"
                       value={code}
-                      onChangeText={setCode}
+                      {...form.bind("code", setCode)}
                       autoCapitalize="characters"
                       maxLength={24}
                     />
@@ -146,7 +169,7 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
             </>
           )}
           {!!notice && <Message>{notice}</Message>}
-          {!account && (
+          {!account && commerceEnabled && (
             <GreenButton
               title={loading ? "Loading…" : "Try Again"}
               disabled={loading}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { AppScreen } from "../../navigation/types";
 import {
   View,
@@ -6,7 +6,10 @@ import {
   TextInput,
   TextInputProps,
   StyleSheet,
+  Animated,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useFieldShake } from "../../hooks/useFieldShake";
 import { TouchableOpacity } from "../../components/AppTouchable";
 import { Header } from "../../components/Header";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
@@ -17,17 +20,28 @@ export function Page({
   back,
   children,
   subtitle,
+  validationTick,
 }: {
   title: string;
   back: () => void;
   children: React.ReactNode;
   subtitle?: string;
+  validationTick?: number;
 }) {
   const { theme } = useMobileStore();
+  const scroll = useRef<ScrollView>(null);
+  useEffect(() => {
+    if (!validationTick) return;
+    const frame = requestAnimationFrame(() =>
+      scroll.current?.scrollTo({ y: 0, animated: false }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [validationTick]);
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <Header showBack onBack={back} rightAction="none" />
       <ScrollView
+        ref={scroll}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.page}
       >
@@ -84,26 +98,67 @@ export function Message({ children }: { children: React.ReactNode }) {
     </Text>
   );
 }
-export function Field({ label, ...props }: TextInputProps & { label: string }) {
+export function Field({
+  label,
+  error,
+  validationTick,
+  icon,
+  ...props
+}: TextInputProps & {
+  label: string;
+  error?: string;
+  validationTick?: number;
+  icon?: React.ComponentProps<typeof Ionicons>["name"];
+}) {
   const { theme } = useMobileStore();
+  const offset = useFieldShake(error, validationTick);
   return (
     <View style={{ marginBottom: 12 }}>
       <Text style={{ fontSize: 13, marginBottom: 5 }}>{label}</Text>
-      <TextInput
-        {...props}
-        accessibilityLabel={label}
-        placeholderTextColor={theme.textMuted}
-        style={[
-          styles.input,
-          {
-            color: theme.text,
-            borderColor: theme.border,
-            backgroundColor: theme.surface,
-          },
-          props.multiline && { height: 90, textAlignVertical: "top" },
-          props.style,
-        ]}
-      />
+      <Animated.View style={{ transform: [{ translateX: offset }] }}>
+        <View style={{ justifyContent: "center" }}>
+          {icon && (
+            <Ionicons
+              pointerEvents="none"
+              name={icon}
+              size={20}
+              color={theme.primary}
+              style={{ position: "absolute", left: 12, zIndex: 1 }}
+            />
+          )}
+          <TextInput
+            {...props}
+            accessibilityLabel={label}
+            aria-invalid={!!error}
+            placeholderTextColor={theme.textMuted}
+            style={[
+              styles.input,
+              {
+                color: theme.text,
+                borderColor: theme.border,
+                backgroundColor: theme.surface,
+              },
+              props.multiline && { height: 90, textAlignVertical: "top" },
+              props.style,
+              icon && { paddingLeft: 40 },
+              error && { borderColor: "#C62828", borderWidth: 1.5 },
+            ]}
+          />
+        </View>
+      </Animated.View>
+      {!!error && (
+        <Text
+          accessibilityRole="alert"
+          style={{
+            color: "#C62828",
+            fontSize: 12,
+            lineHeight: 17,
+            marginTop: 4,
+          }}
+        >
+          {error}
+        </Text>
+      )}
     </View>
   );
 }

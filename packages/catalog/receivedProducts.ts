@@ -7,6 +7,9 @@ export function createReceivedProducts(websiteProducts: Product[]): Product[] {
   const energy = websiteProducts.find(
     (product) => product.category === "energy_balls",
   )!;
+  const panjeeri = websiteProducts.find(
+    (product) => product.category === "panjeeri",
+  )!;
   const make = (
     id: string,
     name: string,
@@ -100,17 +103,14 @@ export function createReceivedProducts(websiteProducts: Product[]): Product[] {
       "Homemade Panjeeri with premium nuts, seeds, desi ghee, khoya and aromatic cardamom.";
     product.description = `${product.short_description} ${product.name.endsWith("without Sugar") ? "Without added sugar; naturally occurring sugars may remain." : "Classic recipe with added sugar."}`;
     product.ingredients = [
-      { id: "nuts", name: "Premium nuts", slug: "nuts", image_url: "" },
-      { id: "seeds", name: "Seeds", slug: "seeds", image_url: "" },
-      { id: "ghee", name: "Desi ghee", slug: "desi-ghee", image_url: "" },
+      ...panjeeri.ingredients.map((ingredient) => ({ ...ingredient })),
       { id: "khoya", name: "Khoya (milk)", slug: "khoya", image_url: "" },
-      { id: "cardamom", name: "Cardamom", slug: "cardamom", image_url: "" },
       ...(product.name.endsWith("without Sugar")
         ? []
         : [{ id: "sugar", name: "Added sugar", slug: "sugar", image_url: "" }]),
     ];
     product.ingredient_notes =
-      "Key ingredients named in the supplied catalogue. This is not the complete ingredient list; check your selected jar’s label or contact our team for the exact nuts, seeds and allergen information.";
+      "Panjeeri ingredients from nourishspoon.com, with khoya and the sugar option listed in your selected catalogue recipe. Check your jar’s label for the complete recipe and allergens.";
     product.nutrition_facts = [];
     product.storage_instructions =
       "Follow the storage instructions and date printed on your jar. Contact Nourish Spoon for this recipe’s confirmed shelf life.";

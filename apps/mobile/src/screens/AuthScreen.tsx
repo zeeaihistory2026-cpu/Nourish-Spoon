@@ -127,9 +127,15 @@ export function AuthScreen({
   const reset = async () => {
     if (busy) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setMessage(
-        "Enter your email address above to receive a password reset link.",
-      );
+      setErrors((previous) => ({
+        ...previous,
+        email: email.trim()
+          ? "Enter a valid email address."
+          : "Enter your email address.",
+      }));
+      setValidationTick((value) => value + 1);
+      emailRef.current?.focus();
+      setMessage("");
       return;
     }
     if (!configured()) return;

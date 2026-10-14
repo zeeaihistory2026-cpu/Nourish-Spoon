@@ -1,3 +1,5 @@
+import { commerceEnabled } from "./availability";
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Heading, Copy, Field, Message } from "./components";
 import { GreenButton } from "../../components/DesignPrimitives";
@@ -27,6 +29,7 @@ export function SavingsCard({
     [points, setPoints] = useCheckoutField("rewardPoints");
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
+  const form = useFormValidation();
   const signature = JSON.stringify([items, delivery, promo, points]);
   const current = useRef(signature);
   current.current = signature;
@@ -43,6 +46,17 @@ export function SavingsCard({
   }, [signature, onQuote]);
   async function apply() {
     if (busy) return;
+    const errors: Record<string, string> = {};
+    if (!promo.trim() && !points.trim())
+      errors.promo = "Enter a promo code or points to redeem.";
+    else if (
+      promo.trim() &&
+      !/^[A-Z0-9_-]{3,24}$/.test(promo.trim().toUpperCase())
+    )
+      errors.promo = "Enter a valid promo code.";
+    if (points.trim() && (!/^\d+$/.test(points.trim()) || Number(points) < 100))
+      errors.points = "Enter at least 100 whole points.";
+    if (!form.validate(errors)) return;
     setBusy(true);
     setMessage("");
     const requested = signature;
@@ -70,11 +84,16 @@ export function SavingsCard({
   }
   return (
     <Card>
-      <Heading>Promo & Points</Heading>
+      <Heading>Offers & Points</Heading>
+      <Copy>
+        {commerceEnabled
+          ? "PROMO10 · 10% off products."
+          : "PROMO10 · 10% off products. Offer activation pending."}
+      </Copy>
       <Field
         label="Promo code"
         value={promo}
-        onChangeText={setPromo}
+        {...form.bind("promo", setPromo)}
         autoCapitalize="characters"
         maxLength={24}
         placeholder="e.g. PROMO10"
@@ -82,7 +101,7 @@ export function SavingsCard({
       <Field
         label="Points to redeem"
         value={points}
-        onChangeText={setPoints}
+        {...form.bind("points", setPoints)}
         keyboardType="number-pad"
         maxLength={8}
         placeholder="Minimum 100 points"

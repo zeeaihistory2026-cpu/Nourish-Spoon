@@ -1,3 +1,4 @@
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
@@ -26,11 +27,13 @@ export function TrackOrderScreen({
   const { theme } = useMobileStore();
   const [number, setNumber] = useState(""),
     [message, setMessage] = useState("");
+  const form = useFormValidation();
   const active = items.filter(
     (order) => !["delivered", "cancelled"].includes(order.status),
   );
   return (
     <Page
+      validationTick={form.validationTick}
       title="Track Order"
       subtitle="Follow your order, from our kitchen to you."
       back={navigation.goBack}
@@ -44,7 +47,10 @@ export function TrackOrderScreen({
         <Field
           label="TCS consignment number"
           value={number}
+          error={form.errors.number}
+          validationTick={form.validationTick}
           onChangeText={(value) => {
+            form.clear("number");
             setNumber(value);
             setMessage("");
           }}
@@ -56,7 +62,11 @@ export function TrackOrderScreen({
           title="Track Shipment"
           onPress={() => {
             if (!/^\d{8,20}$/.test(number.trim())) {
-              setMessage("Enter a valid TCS consignment number (8–20 digits).");
+              form.validate({
+                number: number.trim()
+                  ? "Enter a valid TCS number (8–20 digits)."
+                  : "Enter your TCS consignment number.",
+              });
               return;
             }
             navigation.navigate("TcsTracking", {

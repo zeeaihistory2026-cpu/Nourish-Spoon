@@ -1,3 +1,6 @@
+import { Field } from "../features/commerce/components";
+import { addressErrors } from "../features/commerce/validateFields";
+import { useFormValidation } from "../hooks/useFormValidation";
 import { useInfoDialog } from "../components/InfoDialog";
 import { Text } from "../components/DesignPrimitives";
 import React, { useState } from "react";
@@ -68,31 +71,23 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
     setShowSizeDropdown(false);
   };
 
+  const form = useFormValidation();
   const handleSendOrder = async () => {
     if (!firebaseAuth?.currentUser || firebaseAuth.currentUser.isAnonymous) {
       onRequireSignIn();
       return;
     }
     if (
-      !customerName.trim() ||
-      !customerPhone.trim() ||
-      !deliveryAddress.trim() ||
-      !deliveryCity.trim()
-    ) {
-      showInfo(
-        "Missing Details",
-        "Please fill in your name, phone number, city and delivery address.",
-      );
+      !form.validate(
+        addressErrors({
+          name: customerName,
+          phone: customerPhone,
+          city: deliveryCity,
+          line: deliveryAddress,
+        }),
+      )
+    )
       return;
-    }
-
-    if (!/^(?:\+?92|0)?3\d{9}$/.test(customerPhone.replace(/[\s()-]/g, ""))) {
-      showInfo(
-        "Phone Number",
-        "Enter a valid Pakistani mobile number, for example 03001234567.",
-      );
-      return;
-    }
 
     const message = generateWhatsAppMessage({
       productName: currentProduct.name,
@@ -308,95 +303,36 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             </View>
           </View>
 
-          {/* Customer Name */}
-          <View style={styles.fieldRow}>
-            <Text style={[styles.inlineLabel, { color: theme.text }]}>
-              Your Name
-            </Text>
-            <TextInput
-              value={customerName}
-              onChangeText={setCustomerName}
-              accessibilityLabel="Your name"
-              placeholder="Full Name"
-              placeholderTextColor={theme.textMuted}
-              style={[
-                styles.inputBox,
-                {
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                  color: theme.text,
-                },
-              ]}
-            />
-          </View>
-
-          {/* Phone Number */}
-          <View style={styles.fieldRow}>
-            <Text style={[styles.inlineLabel, { color: theme.text }]}>
-              Phone Number
-            </Text>
-            <TextInput
-              accessibilityLabel="Phone number"
-              value={customerPhone}
-              onChangeText={setCustomerPhone}
-              placeholder="+92 300 1234567"
-              keyboardType="phone-pad"
-              placeholderTextColor={theme.textMuted}
-              style={[
-                styles.inputBox,
-                {
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                  color: theme.text,
-                },
-              ]}
-            />
-          </View>
-
-          <View style={styles.fieldRow}>
-            <Text style={[styles.inlineLabel, { color: theme.text }]}>
-              Delivery City
-            </Text>
-            <TextInput
-              accessibilityLabel="Delivery city"
-              value={deliveryCity}
-              onChangeText={setDeliveryCity}
-              placeholder="Enter your city"
-              maxLength={80}
-              autoCapitalize="words"
-              placeholderTextColor={theme.textMuted}
-              style={[
-                styles.inputBox,
-                {
-                  color: theme.text,
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                },
-              ]}
-            />
-          </View>
-
-          {/* Delivery Address */}
-          <View style={styles.fieldRow}>
-            <Text style={[styles.inlineLabel, { color: theme.text }]}>
-              Delivery Address
-            </Text>
-            <TextInput
-              accessibilityLabel="Delivery address"
-              value={deliveryAddress}
-              onChangeText={setDeliveryAddress}
-              placeholder="House, Street, Area"
-              placeholderTextColor={theme.textMuted}
-              style={[
-                styles.inputBox,
-                {
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                  color: theme.text,
-                },
-              ]}
-            />
-          </View>
+          <Field
+            label="Your name"
+            value={customerName}
+            {...form.bind("name", setCustomerName)}
+            autoComplete="name"
+            maxLength={80}
+          />
+          <Field
+            label="Phone number"
+            value={customerPhone}
+            {...form.bind("phone", setCustomerPhone)}
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            maxLength={30}
+          />
+          <Field
+            label="Delivery city"
+            value={deliveryCity}
+            {...form.bind("city", setDeliveryCity)}
+            placeholder="Enter your city"
+            maxLength={80}
+          />
+          <Field
+            label="Delivery address"
+            value={deliveryAddress}
+            {...form.bind("line", setDeliveryAddress)}
+            multiline
+            autoComplete="street-address"
+            maxLength={300}
+          />
 
           {/* Gift Order Toggle */}
           <View style={styles.giftToggleRow}>

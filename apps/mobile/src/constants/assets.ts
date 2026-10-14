@@ -18,6 +18,22 @@ export const ASSETS = {
   iconDeliveryFoodpanda: require("../../assets/icons/icon_delivery_foodpanda.png"),
   iconDeliveryPickup: require("../../assets/icons/icon_delivery_pickup.png"),
 
+  // Original icons from the live Panjeeri product page.
+  panjeeriIngredients: {
+    almonds: require("../../assets/website/ingredients/almonds.png"),
+    walnuts: require("../../assets/website/ingredients/walnuts.png"),
+    cashews: require("../../assets/website/ingredients/cashews.png"),
+    raisins: require("../../assets/website/ingredients/raisins.png"),
+    dry_dates: require("../../assets/website/ingredients/dates.png"),
+    cardamom: require("../../assets/website/ingredients/cardamom.png"),
+    coconut: require("../../assets/website/ingredients/coconut.png"),
+    semolina: require("../../assets/website/ingredients/semolina.png"),
+    desi_ghee: require("../../assets/website/ingredients/desi-ghee.png"),
+    lotus_seeds: require("../../assets/website/ingredients/lotus-seeds.png"),
+    pumpkin_seeds: require("../../assets/website/ingredients/pumpkin-seeds.png"),
+    sunflower_seeds: require("../../assets/website/ingredients/sunflower-seeds.png"),
+  },
+
   // Ingredients
   ingredients: {
     dry_dates: require("../../assets/design/dates.jpg"),

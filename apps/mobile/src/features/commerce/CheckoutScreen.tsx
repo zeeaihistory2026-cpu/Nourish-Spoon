@@ -1,3 +1,4 @@
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useEffect, useState } from "react";
 import { View, Switch, Linking } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
@@ -20,6 +21,7 @@ import { SavingsCard, SavingsQuote } from "./SavingsCard";
 import { useAccountData } from "./useAccountData";
 import { watchAddresses, placeOrder, commerceError } from "./service";
 import { useCheckoutField, clearCheckoutDraft } from "./checkoutDraft";
+import { addressErrors } from "./validateFields";
 import { firebaseAuth } from "../../services/firebase";
 import { formatPKR } from "@packages/utils";
 export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
@@ -48,6 +50,7 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
   useEffect(() => {
     if (!name && user?.displayName) setName(user.displayName);
   }, [user?.uid]);
+  const form = useFormValidation();
   const orderItems = cart.map((item) => ({
     product_id: item.product.id,
     variant_id: item.variant.id,
@@ -60,19 +63,15 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
   }));
   const subtotal = orderItems.reduce((sum, item) => sum + item.total_price, 0);
   function validAddress() {
-    if (![name, phone, city, line].every((value) => value.trim())) {
-      setError("Complete your name, mobile number, city and address.");
-      return false;
-    }
-    if (!/^(?:\+?92|0)?3\d{9}$/.test(phone.replace(/[\s()-]/g, ""))) {
-      setError("Enter a valid Pakistani mobile number.");
-      return false;
-    }
+    const errors = addressErrors({ name, phone, city, line });
     if (
       delivery === "sargodha_sameday" &&
       city.trim().toLowerCase() !== "sargodha"
-    ) {
-      setError("Choose TCS Nationwide for this city.");
+    )
+      errors.city = "Choose TCS Nationwide for this city.";
+    if (!form.validate(errors)) {
+      setStep(0);
+      setError("");
       return false;
     }
     setError("");
@@ -155,6 +154,7 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
   }
   return (
     <Page
+      validationTick={form.validationTick}
       title="Checkout"
       subtitle="Healthy choices. Brighter tomorrows."
       back={() => (step && !busy ? setStep(step - 1) : navigation.goBack())}
@@ -234,6 +234,7 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
                       phone === address.phone
                     }
                     onPress={() => {
+                      form.reset();
                       setName(address.name);
                       setPhone(address.phone);
                       setCity(address.city);
@@ -244,14 +245,14 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
                 <Field
                   label="Full name"
                   value={name}
-                  onChangeText={setName}
+                  {...form.bind("name", setName)}
                   autoComplete="name"
                   maxLength={80}
                 />
                 <Field
                   label="Mobile number"
                   value={phone}
-                  onChangeText={setPhone}
+                  {...form.bind("phone", setPhone)}
                   keyboardType="phone-pad"
                   autoComplete="tel"
                   maxLength={30}
@@ -260,14 +261,14 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
                   label="Delivery city"
                   placeholder="Enter your city"
                   value={city}
-                  onChangeText={setCity}
+                  {...form.bind("city", setCity)}
                   autoCapitalize="words"
                   maxLength={80}
                 />
                 <Field
                   label="Street address"
                   value={line}
-                  onChangeText={setLine}
+                  {...form.bind("line", setLine)}
                   placeholder="House, street and area"
                   autoComplete="street-address"
                   maxLength={300}

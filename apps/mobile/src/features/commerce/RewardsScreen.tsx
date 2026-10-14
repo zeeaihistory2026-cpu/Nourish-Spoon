@@ -1,3 +1,4 @@
+import { commerceEnabled } from "./availability";
 import React from "react";
 import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +21,23 @@ export function RewardsScreen({ navigation }: { navigation: AppNavigation }) {
       ) : (
         <>
           {!!error && <Message>{error}</Message>}
+          {!commerceEnabled && (
+            <Card>
+              <Heading>Rewards, coming soon</Heading>
+              <Copy>
+                Earn 1 point per Rs. 100 of products after discounts, once an
+                order is paid and delivered.
+              </Copy>
+              <Copy>
+                100 points = Rs. 100 off products. Refer a friend and earn 200
+                points after their first paid, delivered order.
+              </Copy>
+              <GreenButton
+                title="Shop Products"
+                onPress={() => navigation.navigate("Products")}
+              />
+            </Card>
+          )}
           {account && (
             <>
               <Card>
@@ -102,11 +120,13 @@ export function RewardsScreen({ navigation }: { navigation: AppNavigation }) {
               />
             </>
           )}
-          <GreenButton
-            title={loading ? "Loading points…" : "Refresh Points"}
-            disabled={loading}
-            onPress={refresh}
-          />
+          {commerceEnabled && (
+            <GreenButton
+              title={loading ? "Loading points…" : "Refresh Points"}
+              disabled={loading}
+              onPress={refresh}
+            />
+          )}
         </>
       )}
     </Page>

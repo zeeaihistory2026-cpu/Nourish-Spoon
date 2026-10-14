@@ -1,3 +1,4 @@
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useEffect, useRef, useState } from "react";
 import { View, useWindowDimensions } from "react-native";
 import { updateProfile } from "firebase/auth";
@@ -48,21 +49,19 @@ export function EditProfileScreen({
       active = false;
     };
   }, [user?.uid]);
+  const form = useFormValidation();
   async function save() {
     if (busy || !user) return;
     const cleanPhone = phone.trim();
+    const errors: Record<string, string> = {};
+    if (!name.trim()) errors.name = "Enter your full name.";
     if (
-      !name.trim() ||
-      (phoneEdited.current &&
-        cleanPhone &&
-        !/^(?:\+?92|0)?3\d{9}$/.test(cleanPhone.replace(/[\s()-]/g, "")))
-    ) {
-      showInfo(
-        "Check profile details",
-        "Enter your name and a valid Pakistani mobile number, or leave the number empty.",
-      );
-      return;
-    }
+      phoneEdited.current &&
+      cleanPhone &&
+      !/^(?:\+?92|0)?3\d{9}$/.test(cleanPhone.replace(/[\s()-]/g, ""))
+    )
+      errors.phone = "Enter a valid Pakistani mobile number.";
+    if (!form.validate(errors)) return;
     setBusy(true);
     setStatus("");
     try {
@@ -83,6 +82,7 @@ export function EditProfileScreen({
   }
   return (
     <Page
+      validationTick={form.validationTick}
       title="Edit Profile"
       subtitle="Your details, kept up to date."
       back={navigation.goBack}
@@ -95,7 +95,8 @@ export function EditProfileScreen({
           <Field
             label="Full name"
             value={name}
-            onChangeText={setName}
+            {...form.bind("name", setName)}
+            icon="create-outline"
             maxLength={80}
             autoComplete="name"
           />
@@ -107,7 +108,10 @@ export function EditProfileScreen({
           <Field
             label="Mobile number (optional)"
             value={phone}
+            error={form.errors.phone}
+            validationTick={form.validationTick}
             onChangeText={(value) => {
+              form.clear("phone");
               phoneEdited.current = true;
               setPhone(value);
               setStatus("");

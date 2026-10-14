@@ -1,3 +1,5 @@
+import { commerceEnabled } from "./availability";
+import { useCheckoutField } from "./checkoutDraft";
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
@@ -11,6 +13,7 @@ import { Page, Card, Heading, Copy } from "./components";
 export function CartScreen({ navigation }: { navigation: AppNavigation }) {
   const { cart, products, updateQuantity, removeFromCart, theme } =
     useMobileStore();
+  const [, setPromo] = useCheckoutField("promoCode");
   const unavailable = cart.some(
     (item) =>
       !products.some(
@@ -124,6 +127,37 @@ export function CartScreen({ navigation }: { navigation: AppNavigation }) {
               </View>
             </Card>
           ))}
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="View PROMO10 offer at checkout"
+            onPress={() => {
+              setPromo("PROMO10");
+              navigation.navigate("Checkout");
+            }}
+            style={{
+              borderWidth: 1,
+              borderStyle: "dashed",
+              borderColor: theme.border,
+              borderRadius: 14,
+              padding: 14,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
+            <Ionicons name="pricetag-outline" size={24} color={theme.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontWeight: "700", fontSize: 15 }}>
+                PROMO10 · 10% off products
+              </Text>
+              <Copy>
+                {commerceEnabled
+                  ? "Apply at checkout"
+                  : "Offer activation pending"}
+              </Copy>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.primary} />
+          </TouchableOpacity>
           <Card>
             <Heading>Order Summary</Heading>
             <View style={s.totalRow}>

@@ -7,6 +7,18 @@ import {
 } from "@packages/catalog/websiteSnapshot";
 import { normalizeProduct } from "@packages/catalog/normalizeProduct";
 import { Review } from "@packages/types";
+function matchesProduct(
+  product: (typeof INITIAL_PRODUCTS)[number],
+  id: string,
+  raw: { slug?: string; name?: string },
+) {
+  return (
+    product.id === id ||
+    (!!raw.slug && product.slug === raw.slug) ||
+    (!!raw.name &&
+      product.name.trim().toLowerCase() === raw.name.trim().toLowerCase())
+  );
+}
 export function subscribeCatalogue() {
   if (!db) return () => {};
   const products = onSnapshot(
@@ -23,9 +35,8 @@ export function subscribeCatalogue() {
           normalizeProduct(
             doc.id,
             doc.data(),
-            INITIAL_PRODUCTS.find(
-              (product) =>
-                product.id === doc.id || product.slug === doc.data().slug,
+            INITIAL_PRODUCTS.find((product) =>
+              matchesProduct(product, doc.id, doc.data()),
             ),
           ),
         )
@@ -35,9 +46,8 @@ export function subscribeCatalogue() {
       const products = [
         ...INITIAL_PRODUCTS.filter(
           (product) =>
-            !snapshot.docs.some(
-              (doc) =>
-                doc.id === product.id || doc.data().slug === product.slug,
+            !snapshot.docs.some((doc) =>
+              matchesProduct(product, doc.id, doc.data()),
             ),
         ),
         ...published,

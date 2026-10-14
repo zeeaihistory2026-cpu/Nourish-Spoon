@@ -1,0 +1,74 @@
+[
+  {
+    "slug": "almonds",
+    "source": "http://nourishspoon.com/assets/images/premium-almonds.png",
+    "bytes": 263701,
+    "sha256": "50fac62c48e424f0c86de928c711a7ccf82de828003395cd8b4e1ce6cfbb98e2"
+  },
+  {
+    "slug": "walnuts",
+    "source": "http://nourishspoon.com/assets/images/premium-walnuts.png",
+    "bytes": 128056,
+    "sha256": "756d773b257b03224b5e69773ea54ec86d94af09eee6b53f3427496bb0485334"
+  },
+  {
+    "slug": "cashews",
+    "source": "http://nourishspoon.com/assets/images/premium-cashews.png",
+    "bytes": 280536,
+    "sha256": "7229d6764cc825db7254df0b68069c36f3c8803233a1c4b6de12c99564ed23fd"
+  },
+  {
+    "slug": "raisins",
+    "source": "http://nourishspoon.com/assets/images/premium-raisins.png",
+    "bytes": 300040,
+    "sha256": "fbd25b0a1361e4368d4a310b5ff12a298e7e823ace06a4ca15c0cdf3f1248195"
+  },
+  {
+    "slug": "dates",
+    "source": "http://nourishspoon.com/assets/images/premium-dates.png",
+    "bytes": 270519,
+    "sha256": "31d1cf353b1bd9fb7ad67c1a392dfd85e6c44f1a58f55c9b02c0542be4142839"
+  },
+  {
+    "slug": "cardamom",
+    "source": "http://nourishspoon.com/assets/images/premium-cardamom.png",
+    "bytes": 292082,
+    "sha256": "d6523392483cff66c137a7dad8e65c9add25ff6fa14d7055ad6feee655b419fa"
+  },
+  {
+    "slug": "coconut",
+    "source": "http://nourishspoon.com/assets/images/premium-coconut.png",
+    "bytes": 279273,
+    "sha256": "b5a1f8c98a05079b476e86bf11e033daab46660b7a9950cb88d6d2914028285b"
+  },
+  {
+    "slug": "semolina",
+    "source": "http://nourishspoon.com/assets/images/premium-semolina.png",
+    "bytes": 279286,
+    "sha256": "1522ef378a9848c995f4210a1bad51d217b0eed201b0216f4a17f5e38c41786e"
+  },
+  {
+    "slug": "desi-ghee",
+    "source": "http://nourishspoon.com/assets/images/premium-desi-ghee.png",
+    "bytes": 273781,
+    "sha256": "690d05efb96f34fa725762bfb6e504817975466f5827a188a6cb1da9d72d8926"
+  },
+  {
+    "slug": "lotus-seeds",
+    "source": "http://nourishspoon.com/assets/images/premium-lotus-seeds.png",
+    "bytes": 316383,
+    "sha256": "00d0340ac87db7a66594b1ee007c3812a0aa14feb1c796ba84a51389a79e3825"
+  },
+  {
+    "slug": "pumpkin-seeds",
+    "source": "http://nourishspoon.com/assets/images/premium-pumpkin-seeds.png",
+    "bytes": 322224,
+    "sha256": "77f6499361ea6029b62d41f9a8a36bdbbafef3cc28683c73fbe18fb15a4edea2"
+  },
+  {
+    "slug": "sunflower-seeds",
+    "source": "http://nourishspoon.com/assets/images/premium-sunflower-seeds.png",
+    "bytes": 131603,
+    "sha256": "6d2fef62823775eee8a56f670484754194d3102ab5e1179927949327cd988e8b"
+  }
+]

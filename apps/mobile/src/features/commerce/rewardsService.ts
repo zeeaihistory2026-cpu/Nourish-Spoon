@@ -1,3 +1,4 @@
+import { commerceEnabled, rewardsPending } from "./availability";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth } from "../../services/firebase";
@@ -43,6 +44,12 @@ export function useRewardsAccount() {
     const request = ++serial.current;
     if (!user) {
       setAccount(null);
+      return;
+    }
+    if (!commerceEnabled) {
+      setAccount(null);
+      setLoading(false);
+      setError(rewardsPending);
       return;
     }
     setLoading(true);

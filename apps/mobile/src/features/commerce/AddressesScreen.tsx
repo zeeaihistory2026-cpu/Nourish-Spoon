@@ -1,4 +1,5 @@
 import { AppNavigation } from "../../navigation/types";
+import { useFormValidation } from "../../hooks/useFormValidation";
 import React, { useState } from "react";
 import { GreenButton } from "../../components/DesignPrimitives";
 import {
@@ -16,6 +17,7 @@ import {
   removeAddress,
   commerceError,
 } from "./service";
+import { addressErrors } from "./validateFields";
 import { useAccountData } from "./useAccountData";
 export function AddressesScreen({ navigation }: { navigation: AppNavigation }) {
   const { user, items, error, loading } = useAccountData(watchAddresses);
@@ -27,15 +29,11 @@ export function AddressesScreen({ navigation }: { navigation: AppNavigation }) {
   const [editing, setEditing] = useState<string | undefined>(),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
+  const form = useFormValidation();
   async function save() {
     if (busy) return;
-    if (
-      ![label, name, city, line].every((value) => value.trim()) ||
-      !/^(?:\+?92|0)?3\d{9}$/.test(phone.replace(/[\s()-]/g, ""))
-    ) {
-      setMessage(
-        "Complete all fields and use a valid Pakistani mobile number.",
-      );
+    if (!form.validate(addressErrors({ label, name, phone, city, line }))) {
+      setMessage("");
       return;
     }
     setBusy(true);
@@ -63,7 +61,11 @@ export function AddressesScreen({ navigation }: { navigation: AppNavigation }) {
     }
   }
   return (
-    <Page title="Saved Addresses" back={navigation.goBack}>
+    <Page
+      validationTick={form.validationTick}
+      title="Saved Addresses"
+      back={navigation.goBack}
+    >
       {!user ? (
         <AccountGate navigate={navigation.navigate} />
       ) : (
@@ -82,6 +84,7 @@ export function AddressesScreen({ navigation }: { navigation: AppNavigation }) {
                 title="Edit Address"
                 disabled={busy}
                 onPress={() => {
+                  form.reset();
                   setEditing(address.id);
                   setLabel(address.label);
                   setName(address.name);
@@ -112,19 +115,19 @@ export function AddressesScreen({ navigation }: { navigation: AppNavigation }) {
             <Field
               label="Address label"
               value={label}
-              onChangeText={setLabel}
+              {...form.bind("label", setLabel)}
               maxLength={40}
             />
             <Field
               label="Full name"
               value={name}
-              onChangeText={setName}
+              {...form.bind("name", setName)}
               maxLength={80}
             />
             <Field
               label="Mobile number"
               value={phone}
-              onChangeText={setPhone}
+              {...form.bind("phone", setPhone)}
               keyboardType="phone-pad"
               maxLength={30}
             />
@@ -132,13 +135,13 @@ export function AddressesScreen({ navigation }: { navigation: AppNavigation }) {
               label="City"
               placeholder="Enter any city"
               value={city}
-              onChangeText={setCity}
+              {...form.bind("city", setCity)}
               maxLength={80}
             />
             <Field
               label="Street address"
               value={line}
-              onChangeText={setLine}
+              {...form.bind("line", setLine)}
               multiline
               maxLength={300}
             />
