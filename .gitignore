@@ -33,6 +33,9 @@ apps/mobile/android/.kotlin/
 
 apps/mobile/dist-*/
 artifacts/
+# Local handover documents and rendered review files
+output/
+tmp/
 # Release keys are kept outside Expo's regenerated native folders.
 private-signing/
 functions/lib/

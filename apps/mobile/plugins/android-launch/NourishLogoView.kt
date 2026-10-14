@@ -27,7 +27,7 @@ class NourishLogoView @JvmOverloads constructor(
     List(records.length()) { index ->
       val record = records.getJSONObject(index)
       val path = requireNotNull(PathParser.createPathFromPathData(record.getString("d")))
-      Stroke(path, PathMeasure(path, false), if (record.getBoolean("tm")) 1.28f else 2.4f)
+      Stroke(path, PathMeasure(path, false), if (record.getBoolean("tm")) 1.35f else 2.4f)
     }
   }
   private val totalLength = strokes.sumOf { it.measure.length.toDouble() }.toFloat()

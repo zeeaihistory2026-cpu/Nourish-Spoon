@@ -2,6 +2,8 @@
 
 Target project: `nourish-spoon-f4820`. Firestore security rules were compiled and deployed on October 14, 2026, with explicit owner approval. Firebase CLI authorization is configured. Cloud Functions remain undeployed because the owner requested billing stay disabled. The admin dashboard currently runs locally; it has not been published to a public dashboard URL.
 
+Later read-only handover audit on October 14: the live Firestore policy differs from this repository's prepared rules and lacks its admin custom-claim check. The owner can sign in, but data panels show permission warnings. Review the current policy and obtain owner authorization before replacing it, then retest owner access and customer privacy. The earlier successful deployment is not proof that the current live policy still matches the source.
+
 1. Install dependencies in `functions` and `tooling`. Use a Node version supported by Firebase CLI; deployed Functions use Node 22.
 2. Sign in using the Google account that owns the Firebase project: `node tooling/node_modules/firebase-tools/lib/bin/firebase.js login`.
 3. Review Firebase billing requirements for Cloud Functions. Do not enable or upgrade billing without the owner's decision.
