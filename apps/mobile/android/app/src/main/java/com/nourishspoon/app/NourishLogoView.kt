@@ -15,9 +15,10 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.graphics.PathParser
+import androidx.core.content.res.ResourcesCompat
 import org.json.JSONArray
 
-/** Fixed artwork; only the visible length of each gold stroke changes. */
+/** Fixed gold mark with a one-second, letter-by-letter script wordmark. */
 class NourishLogoView @JvmOverloads constructor(
   context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs) {
@@ -38,6 +39,17 @@ class NourishLogoView @JvmOverloads constructor(
     strokeJoin = Paint.Join.ROUND
   }
   private val segment = Path()
+  private val wordmark = "Nourish Spoon"
+  private val wordmarkPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
+    color = Color.rgb(201, 168, 76)
+    typeface = requireNotNull(ResourcesCompat.getFont(context, R.font.nourish_launch_script))
+    textSize = 34f
+    isFakeBoldText = true
+    style = Paint.Style.FILL
+  }
+  // Anchor to the complete phrase, not the changing prefix, to prevent sideways movement.
+  private val wordmarkLeft = (224f - wordmarkPaint.measureText(wordmark)) / 2f
+  private var visibleLetters = 0
   private var amount = 0f
   private var animator: ValueAnimator? = null
   private var started = false
@@ -54,12 +66,13 @@ class NourishLogoView @JvmOverloads constructor(
       Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
     }
     if (!enabled) { finish(); return }
-    animator = ValueAnimator.ofFloat(0f, 2000f).apply {
-      duration = 2000L
+    animator = ValueAnimator.ofFloat(0f, 3000f).apply {
+      duration = 3000L
       interpolator = LinearInterpolator()
       addUpdateListener { animation ->
         val elapsed = animation.animatedValue as Float
         amount = ease((elapsed / 1400f).coerceIn(0f, 1f))
+        visibleLetters = (((elapsed - 1400f) / 1000f) * wordmark.length).toInt().coerceIn(0, wordmark.length)
         invalidate()
       }
       addListener(object : AnimatorListenerAdapter() {
@@ -72,6 +85,7 @@ class NourishLogoView @JvmOverloads constructor(
   private fun ease(progress: Float) = progress * progress * (3f - 2f * progress)
   private fun finish() {
     amount = 1f
+    visibleLetters = wordmark.length
     complete = true
     invalidate()
     val callback = whenFinished
@@ -82,8 +96,8 @@ class NourishLogoView @JvmOverloads constructor(
   override fun onDraw(canvas: Canvas) {
     super.onDraw(canvas)
     val save = canvas.save()
-    val scale = minOf(width, height) / 224f
-    canvas.translate((width - 224f * scale) / 2f, (height - 224f * scale) / 2f)
+    val scale = minOf(width / 224f, height / 264f)
+    canvas.translate((width - 224f * scale) / 2f, (height - 264f * scale) / 2f)
     canvas.scale(scale, scale)
     var remaining = amount * totalLength
     for (stroke in strokes) {
@@ -97,6 +111,10 @@ class NourishLogoView @JvmOverloads constructor(
         canvas.drawPath(segment, paint)
       }
       remaining -= length
+    }
+    if (visibleLetters > 0) {
+      // Keep the full shaping context as letters appear, preserving script joins and kerning.
+      canvas.drawTextRun(wordmark, 0, visibleLetters, 0, wordmark.length, wordmarkLeft, 224f, false, wordmarkPaint)
     }
     canvas.restoreToCount(save)
   }
