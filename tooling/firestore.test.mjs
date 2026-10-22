@@ -42,6 +42,31 @@ before(async () => {
 after(async () => {
   await env?.cleanup();
 });
+test("profile photos stay private and review photos follow approval without client writes", async () => {
+  const profile = "users/alice/media/profile",
+    review = "reviews/r/media/photo";
+  await env.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), profile), { data: "private photo" });
+    await setDoc(doc(context.firestore(), review), {
+      data: "pending review photo",
+    });
+  });
+  const alice = env.authenticatedContext("alice").firestore();
+  const bob = env.authenticatedContext("bob").firestore();
+  await assertSucceeds(getDoc(doc(alice, profile)));
+  await assertFails(getDoc(doc(bob, profile)));
+  await assertFails(setDoc(doc(alice, profile), { data: "unvalidated photo" }));
+  await assertSucceeds(getDoc(doc(alice, review)));
+  await assertFails(getDoc(doc(bob, review)));
+  await assertFails(setDoc(doc(alice, review), { data: "unvalidated photo" }));
+  await env.withSecurityRulesDisabled((context) =>
+    updateDoc(doc(context.firestore(), "reviews/r"), { status: "approved" }),
+  );
+  await assertSucceeds(getDoc(doc(bob, review)));
+  await env.withSecurityRulesDisabled((context) =>
+    updateDoc(doc(context.firestore(), "reviews/r"), { status: "pending" }),
+  );
+});
 test("reward wallets are private and customers cannot credit points or create promos", async () => {
   await env.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), "rewardWallets/alice"), {

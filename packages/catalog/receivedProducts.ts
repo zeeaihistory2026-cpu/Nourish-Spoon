@@ -100,17 +100,13 @@ export function createReceivedProducts(websiteProducts: Product[]): Product[] {
     (item) => item.category === "panjeeri",
   )) {
     product.short_description =
-      "Homemade Panjeeri with premium nuts, seeds, desi ghee, khoya and aromatic cardamom.";
+      "Homemade Panjeeri with premium nuts, seeds, desi ghee and aromatic cardamom.";
     product.description = `${product.short_description} ${product.name.endsWith("without Sugar") ? "Without added sugar; naturally occurring sugars may remain." : "Classic recipe with added sugar."}`;
     product.ingredients = [
-      ...panjeeri.ingredients.map((ingredient) => ({ ...ingredient })),
-      { id: "khoya", name: "Khoya (milk)", slug: "khoya", image_url: "" },
-      ...(product.name.endsWith("without Sugar")
-        ? []
-        : [{ id: "sugar", name: "Added sugar", slug: "sugar", image_url: "" }]),
+      ...(panjeeri.ingredients || []).map((ingredient) => ({ ...ingredient })),
     ];
     product.ingredient_notes =
-      "Panjeeri ingredients from nourishspoon.com, with khoya and the sugar option listed in your selected catalogue recipe. Check your jar’s label for the complete recipe and allergens.";
+      "Check your jar’s label for the complete recipe and allergens for your selected Panjeeri sugar option.";
     product.nutrition_facts = [];
     product.storage_instructions =
       "Follow the storage instructions and date printed on your jar. Contact Nourish Spoon for this recipe’s confirmed shelf life.";

@@ -1,9 +1,9 @@
 import { commerceEnabled } from "./availability";
 import { useFormValidation } from "../../hooks/useFormValidation";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Share, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import {
@@ -73,7 +73,10 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
               />
             </Card>
           )}
-          {account && (
+          {account && !account.config.referrals_enabled && (
+            <Message>The referral program is currently paused.</Message>
+          )}
+          {account && account.config.referrals_enabled && (
             <>
               <Card>
                 <Ionicons
@@ -81,10 +84,13 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
                   size={32}
                   color={theme.primary}
                 />
-                <Heading>Earn {account.config.referral_points} points</Heading>
+                <Heading>
+                  {account.referral_program?.headline ||
+                    `Earn ${account.config.referral_points} points`}
+                </Heading>
                 <Copy>
-                  Your friend enters your code before their first order. You
-                  earn the bonus when their first order is paid and delivered.
+                  {account.referral_program?.copy ||
+                    "Your friend enters your code before their first order. You earn the bonus when their first order is paid and delivered."}
                 </Copy>
                 <View
                   style={{
@@ -136,6 +142,12 @@ export function ReferralsScreen({ navigation }: { navigation: AppNavigation }) {
                   }}
                 />
               </Card>
+              {!!account.referral_program?.terms && (
+                <Card>
+                  <Heading>Program terms</Heading>
+                  <Copy>{account.referral_program.terms}</Copy>
+                </Card>
+              )}
               <Card>
                 <Heading>Have a friend’s code?</Heading>
                 {account.referred_by ? (

@@ -1,8 +1,8 @@
 import { useFormValidation } from "../../hooks/useFormValidation";
-import React, { useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import {
   Page,

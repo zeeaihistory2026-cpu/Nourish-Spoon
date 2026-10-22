@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
 import { AppNavigation } from "../../navigation/types";
@@ -11,7 +11,7 @@ import {
   AccountGate,
   Choice,
 } from "./components";
-import { Text } from "../../components/DesignPrimitives";
+import { Text, PriceText } from "../../components/DesignPrimitives";
 import { watchOrders } from "./service";
 import { useAccountData } from "./useAccountData";
 import { useMobileStore } from "../../services/storeService";
@@ -87,11 +87,11 @@ export function OrdersScreen({ navigation }: { navigation: AppNavigation }) {
               </View>
               <Copy>{new Date(order.created_at).toLocaleDateString()}</Copy>
               <OrderItems items={order.items} />
-              <Text style={{ fontWeight: "700" }}>
+              <PriceText style={{ fontWeight: "700" }}>
                 {order.total == null
                   ? `Products ${formatPKR(order.subtotal)} · delivery quote pending`
                   : `Total ${formatPKR(order.total)}`}
-              </Text>
+              </PriceText>
               <View style={{ flexDirection: "row", gap: 8 }}>
                 {[
                   { title: "View Details", route: "OrderDetails" as const },

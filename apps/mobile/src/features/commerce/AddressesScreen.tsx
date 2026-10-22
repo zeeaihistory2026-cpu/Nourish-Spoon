@@ -1,6 +1,6 @@
 import { AppNavigation } from "../../navigation/types";
 import { useFormValidation } from "../../hooks/useFormValidation";
-import React, { useState } from "react";
+import { useState } from "react";
 import { GreenButton } from "../../components/DesignPrimitives";
 import {
   Page,

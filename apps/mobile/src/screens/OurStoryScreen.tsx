@@ -1,4 +1,3 @@
-import React from "react";
 import {
   View,
   ScrollView,
@@ -6,58 +5,43 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Header } from "../components/Header";
 import { Text, ART, Botanical } from "../components/DesignPrimitives";
-import { useStore } from "../services/storeService";
-const steps = [
-  [
-    "leaf",
-    "Source Premium Ingredients",
-    "We carefully select the finest nuts, dates and natural ingredients.",
-  ],
-  [
-    "bowl-mix-outline",
-    "Prepare Fresh",
-    "Our traditional family recipes are prepared in small batches for the best taste.",
-  ],
-  [
-    "bottle-tonic-outline",
-    "Pack Airtight",
-    "Hygienically packed to lock in freshness and natural nutrition.",
-  ],
-  [
-    "truck-outline",
-    "Deliver to You",
-    "Freshly made and delivered direct to your doorstep across Pakistan.",
-  ],
-];
-const values = [
-  [
-    "shield-check-outline",
-    "Quality First",
-    "Only the best ingredients make it to our jars.",
-  ],
-  [
-    "sprout-outline",
-    "Honest Nutrition",
-    "Real ingredients. No shortcuts. No refined sugar.",
-  ],
-  [
-    "heart-outline",
-    "Made with Love",
-    "Crafted with care, just like our family recipes.",
-  ],
-  ["leaf", "Natural Always", "100% natural, wholesome ingredients."],
-  [
-    "account-group-outline",
-    "Transparent",
-    "We believe in honesty, from our kitchen to your home.",
-  ],
-];
-export function OurStoryScreen({ navigation }: { navigation: any }) {
-  const { currentTheme: c } = useStore();
-  const { width } = useWindowDimensions();
+import { useMobileStore } from "../services/storeService";
+import { AppNavigation } from "../navigation/types";
+import { FOUNDER_STORY } from "@packages/catalog/websiteSnapshot";
+const processIcons = [
+  "leaf",
+  "bowl-mix-outline",
+  "bottle-tonic-outline",
+  "truck-outline",
+] as const;
+const valueIcons = [
+  "shield-check-outline",
+  "sprout-outline",
+  "heart-outline",
+  "leaf",
+  "account-group-outline",
+] as const;
+const steps = FOUNDER_STORY.process.map((step, index) => [
+  processIcons[index] || "leaf",
+  step.title,
+  step.desc,
+]);
+const values = FOUNDER_STORY.values.map((value, index) => [
+  valueIcons[index] || "leaf",
+  value.title,
+  value.desc,
+]);
+export function OurStoryScreen({ navigation }: { navigation: AppNavigation }) {
+  const { theme: c } = useMobileStore();
+  const { width, fontScale } = useWindowDimensions();
+  const founderImageHeight = width / 1.67;
+  const founderHeight = Math.max(
+    founderImageHeight,
+    Math.ceil(190 * fontScale),
+  );
   const grid = (items: string[][]) => (
     <View style={s.grid}>
       {items.map(([icon, title, description]) => (
@@ -95,24 +79,61 @@ export function OurStoryScreen({ navigation }: { navigation: any }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
-        <Image
-          source={ART.founder}
-          accessibilityLabel="Tayyaba preparing ingredients: We make every jar as if it’s going to our own family."
-          style={{ width: "100%", height: width / 1.67 }}
-          resizeMode="contain"
-        />
+        <View
+          style={[
+            s.founderHero,
+            { minHeight: founderHeight, backgroundColor: c.surfaceWarm },
+          ]}
+        >
+          <View style={s.founderPhoto}>
+            <Image
+              source={ART.founder}
+              accessibilityLabel={`${FOUNDER_STORY.founder_name} preparing ingredients`}
+              style={{
+                width: "100%",
+                height: founderImageHeight,
+              }}
+              resizeMode="cover"
+            />
+          </View>
+          <View
+            style={[
+              s.founderCard,
+              {
+                backgroundColor: c.isDark ? c.surface : "#FFF8E2",
+                borderColor: c.goldWarm,
+                top: width * 0.045,
+                minHeight: Math.max(156, founderImageHeight * 0.74),
+              },
+            ]}
+          >
+            <MaterialCommunityIcons
+              name="format-quote-open"
+              size={18}
+              color={c.gold}
+            />
+            <Text style={[s.founderQuote, { color: c.text }]}>
+              {FOUNDER_STORY.quote}
+            </Text>
+            <View style={[s.quoteDivider, { backgroundColor: c.gold }]} />
+            <Text style={[s.founderName, { color: c.text }]}>
+              {FOUNDER_STORY.founder_name}
+            </Text>
+            <Text style={[s.founderDetail, { color: c.textSecondary }]}>
+              {FOUNDER_STORY.title}
+            </Text>
+            <Text style={[s.founderDetail, { color: c.textSecondary }]}>
+              {FOUNDER_STORY.location}
+            </Text>
+          </View>
+        </View>
         <View style={s.narrative}>
           <Botanical />
           <Text style={[s.heading, { color: c.text }]}>
-            A Story of Family, Food & Purpose
+            {FOUNDER_STORY.story_heading}
           </Text>
           <Text style={[s.body, { color: c.textSecondary }]}>
-            Nourish Spoon was born from recipes passed down from my mother and
-            grandmother — timeless traditions made with real, natural
-            ingredients. What started in our home kitchen in Sargodha has grown
-            into a mission to share the same warmth, nourishment and goodness
-            with families across Pakistan. Every jar carries a piece of our
-            family’s love, crafted for yours.
+            {FOUNDER_STORY.story_body}
           </Text>
         </View>
         <View style={[s.section, { backgroundColor: c.surfaceWarm }]}>
@@ -132,6 +153,40 @@ export function OurStoryScreen({ navigation }: { navigation: any }) {
   );
 }
 const s = StyleSheet.create({
+  founderHero: {
+    overflow: "hidden",
+  },
+  founderPhoto: {
+    width: "100%",
+  },
+  founderCard: {
+    position: "absolute",
+    right: 0,
+    width: "49%",
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 12,
+    shadowColor: "#4D351B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  founderQuote: {
+    fontFamily: "serif",
+    fontStyle: "italic",
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  quoteDivider: { width: 28, height: 1, marginVertical: 8 },
+  founderName: {
+    fontFamily: "serif",
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: "700",
+    marginBottom: 3,
+  },
+  founderDetail: { fontSize: 10, lineHeight: 14 },
   narrative: { padding: 20 },
   heading: {
     fontFamily: "serif",

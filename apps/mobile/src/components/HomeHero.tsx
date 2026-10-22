@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AccessibilityInfo,
   AppState,
@@ -9,29 +9,33 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Text } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
+import { BUTTON_COLORS, BUTTON_OUTLINE } from "../constants/theme";
 
 const scenes = [
   {
-    image: require("../../assets/hero/panjeeri.png"),
+    image: require("../../assets/hero/panjeeri-v2.png"),
     label: "Homemade Panjeeri",
-    heading: "Traditional\nPanjeeri",
+    heading: "Traditional",
+    accent: "Panjeeri",
     subtitle: "Pure ingredients.\nReal nutrition.",
     category: "panjeeri",
   },
   {
-    image: require("../../assets/hero/energy-balls.png"),
+    image: require("../../assets/hero/energy-balls-v2.png"),
     label: "Date-nut energy balls and wholesome ingredients",
-    heading: "Date & Nuts\nEnergy Balls",
+    heading: "Date & Nuts",
+    accent: "Energy Balls",
     subtitle: "Natural energy.\nHandcrafted with love.",
     category: "energy_balls",
   },
   {
-    image: require("../../assets/hero/ingredients.png"),
+    image: require("../../assets/hero/ingredients-v2.png"),
     label: "Wholesome nuts and dates",
-    heading: "Wholesome\nIngredients",
+    heading: "Wholesome",
+    accent: "Ingredients",
     subtitle: "Premium nuts & dates.\nPure, naturally yours.",
     category: "all",
   },
@@ -50,8 +54,6 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
       AppState.currentState !== "inactive",
   );
   const lastInteraction = useRef(0);
-  const height = Math.max(228, Math.ceil(220 * fontScale));
-  const imageHeight = Math.min(height, width / 2);
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
       .then(setReduceMotion)
@@ -78,93 +80,79 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
     return () => clearInterval(timer);
   }, [ready, reduceMotion, foreground]);
   const gradient: readonly [string, string, string] = [
-    "#F5EADB",
-    "rgba(245,234,219,0.75)",
-    "rgba(245,234,219,0)",
+    width < 350 ? "rgba(251,246,237,0.65)" : "rgba(251,246,237,0.3)",
+    width < 350 ? "rgba(251,246,237,0.55)" : "rgba(251,246,237,0.12)",
+    "rgba(251,246,237,0)",
   ];
   return (
-    <View>
+    <View style={s.container}>
       <View
         accessibilityLabel="Home hero"
-        style={[s.hero, { height, backgroundColor: "#F5EADB" }]}
+        style={[
+          s.hero,
+          {
+            minHeight: Math.max(220, width * 0.61) * Math.max(1, fontScale),
+            backgroundColor: theme.background,
+          },
+        ]}
         onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       >
-        {scenes.map((scene, i) => (
-          <Image
-            key={scene.label}
-            source={scene.image}
-            resizeMode="contain"
-            accessibilityElementsHidden
-            importantForAccessibility="no"
-            onLoadEnd={() =>
-              setLoaded((current) =>
-                current[i]
-                  ? current
-                  : current.map((value, j) => (j === i ? true : value)),
-              )
-            }
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              width,
-              height: imageHeight,
-              opacity: i === index ? 1 : 0,
-            }}
-          />
-        ))}
-        <LinearGradient
-          colors={["#F5EADB", "rgba(245,234,219,0)"]}
-          style={{
-            position: "absolute",
-            top: height - imageHeight - 1,
-            left: 0,
-            right: 0,
-            height: 44,
-          }}
-          pointerEvents="none"
-        />
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+          {scenes.map((scene, i) => (
+            <Image
+              key={scene.label}
+              source={scene.image}
+              resizeMode="cover"
+              accessibilityElementsHidden
+              importantForAccessibility="no"
+              onLoadEnd={() =>
+                setLoaded((current) =>
+                  current[i]
+                    ? current
+                    : current.map((value, j) => (j === i ? true : value)),
+                )
+              }
+              style={[s.heroImage, { opacity: i === index ? 1 : 0 }]}
+            />
+          ))}
+        </View>
         <LinearGradient
           colors={gradient}
-          locations={[0, 0.2, 0.62]}
+          locations={width < 350 ? [0, 0.43, 0.68] : [0, 0.3, 0.55]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={StyleSheet.absoluteFill}
         />
         <View style={s.copy}>
           <Text
-            numberOfLines={2}
-            adjustsFontSizeToFit
-            minimumFontScale={0.85}
             style={[
               s.heading,
               {
-                color: "#183320",
-                fontSize: width < 320 ? 26 : 30,
-                height: Math.ceil(60 * fontScale),
+                color: "#103B32",
+                fontSize: width < 350 ? 26 : 30,
+                lineHeight: width < 350 ? 35 : 40,
               },
             ]}
           >
             {scenes[index].heading}
+            {"\n"}
+            <Text
+              style={[
+                s.heading,
+                {
+                  color: "#A96819",
+                  fontSize: width < 350 ? 26 : 30,
+                  lineHeight: width < 350 ? 35 : 40,
+                },
+              ]}
+            >
+              {scenes[index].accent}
+            </Text>
           </Text>
           <Text
-            style={{
-              fontFamily: "serif",
-              fontWeight: "700",
-              fontSize: width < 320 ? 22 : 24,
-              lineHeight: 26,
-              color: "#805025",
-            }}
-          >
-            from Sargodha
-          </Text>
-          <Text
-            numberOfLines={2}
-            adjustsFontSizeToFit
-            minimumFontScale={0.85}
             style={[
               s.subtitle,
-              { color: "#46503C", height: Math.ceil(34 * fontScale) },
+              { color: "#193E35", minHeight: Math.ceil(36 * fontScale) },
             ]}
           >
             {scenes[index].subtitle}
@@ -173,74 +161,91 @@ export function HomeHero({ onShop }: { onShop: (category: string) => void }) {
             accessibilityRole="button"
             accessibilityLabel="Shop Now"
             onPress={() => onShop(scenes[index].category)}
-            style={s.shop}
+            style={[s.shop, { width: width < 350 ? 100 : 112 }]}
           >
-            <Text style={{ color: "#fff", fontSize: 13, fontWeight: "700" }}>
+            <Text
+              style={{
+                color: BUTTON_COLORS.text,
+                fontSize: 12,
+                fontWeight: "600",
+              }}
+            >
               Shop Now
             </Text>
-            <Ionicons name="arrow-forward" size={18} color="#fff" />
+            <Ionicons name="arrow-forward" size={17} color="#fff" />
           </TouchableOpacity>
         </View>
-      </View>
-      <View style={s.dots}>
-        {scenes.map((scene, i) => (
-          <TouchableOpacity
-            key={scene.label}
-            accessibilityRole="button"
-            accessibilityLabel={`Show home image ${i + 1}`}
-            accessibilityState={{ selected: index === i }}
-            onPress={() => {
-              lastInteraction.current = Date.now();
-              setIndex(i);
-            }}
-            style={s.dotTarget}
-          >
-            <View
-              style={{
-                width: i === index ? 14 : 6,
-                height: 6,
-                borderRadius: 4,
-                backgroundColor: i === index ? theme.primary : theme.border,
+        <View style={s.dots}>
+          {scenes.map((scene, i) => (
+            <TouchableOpacity
+              key={scene.label}
+              accessibilityRole="button"
+              accessibilityLabel={`Show home image ${i + 1}`}
+              accessibilityState={{ selected: index === i }}
+              onPress={() => {
+                lastInteraction.current = Date.now();
+                setIndex(i);
               }}
-            />
-          </TouchableOpacity>
-        ))}
+              style={s.dotTarget}
+            >
+              <View
+                style={{
+                  width: i === index ? 18 : 16,
+                  height: 6,
+                  borderRadius: 4,
+                  backgroundColor:
+                    i === index ? BUTTON_COLORS.background : "#D8CEBB",
+                }}
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     </View>
   );
 }
 const s = StyleSheet.create({
-  hero: { marginHorizontal: 12, borderRadius: 16, overflow: "hidden" },
+  container: { marginBottom: 0 },
+  hero: { overflow: "hidden", paddingBottom: 14 },
+  heroImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+  },
   copy: {
-    padding: 16,
-    width: "62%",
-    flex: 1,
-    paddingTop: 18,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     alignItems: "flex-start",
   },
   heading: {
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 30,
-    lineHeight: 30,
+    fontSize: 40,
+    lineHeight: 43,
+    includeFontPadding: true,
+    paddingBottom: 8,
+    flexShrink: 0,
   },
-  subtitle: { fontSize: 12, lineHeight: 17, marginTop: 10, marginBottom: 12 },
+  subtitle: { fontSize: 12, lineHeight: 18, marginTop: 8, width: "52%" },
   shop: {
-    position: "absolute",
-    left: 16,
-    bottom: 16,
-    backgroundColor: "#1B4332",
-    borderRadius: 8,
-    minHeight: 44,
-    paddingHorizontal: 14,
+    marginTop: 10,
+    backgroundColor: BUTTON_COLORS.background,
+    ...BUTTON_OUTLINE,
+    borderRadius: 26,
+    minHeight: 36,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    justifyContent: "center",
+    gap: 6,
   },
-  dots: { flexDirection: "row", justifyContent: "center" },
+  dots: { marginLeft: 20, marginTop: 14, flexDirection: "row" },
   dotTarget: {
     width: 32,
-    height: 28,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
   },

@@ -1,596 +1,239 @@
-import { Text } from "../components/DesignPrimitives";
-import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, ScrollView, TextInput } from "react-native";
-import { TouchableOpacity } from "../components/AppTouchable";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { Header } from "../components/Header";
-import { useMobileStore } from "../services/storeService";
-import { formatPKR } from "@packages/utils";
+import { useEffect, useRef, useState } from "react";
+import { FlatList, StyleSheet, TextInput, View } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Product, ProductVariant } from "@packages/types";
-import { ProductArtwork } from "../components/ProductArtwork";
 import { PRODUCT_CATEGORIES } from "@packages/catalog/categories";
+import { useMobileStore } from "../services/storeService";
+import { Header } from "../components/Header";
+import { Text } from "../components/DesignPrimitives";
+import { TouchableOpacity } from "../components/AppTouchable";
+import { ProductCard } from "../components/ProductCard";
+import { EmptyState } from "../components/EmptyState";
 
-interface ProductsScreenProps {
+type Props = {
   initialCategory?: string;
   favoritesOnly?: boolean;
   onBack: () => void;
-  onSelectProduct: (prod: Product) => void;
-  onOpenWhatsAppOrder: (prod: Product, variant?: ProductVariant) => void;
-  onAddToCart: (prod: Product, variant?: ProductVariant) => void;
-}
-
-export const ProductsScreen: React.FC<ProductsScreenProps> = ({
+  onBrowseProducts: () => void;
+  onSelectProduct: (product: Product) => void;
+  onOpenWhatsAppOrder: (product: Product, variant?: ProductVariant) => void;
+  onAddToCart: (
+    product: Product,
+    variant?: ProductVariant,
+    quantity?: number,
+  ) => void;
+};
+export function ProductsScreen({
   initialCategory = "all",
   favoritesOnly = false,
   onBack,
+  onBrowseProducts,
   onSelectProduct,
   onOpenWhatsAppOrder,
   onAddToCart,
-}) => {
-  const { theme, products, favorites, toggleFavorite } = useMobileStore();
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  useEffect(() => setSelectedCategory(initialCategory), [initialCategory]);
-  const searchRef = useRef<TextInput>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedVariants, setSelectedVariants] = useState<
-    Record<string, string>
-  >({});
-
-  const categories = PRODUCT_CATEGORIES;
-
-  const filteredProducts = products.filter((p) => {
-    const matchesCat =
-      selectedCategory === "all" || p.category === selectedCategory;
-
-    const matchesSearch =
-      !searchQuery ||
-      p.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
-      p.short_description
-        .toLowerCase()
-        .includes(searchQuery.trim().toLowerCase());
-
-    return (
-      p.active &&
-      p.variants.some((variant) => variant.active) &&
-      matchesCat &&
-      (!favoritesOnly || favorites.includes(p.id)) &&
-      matchesSearch
-    );
-  });
-
+}: Props) {
+  const theme = useMobileStore((state) => state.theme);
+  const products = useMobileStore((state) => state.products);
+  const favorites = useMobileStore((state) => state.favorites);
+  const [category, setCategory] = useState(initialCategory);
+  const [search, setSearch] = useState("");
+  const searchInput = useRef<TextInput>(null);
+  useEffect(() => setCategory(initialCategory), [initialCategory]);
+  const query = search.trim().toLowerCase();
+  const filtered = products.filter(
+    (product) =>
+      product.active &&
+      product.variants.some((variant) => variant.active) &&
+      (category === "all" || product.category === category) &&
+      (!favoritesOnly || favorites.includes(product.id)) &&
+      (!query ||
+        (product.name + " " + product.short_description)
+          .toLowerCase()
+          .includes(query)),
+  );
+  const emptyWishlist = favoritesOnly && favorites.length === 0;
+  const resetFilters = () => {
+    setSearch("");
+    setCategory("all");
+  };
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Header */}
+    <View style={[s.container, { backgroundColor: theme.background }]}>
       <Header
         title={favoritesOnly ? "My Wishlist" : "Products"}
         showBack
         onBack={onBack}
         rightAction="search"
-        onSearch={() => searchRef.current?.focus()}
+        onSearch={() => searchInput.current?.focus()}
       />
-
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
+      <FlatList
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Search Bar Input */}
-        <View
-          style={[
-            styles.searchBar,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
-        >
-          <Ionicons
-            name="search-outline"
-            size={18}
-            color={theme.textMuted}
-            style={{ marginRight: 8 }}
-          />
-          <TextInput
-            ref={searchRef}
-            accessibilityLabel="Search products"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search products..."
-            placeholderTextColor={theme.textMuted}
-            style={[styles.searchInput, { color: theme.text }]}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel="Clear search"
-              hitSlop={10}
-              onPress={() => setSearchQuery("")}
+        data={filtered}
+        keyExtractor={(product) => product.id}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={s.content}
+        ItemSeparatorComponent={() => <View style={{ height: 18 }} />}
+        ListHeaderComponent={
+          <View>
+            <View style={s.intro}>
+              <Text accessibilityRole="header" style={s.heading}>
+                {favoritesOnly ? "Saved for later" : "Goodness in every jar"}
+              </Text>
+              <Text style={[s.subtitle, { color: theme.textSecondary }]}>
+                {favoritesOnly
+                  ? "Your favourites, all in one place."
+                  : "Handmade recipes. Carefully chosen ingredients."}
+              </Text>
+            </View>
+            <View
+              style={[
+                s.search,
+                { borderColor: theme.border, backgroundColor: theme.surface },
+              ]}
             >
-              <Ionicons name="close-circle" size={16} color={theme.textMuted} />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Category Filter Pills */}
-        <View style={styles.categoriesRow}>
-          {categories.map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                accessibilityRole="button"
-                accessibilityLabel={cat.label}
-                accessibilityState={{ selected: isActive }}
-                onPress={() => setSelectedCategory(cat.id)}
-                style={[
-                  styles.catPill,
-                  isActive
-                    ? { backgroundColor: theme.primary }
-                    : {
-                        backgroundColor: theme.surface,
-                        borderColor: theme.border,
-                        borderWidth: 1,
-                      },
-                ]}
-                activeOpacity={0.8}
-              >
-                <Text
+              <Ionicons
+                name="search-outline"
+                size={20}
+                color={theme.textSecondary}
+              />
+              <TextInput
+                ref={searchInput}
+                accessibilityLabel="Search products"
+                placeholder="Search recipes or ingredients"
+                placeholderTextColor={theme.textSecondary}
+                value={search}
+                onChangeText={setSearch}
+                autoCorrect={false}
+                returnKeyType="search"
+                style={[s.input, { color: theme.text }]}
+              />
+              {!!search && (
+                <TouchableOpacity
+                  accessibilityLabel="Clear search"
+                  onPress={() => setSearch("")}
+                  style={s.clear}
+                >
+                  <Ionicons
+                    name="close-circle"
+                    size={20}
+                    color={theme.textSecondary}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={s.categories}>
+              {PRODUCT_CATEGORIES.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  accessibilityLabel={item.label}
+                  accessibilityState={{ selected: category === item.id }}
+                  onPress={() => setCategory(item.id)}
                   style={[
-                    styles.catPillText,
-                    { color: isActive ? "#FFFFFF" : theme.text },
+                    s.category,
+                    {
+                      borderColor: theme.border,
+                      backgroundColor:
+                        category === item.id ? "#1B4332" : theme.surface,
+                    },
                   ]}
                 >
-                  {cat.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Product Cards List */}
-        <View style={styles.productsList}>
-          {filteredProducts.length === 0 && (
-            <Text
-              style={{
-                color: theme.textSecondary,
-                paddingVertical: 30,
-                textAlign: "center",
-              }}
-            >
-              No products match your search.
-            </Text>
-          )}
-          {filteredProducts.map((prod) => {
-            const isFav = favorites.includes(prod.id);
-            const activeVariants = prod.variants.filter(
-              (variant) => variant.active,
-            );
-            const activeWeight =
-              selectedVariants[prod.id] || activeVariants[0]?.weight;
-            const currentVariant =
-              activeVariants.find((v) => v.weight === activeWeight) ||
-              activeVariants[0];
-
-            return (
-              <View
-                key={prod.id}
-                style={[
-                  styles.card,
-                  { backgroundColor: theme.surface, borderColor: theme.border },
-                ]}
-              >
-                {/* Wide Product Hero Image */}
-                <TouchableOpacity
-                  onPress={() => onSelectProduct(prod)}
-                  activeOpacity={0.9}
-                  style={styles.cardImageWrapper}
-                >
-                  <ProductArtwork product={prod} />
-                  <TouchableOpacity
-                    onPress={() => toggleFavorite(prod.id)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Favorite ${prod.name}`}
-                    accessibilityState={{ selected: isFav }}
-                    style={styles.favCircle}
-                    activeOpacity={0.8}
-                  >
-                    <Ionicons
-                      name={isFav ? "heart" : "heart-outline"}
-                      size={18}
-                      color="#E11D48"
-                    />
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-                {/* Card Content */}
-                <View style={styles.cardBody}>
-                  <Text style={[styles.cardTitle, { color: theme.text }]}>
-                    {prod.name}
-                  </Text>
-
-                  {/* Rating */}
-                  {prod.review_count > 0 && (
-                    <View style={styles.ratingRow}>
-                      <View style={styles.stars}>
-                        {[...Array(5)].map((_, i) => (
-                          <Ionicons
-                            key={i}
-                            name="star"
-                            size={13}
-                            color="#C9A84C"
-                          />
-                        ))}
-                      </View>
-                      <Text style={styles.ratingScore}>
-                        {prod.rating}{" "}
-                        <Text style={styles.reviewCount}>
-                          ({prod.review_count} reviews)
-                        </Text>
-                      </Text>
-                    </View>
-                  )}
-
                   <Text
-                    style={[styles.cardDesc, { color: theme.textSecondary }]}
+                    style={{
+                      color: category === item.id ? "#fff" : theme.text,
+                      fontSize: 12,
+                      fontWeight: "600",
+                    }}
                   >
-                    {prod.short_description}
+                    {item.label}
                   </Text>
-
-                  {/* Weight Selector Boxes */}
-                  <View style={styles.variantsRow}>
-                    {prod.variants
-                      .filter((variant) => variant.active)
-                      .map((variant) => {
-                        const isSelected = activeWeight === variant.weight;
-                        return (
-                          <TouchableOpacity
-                            key={variant.id}
-                            onPress={() =>
-                              setSelectedVariants({
-                                ...selectedVariants,
-                                [prod.id]: variant.weight,
-                              })
-                            }
-                            style={[
-                              styles.variantBox,
-                              {
-                                borderColor: isSelected
-                                  ? theme.primary
-                                  : theme.border,
-                              },
-                              isSelected && {
-                                backgroundColor:
-                                  theme.mode === "light"
-                                    ? "#F0F9F3"
-                                    : "#143622",
-                              },
-                            ]}
-                            activeOpacity={0.85}
-                          >
-                            <View>
-                              <Text
-                                style={[
-                                  styles.variantWeight,
-                                  { color: theme.textSecondary },
-                                ]}
-                              >
-                                {variant.weight}
-                              </Text>
-                              <Text
-                                style={[
-                                  styles.variantPrice,
-                                  { color: theme.text },
-                                ]}
-                              >
-                                {formatPKR(
-                                  variant.sale_price || variant.regular_price,
-                                )}
-                              </Text>
-                            </View>
-
-                            <View
-                              style={[
-                                styles.radioCircle,
-                                {
-                                  borderColor: isSelected
-                                    ? theme.primary
-                                    : theme.border,
-                                },
-                              ]}
-                            >
-                              {isSelected && (
-                                <View
-                                  style={[
-                                    styles.radioDot,
-                                    { backgroundColor: theme.primary },
-                                  ]}
-                                />
-                              )}
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })}
-                  </View>
-
-                  {/* Actions Row: WhatsApp (Dominant) + View Product + Cart */}
-                  <View style={styles.actionsRow}>
-                    {/* Primary WhatsApp Order CTA */}
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      accessibilityLabel={`Order ${prod.name} on WhatsApp`}
-                      onPress={() => onOpenWhatsAppOrder(prod, currentVariant)}
-                      style={[
-                        styles.whatsappButton,
-                        { backgroundColor: "#1B4332" },
-                      ]}
-                      activeOpacity={0.85}
-                    >
-                      <FontAwesome
-                        name="whatsapp"
-                        size={16}
-                        color="#FFFFFF"
-                        style={{ marginRight: 4 }}
-                      />
-                      <Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.85}
-                        style={styles.whatsappButtonText}
-                      >
-                        WhatsApp
-                      </Text>
-                    </TouchableOpacity>
-
-                    {/* Secondary View Product CTA */}
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      accessibilityLabel={`View ${prod.name}`}
-                      onPress={() => onSelectProduct(prod)}
-                      style={[
-                        styles.viewProductButton,
-                        {
-                          borderColor: theme.border,
-                          backgroundColor: theme.surfaceWarm,
-                        },
-                      ]}
-                      activeOpacity={0.8}
-                    >
-                      <Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.85}
-                        style={[styles.viewProductText, { color: theme.text }]}
-                      >
-                        View Product
-                      </Text>
-                    </TouchableOpacity>
-
-                    {/* Cart Button */}
-                    <TouchableOpacity
-                      accessibilityRole="button"
-                      accessibilityLabel={`Add ${prod.name} to cart`}
-                      onPress={() => onAddToCart(prod, currentVariant)}
-                      style={[
-                        styles.cartSquare,
-                        {
-                          borderColor: theme.border,
-                          backgroundColor: theme.surfaceWarm,
-                        },
-                      ]}
-                      activeOpacity={0.8}
-                    >
-                      <Ionicons
-                        name="cart-outline"
-                        size={18}
-                        color={theme.primary}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-      </ScrollView>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text
+              accessibilityLiveRegion="polite"
+              style={[s.results, { color: theme.textSecondary }]}
+            >
+              {filtered.length} {filtered.length === 1 ? "recipe" : "recipes"}
+              {category !== "all"
+                ? " in " +
+                  PRODUCT_CATEGORIES.find((item) => item.id === category)?.label
+                : " to explore"}
+            </Text>
+          </View>
+        }
+        ListEmptyComponent={
+          <EmptyState
+            icon={emptyWishlist ? "heart-outline" : "search-outline"}
+            title={
+              emptyWishlist
+                ? "Make room for your favourites"
+                : "Nothing matches just yet"
+            }
+            description={
+              emptyWishlist
+                ? "Tap the heart on a recipe to save it here."
+                : "Try another search or explore all our recipes."
+            }
+            action={emptyWishlist ? "Browse Products" : "Reset Filters"}
+            onAction={emptyWishlist ? onBrowseProducts : resetFilters}
+          />
+        }
+        renderItem={({ item }) => (
+          <ProductCard
+            product={item}
+            onSelect={onSelectProduct}
+            onAdd={onAddToCart}
+            onWhatsApp={onOpenWhatsAppOrder}
+          />
+        )}
+      />
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    marginTop: 6,
-    marginBottom: 14,
-  },
-  searchInput: {
-    minWidth: 0,
-    fontFamily: "Jost_400Regular",
-    flex: 1,
-    fontSize: 13,
-  },
-  categoriesRow: {
-    flexDirection: "row",
-    gap: 6,
-    marginBottom: 16,
-  },
-  catPill: {
-    minHeight: 44,
-    paddingVertical: 7,
-    flex: 1,
-    paddingHorizontal: 5,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  catPillText: {
-    textAlign: "center",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  productsList: {
-    gap: 16,
-  },
-  card: {
-    borderRadius: 22,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  cardImageWrapper: {
-    aspectRatio: 1.5,
-    width: "100%",
-    position: "relative",
-  },
-  cardImage: {
-    width: "100%",
-    height: "100%",
-  },
-  favCircle: {
-    position: "absolute",
-    bottom: 8,
-    right: 8,
-    width: 44,
-    height: 44,
-    borderRadius: 21,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  cardBody: {
-    padding: 14,
-  },
-  cardTitle: {
+}
+const s = StyleSheet.create({
+  container: { flex: 1 },
+  content: { paddingHorizontal: 16, paddingBottom: 24 },
+  intro: { paddingTop: 6, paddingBottom: 20, gap: 6 },
+  heading: {
     fontFamily: "serif",
-    fontSize: 21,
+    fontSize: 32,
+    lineHeight: 36,
     fontWeight: "700",
   },
-  ratingRow: {
-    flexWrap: "wrap",
+  subtitle: { fontSize: 13, lineHeight: 20 },
+  search: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
-    marginBottom: 6,
-  },
-  stars: {
-    flexDirection: "row",
-    marginRight: 6,
-  },
-  ratingScore: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  reviewCount: {
-    fontWeight: "400",
-    color: "#7A9383",
-  },
-  cardDesc: {
-    fontSize: 12,
-    lineHeight: 16,
-    marginBottom: 12,
-  },
-  variantsRow: {
-    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 14,
+    minHeight: 50,
+    paddingLeft: 14,
+    paddingRight: 4,
     gap: 10,
-    marginBottom: 14,
   },
-  variantBox: {
+  input: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    minWidth: 0,
+    minHeight: 46,
+    fontFamily: "Jost_400Regular",
+    fontSize: 14,
     paddingVertical: 10,
+  },
+  clear: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  categories: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginTop: 14 },
+  category: {
+    minHeight: 44,
+    flexGrow: 1,
     paddingHorizontal: 10,
-    borderRadius: 14,
-    borderWidth: 1.5,
-  },
-  variantWeight: {
-    fontSize: 11,
-    fontWeight: "500",
-  },
-  variantPrice: {
-    flexShrink: 1,
-    fontFamily: "serif",
-    fontSize: 16,
-    fontWeight: "800",
-    marginTop: 1,
-  },
-  radioCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1.5,
+    paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-  },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  actionsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  whatsappButton: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 44,
-    borderRadius: 12,
-    shadowColor: "#1B4332",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  whatsappButtonText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    flexShrink: 1,
-  },
-  viewProductButton: {
-    flex: 1,
-    minWidth: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 44,
-    paddingHorizontal: 8,
-    borderRadius: 12,
     borderWidth: 1,
+    borderRadius: 12,
   },
-  viewProductText: {
-    fontSize: 11.5,
-    fontWeight: "600",
-    flexShrink: 1,
-  },
-  cartSquare: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  results: { fontSize: 12, paddingTop: 18, paddingBottom: 12 },
 });

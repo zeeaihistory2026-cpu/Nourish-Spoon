@@ -29,6 +29,7 @@ export type Purchase = {
   delivery_method_code: string;
   payment_method_code: string;
   payment_status: "awaiting_payment" | "submitted" | "paid" | "refunded";
+  paid_at?: string;
   status:
     | "pending"
     | "confirmed"
@@ -58,7 +59,7 @@ export type OrderNotice = {
   id: string;
   title: string;
   body: string;
-  order_id: string;
+  order_id?: string;
   created_at: string;
   read: boolean;
 };

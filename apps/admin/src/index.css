@@ -1,4 +1,0 @@
-* { box-sizing: border-box; }
-body { margin: 0; background: #FDF6E3; color: #1B4332; font-family: Jost, system-ui, sans-serif; }
-button, input, textarea, select { font: inherit; }
-button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid #C9A84C; outline-offset: 3px; }

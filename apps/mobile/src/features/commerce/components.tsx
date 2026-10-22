@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Animated,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFieldShake } from "../../hooks/useFieldShake";
 import { TouchableOpacity } from "../../components/AppTouchable";
 import { Header } from "../../components/Header";

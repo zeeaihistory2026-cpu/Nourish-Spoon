@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useCallback, useState } from "react";
 import { Modal, View, ScrollView, StyleSheet } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
 import { Text, GreenButton } from "./DesignPrimitives";
@@ -12,6 +12,10 @@ export function useInfoDialog() {
   } | null>(null);
   const { theme } = useMobileStore();
   const close = () => setMessage(null);
+  const showInfo = useCallback(
+    (title: string, body: string) => setMessage({ title, body }),
+    [],
+  );
   const dialog = (
     <Modal
       visible={!!message}
@@ -50,7 +54,7 @@ export function useInfoDialog() {
     </Modal>
   );
   return {
-    showInfo: (title: string, body: string) => setMessage({ title, body }),
+    showInfo,
     dialog,
   };
 }

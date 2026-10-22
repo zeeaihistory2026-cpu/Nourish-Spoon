@@ -15,6 +15,22 @@ apps/mobile/.env
 dist/
 web-build/
 
+# Installers belong in GitHub Releases, never in source control.
+*.apk
+*.aab
+*.apks
+*.ipa
+
+# Private signing and service-account files. The standard Android debug fixture is public.
+*.jks
+*.keystore
+!apps/mobile/android/app/debug.keystore
+*.pem
+*.p12
+*.p8
+*service-account*.json
+*serviceAccount*.json
+
 # Logs
 *.log
 npm-debug.log*
@@ -30,6 +46,10 @@ Thumbs.db
 apps/mobile/android/keystores/
 apps/mobile/android/signing.properties
 apps/mobile/android/.kotlin/
+apps/mobile/android/.gradle/
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/app/.cxx/
 
 apps/mobile/dist-*/
 artifacts/
@@ -40,3 +60,19 @@ tmp/
 private-signing/
 functions/lib/
 *-debug.log
+
+# Next.js and build caches
+.next/
+*.tsbuildinfo
+.turbo/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Separate repositories
+Noor-Ai/
+
+# Local Firebase Android client configuration (public config provisioned per build).
+apps/mobile/private-config/
+apps/mobile/android/app/src/main/res/values/nourish_firebase.xml

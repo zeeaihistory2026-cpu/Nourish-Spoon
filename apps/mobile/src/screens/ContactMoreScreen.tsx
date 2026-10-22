@@ -1,7 +1,15 @@
+import { BUTTON_COLORS, BUTTON_OUTLINE } from "../constants/theme";
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet, Linking } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Linking,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { TouchableOpacity } from "../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   onAuthStateChanged,
   signOut,
@@ -9,13 +17,16 @@ import {
   User,
 } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
+import { unregisterPushNotifications } from "../services/pushNotifications";
 import { firebaseAuth, db } from "../services/firebase";
 import { useMobileStore } from "../services/storeService";
 import { Header } from "../components/Header";
 import { Text } from "../components/DesignPrimitives";
 import { useInfoDialog } from "../components/InfoDialog";
 import { AppNavigation } from "../navigation/types";
-import { Copy } from "../features/commerce/components";
+import { commerceEnabled } from "../features/commerce/availability";
+import { choosePhoto, useRemotePhoto } from "../services/photos";
+import { call, commerceError } from "../features/commerce/service";
 
 export function ContactMoreScreen({
   navigation,
@@ -28,6 +39,22 @@ export function ContactMoreScreen({
     firebaseAuth?.currentUser || null,
   );
   const [phone, setPhone] = useState<string | undefined>();
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const photo = useRemotePhoto(
+    account ? `users/${account.uid}/media/profile` : undefined,
+  );
+  async function changePhoto() {
+    if (!account || photoBusy) return;
+    setPhotoBusy(true);
+    try {
+      const image = await choosePhoto(true);
+      if (image) await call("saveProfilePhoto", { photo: image });
+    } catch (error) {
+      showInfo("Unable to save photo", commerceError(error));
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
   useEffect(
     () =>
       firebaseAuth ? onAuthStateChanged(firebaseAuth, setAccount) : undefined,
@@ -54,6 +81,7 @@ export function ContactMoreScreen({
   }
   async function logout() {
     try {
+      await unregisterPushNotifications();
       await signOut(firebaseAuth!);
     } catch {
       showInfo("Unable to sign out", "Please try again.");
@@ -64,6 +92,7 @@ export function ContactMoreScreen({
     sub: string;
     icon: React.ComponentProps<typeof Ionicons>["name"];
     action: () => void;
+    requiresCommerce?: boolean;
   }[] = [
     {
       title: "My Orders",
@@ -73,13 +102,15 @@ export function ContactMoreScreen({
     },
     {
       title: "My Points",
+      requiresCommerce: true,
       sub: "Your rewards and points history",
       icon: "gift-outline",
       action: () => navigation.navigate("Rewards"),
     },
     {
       title: "Refer & Earn",
-      sub: "Invite friends and earn 200 points",
+      requiresCommerce: true,
+      sub: "Invite friends and earn points",
       icon: "people-outline",
       action: () => navigation.navigate("Referrals"),
     },
@@ -143,119 +174,177 @@ export function ContactMoreScreen({
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text accessibilityRole="header" style={s.heading}>
-          My Profile
-        </Text>
-        <Copy>Manage your account and preferences.</Copy>
-        <View
-          style={[
-            s.card,
-            {
-              backgroundColor: c.surface,
-              borderColor: c.isDark ? c.border : "#EFE3C2",
-            },
-          ]}
-        >
-          <View style={s.identity}>
-            <View style={[s.avatar, { backgroundColor: "#C9A84C" }]}>
-              <Text
-                style={{ fontFamily: "serif", fontSize: 36, color: "#FFFFFF" }}
+        <View style={{ position: "relative", paddingTop: 6, paddingBottom: 8 }}>
+          <Image
+            source={require("../../assets/design/botanical.png")}
+            resizeMode="contain"
+            style={{
+              position: "absolute",
+              right: -48,
+              top: -8,
+              width: 160,
+              height: 180,
+              opacity: c.isDark ? 0.12 : 0.24,
+            }}
+          />
+          <Text accessibilityRole="header" style={s.heading}>
+            My Profile
+          </Text>
+          <Text style={{ fontSize: 15, color: c.textSecondary, marginTop: 4 }}>
+            Manage your account and preferences.
+          </Text>
+        </View>
+        {account && (
+          <View
+            style={[
+              s.card,
+              {
+                backgroundColor: BUTTON_COLORS.background,
+                borderColor: BUTTON_COLORS.border,
+              },
+            ]}
+          >
+            <View style={s.identity}>
+              <TouchableOpacity
+                onPress={changePhoto}
+                disabled={photoBusy}
+                accessibilityRole="button"
+                accessibilityLabel="Change profile photo"
+                style={{ width: 66, height: 66 }}
               >
-                {(account?.displayName || "Guest").slice(0, 1).toUpperCase()}
-              </Text>
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
-              >
-                {account && (
-                  <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityLabel="Edit Profile"
-                    onPress={() =>
-                      navigation.navigate("EditProfile", {
-                        profile: {
-                          uid: account.uid,
-                          fullName: account.displayName || "",
-                          phone,
-                        },
-                      })
-                    }
-                    style={{
-                      width: 44,
-                      height: 44,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginLeft: -10,
-                    }}
-                  >
-                    <Ionicons
-                      name="create-outline"
-                      size={20}
-                      color={c.primary}
+                <View
+                  style={[
+                    s.avatar,
+                    {
+                      backgroundColor: "#C9A84C",
+                      borderWidth: 2,
+                      borderColor: "#EAD6A0",
+                    },
+                  ]}
+                >
+                  {photo ? (
+                    <Image
+                      source={{ uri: photo }}
+                      resizeMode="cover"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 31,
+                      }}
                     />
-                  </TouchableOpacity>
-                )}
-                <Text style={[s.name, { flex: 1 }]}>
-                  {account?.displayName || "Welcome, Guest"}
+                  ) : (
+                    <Text
+                      style={{
+                        fontFamily: "serif",
+                        fontSize: 38,
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      {(account.displayName || account.email || "N")
+                        .slice(0, 1)
+                        .toUpperCase()}
+                    </Text>
+                  )}
+                </View>
+                <View
+                  style={{
+                    position: "absolute",
+                    right: -2,
+                    bottom: -2,
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    backgroundColor: "#FFFDF7",
+                    borderWidth: 1,
+                    borderColor: "#D7B56D",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {photoBusy ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={BUTTON_COLORS.background}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="camera"
+                      size={16}
+                      color={BUTTON_COLORS.background}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+              <View
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  gap: 8,
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={[
+                    s.name,
+                    {
+                      color: "#FFFFFF",
+                      flex: 1,
+                      minWidth: 0,
+                    },
+                  ]}
+                >
+                  {account.displayName || "My account"}
+                </Text>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit Profile"
+                  onPress={() =>
+                    navigation.navigate("EditProfile", {
+                      profile: {
+                        uid: account.uid,
+                        fullName: account.displayName || "",
+                        phone,
+                      },
+                    })
+                  }
+                  style={{
+                    ...BUTTON_OUTLINE,
+                    backgroundColor: BUTTON_COLORS.background,
+                    borderRadius: 22,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 44,
+                    height: 44,
+                    flexShrink: 0,
+                  }}
+                >
+                  <Ionicons name="pencil-outline" size={20} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ gap: 5, paddingTop: 2 }}>
+              <View
+                style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
+              >
+                <Ionicons name="mail-outline" size={16} color="#DDECE4" />
+                <Text style={{ color: "#E4EFE9", fontSize: 13, flex: 1 }}>
+                  {account.email}
                 </Text>
               </View>
-              <Text style={{ fontSize: 13, color: c.textSecondary }}>
-                {account?.email || "Sign in for a personal experience"}
-              </Text>
-              {account && (
-                <Copy>
-                  {phone ?? "Loading number…"}
-                  {phone === "" ? " " : ""}
-                </Copy>
+              {!!phone && (
+                <View
+                  style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
+                >
+                  <Ionicons name="call-outline" size={16} color="#DDECE4" />
+                  <Text style={{ color: "#E4EFE9", fontSize: 13 }}>
+                    {phone}
+                  </Text>
+                </View>
               )}
             </View>
           </View>
-          {!account && (
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel="Sign In"
-                  onPress={() => navigation.navigate("Login")}
-                  style={[
-                    s.profileButton,
-                    { borderColor: "#C9A84C", backgroundColor: "#FFFFFF" },
-                  ]}
-                >
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: "#A6862A",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Sign In
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel="Create Account"
-                  onPress={() => navigation.navigate("Signup")}
-                  style={[
-                    s.profileButton,
-                    { backgroundColor: "#1B4332", borderColor: "#1B4332" },
-                  ]}
-                >
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: "#FFFFFF",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Create Account
-                  </Text>
-                </TouchableOpacity>
-              </>
-            </View>
-          )}
-        </View>
+        )}
         <View
           style={[
             s.group,
@@ -265,26 +354,55 @@ export function ContactMoreScreen({
             },
           ]}
         >
-          {rows.map((row, index) => (
-            <TouchableOpacity
-              key={row.title}
-              accessibilityRole="button"
-              accessibilityLabel={row.title}
-              accessibilityHint={row.sub}
-              onPress={row.action}
-              style={[
-                s.row,
-                {
-                  borderBottomWidth: index < rows.length - 1 ? 1 : 0,
-                  borderColor: c.isDark ? c.border : "#F3ECD8",
-                },
-              ]}
-            >
-              <Ionicons name={row.icon} size={22} color={c.primary} />
-              <Text style={s.label}>{row.title}</Text>
-              <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
-            </TouchableOpacity>
-          ))}
+          {rows
+            .filter((row) => !row.requiresCommerce || commerceEnabled)
+            .map((row, index) => (
+              <TouchableOpacity
+                key={row.title}
+                accessibilityRole="button"
+                accessibilityLabel={row.title}
+                accessibilityHint={row.sub}
+                onPress={row.action}
+                style={[
+                  s.row,
+                  {
+                    borderBottomWidth: index < rows.length - 1 ? 1 : 0,
+                    borderColor: c.isDark ? c.border : "#F3ECD8",
+                  },
+                ]}
+              >
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: c.isDark
+                      ? c.surfaceWarm
+                      : index === 3
+                        ? "#FFF0F0"
+                        : index % 3 === 1
+                          ? "#FFF5DC"
+                          : "#EDF6E9",
+                  }}
+                >
+                  <Ionicons
+                    name={row.icon}
+                    size={24}
+                    color={
+                      index === 3
+                        ? "#E13C42"
+                        : index % 3 === 1
+                          ? "#A46C0B"
+                          : c.primary
+                    }
+                  />
+                </View>
+                <Text style={s.label}>{row.title}</Text>
+                <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
+              </TouchableOpacity>
+            ))}
         </View>
         <View
           style={[
@@ -371,7 +489,7 @@ export function ContactMoreScreen({
                 flex: 1,
                 alignItems: "center",
                 justifyContent: "center",
-                minHeight: 54,
+                minHeight: 64,
                 gap: 4,
                 borderRadius: 14,
                 backgroundColor: c.surface,
@@ -393,8 +511,8 @@ export function ContactMoreScreen({
               s.row,
               s.group,
               {
-                borderColor: c.isDark ? c.border : "#EFE3C2",
-                backgroundColor: c.surface,
+                borderColor: c.isDark ? c.border : "#FFD1CD",
+                backgroundColor: c.isDark ? c.surface : "#FFF3F1",
               },
             ]}
           >
@@ -407,7 +525,7 @@ export function ContactMoreScreen({
   );
 }
 const s = StyleSheet.create({
-  content: { padding: 18, paddingBottom: 20, gap: 10 },
+  content: { padding: 18, paddingBottom: 16, gap: 12 },
   profileButton: {
     flex: 1,
     minHeight: 44,
@@ -435,9 +553,9 @@ const s = StyleSheet.create({
   },
   identity: { flexDirection: "row", gap: 12, alignItems: "center" },
   avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -451,9 +569,9 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 13,
-    paddingVertical: 12,
+    paddingVertical: 11,
     paddingHorizontal: 16,
-    minHeight: 48,
+    minHeight: 62,
   },
   label: { flex: 1, fontSize: 15, lineHeight: 21 },
 });

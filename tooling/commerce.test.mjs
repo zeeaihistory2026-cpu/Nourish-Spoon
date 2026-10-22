@@ -88,7 +88,7 @@ after(async () => {
 test("checkout uses catalogue prices and retries do not duplicate orders", async () => {
   order = await customer.call("placeOrder", checkout);
   assert.equal(order.subtotal, 4398);
-  assert.equal(order.total, 4648);
+  assert.equal(order.total, 4398);
   assert.equal(order.delivery_city, "Chiniot");
   assert.deepEqual(
     order.status_history.map((event) => event.status),
@@ -111,24 +111,18 @@ test("customer cannot approve payment, dispatch or review an undelivered order",
     }),
   );
 });
-test("owner fulfils stages, supplies TCS and customer reviews once after delivery", async () => {
-  await assert.rejects(
-    owner.call("updateOrder", { id: order.id, status: "delivered" }),
-  );
+test("owner fulfils without tracking, adds it after delivery and customer reviews once", async () => {
   await owner.call("updateOrder", {
     id: order.id,
     status: "confirmed",
     payment_status: "paid",
   });
   await owner.call("updateOrder", { id: order.id, status: "preparing" });
-  await assert.rejects(
-    owner.call("updateOrder", { id: order.id, status: "out_for_delivery" }),
-  );
-  await owner.call("updateOrder", {
+  const dispatched = await owner.call("updateOrder", {
     id: order.id,
     status: "out_for_delivery",
-    tracking_number: "12345678901",
   });
+  assert.ok(!dispatched.tracking_number);
   const delivered = await owner.call("updateOrder", {
     id: order.id,
     status: "delivered",
@@ -137,6 +131,17 @@ test("owner fulfils stages, supplies TCS and customer reviews once after deliver
     delivered.status_history.map((event) => event.status),
     ["pending", "confirmed", "preparing", "out_for_delivery", "delivered"],
   );
+  assert.ok(!delivered.tracking_number);
+  await assert.rejects(
+    owner.call("updateOrder", { id: order.id, tracking_number: "invalid" }),
+  );
+  const tracked = await owner.call("updateOrder", {
+    id: order.id,
+    tracking_number: "12345678901",
+  });
+  assert.equal(tracked.status, "delivered");
+  assert.equal(tracked.tracking_number, "12345678901");
+  assert.deepEqual(tracked.status_history, delivered.status_history);
   const repeated = await owner.call("updateOrder", {
     id: order.id,
     status: "delivered",
@@ -253,8 +258,8 @@ test("promo quotes, paid-delivered points and referrals are authoritative and aw
     };
     const quote = await friend.call("quoteOrder", input);
     assert.equal(quote.promo_discount, 439);
-    assert.equal(quote.delivery_fee, 250);
-    assert.equal(quote.total, 4209);
+    assert.equal(quote.delivery_fee, 0);
+    assert.equal(quote.total, 3959);
     await assert.rejects(
       friend.call("quoteOrder", { ...input, reward_points: 100 }),
     );

@@ -1,5 +1,5 @@
 import { useInfoDialog } from "../components/InfoDialog";
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   Image,
   View,
@@ -7,10 +7,9 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  useWindowDimensions,
 } from "react-native";
 import { TouchableOpacity } from "../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   Text,
   Botanical,
@@ -18,6 +17,7 @@ import {
   GreenButton,
 } from "../components/DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
+import { BUTTON_OUTLINE } from "../constants/theme";
 import {
   firebaseAuth,
   isFirebaseConfigured,
@@ -42,13 +42,12 @@ export function AuthScreen({
   onSuccess,
 }: {
   signup?: boolean;
-  onBack: () => void;
+  onBack?: () => void;
   onSwitch: () => void;
   onSuccess: () => void;
 }) {
   const { showInfo, dialog } = useInfoDialog();
   const { theme: c } = useMobileStore();
-  const { width } = useWindowDimensions();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -70,9 +69,7 @@ export function AuthScreen({
   });
   const configured = () => {
     if (!isFirebaseConfigured) {
-      setMessage(
-        "Account services are not configured yet. You can still browse the products.",
-      );
+      setMessage("Sign-in is temporarily unavailable. Please try again later.");
       return false;
     }
     return true;
@@ -178,24 +175,26 @@ export function AuthScreen({
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
       >
-        <TouchableOpacity
-          accessibilityLabel="Go back"
-          onPress={onBack}
-          style={{
-            position: "absolute",
-            left: 16,
-            top: 16,
-            backgroundColor: c.surface,
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2,
-          }}
-        >
-          <Ionicons name="chevron-back" size={25} color={c.primary} />
-        </TouchableOpacity>
+        {onBack && (
+          <TouchableOpacity
+            accessibilityLabel="Go back"
+            onPress={onBack}
+            style={{
+              position: "absolute",
+              left: 16,
+              top: 16,
+              backgroundColor: c.surface,
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 2,
+            }}
+          >
+            <Ionicons name="chevron-back" size={25} color={c.primary} />
+          </TouchableOpacity>
+        )}
         <Brand large />
         <Text
           style={{
@@ -387,44 +386,50 @@ export function AuthScreen({
             </Text>
           )}
           <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
-            {(["google", "apple"] as const).map((provider) => (
-              <TouchableOpacity
-                key={provider}
-                accessibilityRole="button"
-                accessibilityLabel={`Continue with ${provider === "google" ? "Google" : "Apple"}`}
-                disabled={busy}
-                onPress={() => social(provider)}
-                style={{
-                  flex: 1,
-                  minHeight: 48,
-                  borderWidth: 1,
-                  borderColor: c.border,
-                  borderRadius: 10,
-                  backgroundColor: "#FFFFFF",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  gap: 8,
-                  opacity: busy ? 0.6 : 1,
-                }}
-              >
-                {provider === "google" ? (
-                  <Image
-                    source={require("../../assets/icons/google-signin.png")}
-                    style={{ width: 20, height: 20 }}
-                    resizeMode="contain"
-                  />
-                ) : (
-                  <Ionicons name="logo-apple" size={21} color="#000000" />
-                )}
-                <Text
-                  numberOfLines={1}
-                  style={{ fontSize: 14, color: "#183320" }}
+            {(["google", "apple"] as const)
+              .filter(
+                (provider) =>
+                  provider === "google" ||
+                  (Platform.OS === "web" &&
+                    process.env.EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED === "true"),
+              )
+              .map((provider) => (
+                <TouchableOpacity
+                  key={provider}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Continue with ${provider === "google" ? "Google" : "Apple"}`}
+                  disabled={busy}
+                  onPress={() => social(provider)}
+                  style={{
+                    flex: 1,
+                    minHeight: 48,
+                    ...BUTTON_OUTLINE,
+                    borderRadius: 10,
+                    backgroundColor: "#FFFFFF",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    gap: 8,
+                    opacity: busy ? 0.6 : 1,
+                  }}
                 >
-                  {provider === "google" ? "Google" : "Apple"}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  {provider === "google" ? (
+                    <Image
+                      source={require("../../assets/icons/google-signin.png")}
+                      style={{ width: 20, height: 20 }}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Ionicons name="logo-apple" size={21} color="#000000" />
+                  )}
+                  <Text
+                    numberOfLines={1}
+                    style={{ fontSize: 14, color: "#183320" }}
+                  >
+                    {provider === "google" ? "Google" : "Apple"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
           </View>
           <TouchableOpacity
             accessibilityRole="button"
@@ -444,16 +449,6 @@ export function AuthScreen({
               >
                 {signup ? "Sign In" : "Sign Up"}
               </Text>
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Browse products"
-            onPress={onBack}
-            style={{ alignItems: "center", paddingBottom: 12 }}
-          >
-            <Text style={{ color: c.primary, fontSize: 12 }}>
-              Browse products
             </Text>
           </TouchableOpacity>
         </View>

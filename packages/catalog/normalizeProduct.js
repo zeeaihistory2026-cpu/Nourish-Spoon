@@ -46,7 +46,7 @@ export function normalizeProduct(id, raw, fallback = {}) {
     id,
     category,
     variants,
-    active: raw.active ?? raw.isActive ?? false,
+    active: raw.deletedAt ? false : (raw.active ?? raw.isActive ?? false),
     is_featured: raw.is_featured ?? raw.isFeatured ?? false,
     short_description:
       raw.short_description ||

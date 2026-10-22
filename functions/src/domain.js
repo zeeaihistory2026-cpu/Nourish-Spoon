@@ -7,6 +7,7 @@ const STATUSES = [
   "delivered",
   "cancelled",
 ];
+const { deliveryCharge } = require("../lib/delivery");
 function text(value, label, max = 200) {
   if (typeof value !== "string" || !value.trim() || value.trim().length > max)
     throw new Error(`Enter a valid ${label}.`);
@@ -23,7 +24,7 @@ function address(input) {
     line: text(input.line, "address", 300),
   };
 }
-function priceOrder(lines, products, settings, method, firstOrder) {
+function priceOrder(lines, products, _settings, method) {
   if (!Array.isArray(lines) || !lines.length || lines.length > 10)
     throw new Error("Choose between 1 and 10 items.");
   if (!["tcs_nationwide", "sargodha_sameday", "self_pickup"].includes(method))
@@ -66,30 +67,24 @@ function priceOrder(lines, products, settings, method, firstOrder) {
     if (product.legacy_stock != null && quantity > product.legacy_stock)
       throw new Error(`${product.name} has insufficient stock.`);
   }
-  const free =
-    method === "self_pickup" ||
-    (settings.first_order_free_delivery === true &&
-      firstOrder &&
-      subtotal >= 2500);
-  const configuredFee = settings.delivery_fees?.[method];
-  const delivery_fee = free
-    ? 0
-    : Number.isSafeInteger(configuredFee) && configuredFee >= 0
-      ? configuredFee
-      : null;
+  const delivery_fee = deliveryCharge(subtotal, method);
   return {
     items,
     subtotal,
     discount: 0,
     delivery_fee,
-    total: delivery_fee === null ? null : subtotal + delivery_fee,
-    quote_pending: delivery_fee === null,
+    total: subtotal + delivery_fee,
+    quote_pending: false,
   };
 }
 function statusChange(from, to) {
-  if (!STATUSES.includes(to) || ["delivered", "cancelled"].includes(from))
+  if (
+    !STATUSES.includes(from) ||
+    !STATUSES.includes(to) ||
+    ["delivered", "cancelled"].includes(from)
+  )
     throw new Error("This order cannot be changed to that status.");
-  if (to !== "cancelled" && STATUSES.indexOf(to) !== STATUSES.indexOf(from) + 1)
-    throw new Error("Complete the preceding order stage first.");
+  if (to !== "cancelled" && STATUSES.indexOf(to) <= STATUSES.indexOf(from))
+    throw new Error("Choose a later delivery stage.");
 }
 module.exports = { address, priceOrder, statusChange, text, STATUSES };

@@ -1,5 +1,5 @@
 import { AppNavigation } from "../../navigation/types";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Page, Card, Heading, Copy, Message, AccountGate } from "./components";
 import { GreenButton } from "../../components/DesignPrimitives";
 import { useAccountData } from "./useAccountData";
@@ -35,13 +35,21 @@ export function NotificationsScreen({
               <Copy>{notice.body}</Copy>
               <Copy>{new Date(notice.created_at).toLocaleString()}</Copy>
               <GreenButton
-                title="View Order"
+                title={
+                  notice.order_id
+                    ? "View Order"
+                    : notice.read
+                      ? "Read"
+                      : "Mark as read"
+                }
+                disabled={!notice.order_id && notice.read}
                 onPress={async () => {
                   try {
                     await markNotice(notice.id);
-                    navigation.navigate("OrderDetails", {
-                      orderId: notice.order_id,
-                    });
+                    if (notice.order_id)
+                      navigation.navigate("OrderDetails", {
+                        orderId: notice.order_id,
+                      });
                   } catch (error) {
                     setMessage(commerceError(error));
                   }

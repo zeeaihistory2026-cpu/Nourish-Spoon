@@ -1,7 +1,7 @@
-# Launch wordmark font
+# Launch wordmark
 
-The launch screen uses **Great Vibes Regular**, emboldened by Android's text renderer at the owner's request, as a close visual match to the October 15 script-lettering reference. The low-resolution reference does not establish an exact font identity. Other app typography remains unchanged.
+The Android launch screen draws smooth cubic Bezier outlines fitted to the jar lettering in `assets/website/product-2-main.png`. Subpixel stair steps and disconnected image flecks are removed. The distinctive initials and italic capitals are retained; the original font is unidentified.
 
-Source: https://github.com/google/fonts/tree/main/ofl/greatvibes
+Regenerate with `tooling/artwork/trace-jar-wordmark.py` and its adjacent `fit_brand_curves.py` helper (Python, Pillow and NumPy). This updates the plugin template and Android raw resource. Android draws these paths at screen resolution, without enlarging a text bitmap. The logo geometry, placement and animation timing are unchanged.
 
-The unmodified font is redistributed under the SIL Open Font License in `GreatVibes-OFL.txt`. The native-launch plugin includes the font and license in the Android application so startup does not require network access or React font loading.
+The obsolete Great Vibes font was removed after startup stopped using it. App text fonts are loaded from the declared Expo Google Fonts packages; no duplicate font binaries are kept here.

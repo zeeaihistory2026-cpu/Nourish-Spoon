@@ -6,5 +6,12 @@ export const TouchableOpacity = React.forwardRef<
   React.ComponentRef<typeof NativeTouchableOpacity>,
   React.ComponentProps<typeof NativeTouchableOpacity>
 >(function AppTouchable(props, ref) {
-  return <NativeTouchableOpacity {...props} ref={ref} activeOpacity={1} />;
+  return (
+    <NativeTouchableOpacity
+      accessibilityRole="button"
+      {...props}
+      ref={ref}
+      activeOpacity={1}
+    />
+  );
 });

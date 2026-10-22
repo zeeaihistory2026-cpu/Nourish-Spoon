@@ -31,7 +31,6 @@ export type WhatsAppOrderParams = {
   deliveryAddress: string;
   isGift?: boolean;
   giftMessage?: string;
-  businessWhatsApp?: string; // default '+92 304 6721962'
 };
 
 /**
@@ -77,8 +76,3 @@ export function createWhatsAppUrl(phone: string, text: string): string {
   const encodedText = encodeURIComponent(text);
   return `https://wa.me/${cleanPhone}?text=${encodedText}`;
 }
-
-/**
- * Standard business phone for Nourish Spoon
- */
-export const DEFAULT_WHATSAPP_PHONE = '+92 304 6721962';

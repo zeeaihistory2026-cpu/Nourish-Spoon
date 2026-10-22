@@ -1,9 +1,8 @@
-import React from "react";
 import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { PurchaseItem } from "@packages/types/commerce";
 import { formatPKR } from "@packages/utils";
-import { Text } from "../../components/DesignPrimitives";
+import { Text, PriceText } from "../../components/DesignPrimitives";
 import { ProductArtwork } from "../../components/ProductArtwork";
 import { useMobileStore } from "../../services/storeService";
 import { Copy } from "./components";
@@ -52,14 +51,14 @@ export function OrderItems({ items }: { items: PurchaseItem[] }) {
                 {item.variant_weight} · ×{item.quantity}
               </Copy>
             </View>
-            <Text
+            <PriceText
               style={{
                 fontSize: 14,
                 color: theme.isDark ? theme.gold : "#805025",
               }}
             >
               {formatPKR(item.total_price)}
-            </Text>
+            </PriceText>
           </View>
         );
       })}
@@ -90,7 +89,7 @@ export function OrderTotals({
         }}
       >
         <Copy>Products subtotal</Copy>
-        <Text>{formatPKR(subtotal)}</Text>
+        <PriceText>{formatPKR(subtotal)}</PriceText>
       </View>
       {!!promoDiscount && (
         <View
@@ -101,7 +100,7 @@ export function OrderTotals({
           }}
         >
           <Copy>Promo discount</Copy>
-          <Text>− {formatPKR(promoDiscount)}</Text>
+          <PriceText>− {formatPKR(promoDiscount)}</PriceText>
         </View>
       )}
       {!!rewardDiscount && (
@@ -113,7 +112,7 @@ export function OrderTotals({
           }}
         >
           <Copy>Points discount</Copy>
-          <Text>− {formatPKR(rewardDiscount)}</Text>
+          <PriceText>− {formatPKR(rewardDiscount)}</PriceText>
         </View>
       )}
       <View
@@ -124,7 +123,7 @@ export function OrderTotals({
         }}
       >
         <Copy>Delivery charges</Copy>
-        <Text>{fee == null ? "Awaiting quote" : formatPKR(fee)}</Text>
+        <PriceText>{fee == null ? "Awaiting quote" : formatPKR(fee)}</PriceText>
       </View>
       <View
         style={{
@@ -137,9 +136,9 @@ export function OrderTotals({
         }}
       >
         <Text style={{ fontWeight: "700", fontSize: 16 }}>Total Amount</Text>
-        <Text style={{ fontWeight: "700", fontSize: 16 }}>
+        <PriceText style={{ fontWeight: "700", fontSize: 16 }}>
           {total == null ? "To be confirmed" : formatPKR(total)}
-        </Text>
+        </PriceText>
       </View>
     </View>
   );

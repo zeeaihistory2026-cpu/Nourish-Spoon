@@ -1,5 +1,7 @@
 # Website typography and mobile hero artwork
 
+This records the original October 12 artwork. The active three-scene set is `apps/mobile/assets/hero/*-v2.png`; its exact prompts and provenance are in `apps/mobile/assets/hero/generation-prompts.json`. Home uses cover-fit backgrounds, accessible live text, descender-safe title spacing and a compact Shop Now action in the clear left area. The obsolete first-generation PNGs were removed after their replacement was verified. Reviews separately follow the website testimonials page's Inter/Playfair typography.
+
 On 12 October 2026 the live https://nourishspoon.com/ computed styles and loaded font faces were checked: headings use Cormorant Garamond (700), body and buttons use Jost, including 400/500/600/700 weights. The app bundles these fonts locally. The website still links an older Playfair/Inter stylesheet, but those fonts were not used by the inspected headings/body/buttons.
 
 Three illustrative food backgrounds were created with built-in imagegen, not the CLI, using the owner's supplied home mockups and original food photos. They contain no baked-in text or brand marks. App copy remains accessible native text. All are 1774×887 (2:1), contained in the same fixed minimum-height hero, with cream gradient blending and reduced-motion-aware crossfades. These are photographic illustrations, not new catalogue products.

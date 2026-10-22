@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Header } from "../../components/Header";

@@ -1,9 +1,16 @@
 import { useEffect, useRef } from "react";
 import { Animated, Platform } from "react-native";
 import { useReducedMotion } from "./useReducedMotion";
-export function useFieldShake(error?: string, validationTick?: number) {
+export function useFieldShake(
+  error?: string,
+  validationTick?: number,
+  reducedMotionOverride?: boolean,
+) {
   const offset = useRef(new Animated.Value(0)).current;
-  const reduceMotion = useReducedMotion();
+  const systemReducedMotion = useReducedMotion(
+    reducedMotionOverride === undefined,
+  );
+  const reduceMotion = reducedMotionOverride ?? systemReducedMotion;
   useEffect(() => {
     offset.setValue(0);
     if (!error || reduceMotion) return;

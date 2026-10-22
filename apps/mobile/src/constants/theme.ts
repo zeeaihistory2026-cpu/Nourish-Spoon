@@ -2,6 +2,24 @@
 // NOURISH SPOON: REACT NATIVE THEME TOKENS
 // ==============================================================================
 
+/** Shared action palette; white labels stay readable in both app themes. */
+export const BUTTON_COLORS = {
+  background: "#003E31",
+  border: "#BC852B",
+  text: "#FFFDF7",
+} as const;
+
+/** Fine gold edge shared by the app's action buttons. */
+export const BUTTON_OUTLINE = {
+  borderWidth: 1,
+  borderColor: BUTTON_COLORS.border,
+} as const;
+
+export const WHATSAPP_BUTTON_COLORS = {
+  background: "#25D366",
+  text: "#083E2C",
+} as const;
+
 export interface ThemeType {
   mode: "light" | "dark";
   isDark: boolean;
@@ -30,25 +48,25 @@ export interface ThemeType {
 export const LightTheme: ThemeType = {
   mode: "light",
   isDark: false,
-  primary: "#1B4332", // Website forest green
-  primaryDark: "#1B4332",
-  primaryLight: "#2D6A4F",
-  background: "#FDF6E3", // Website cream
+  primary: "#003E31",
+  primaryDark: "#002C23",
+  primaryLight: "#436B50",
+  background: "#FBF6ED",
   surface: "#FFFFFF", // Clean white
-  surfaceWarm: "#FAF3E0",
+  surfaceWarm: "#F6EFE3",
   card: "#FFFFFF",
-  gold: "#C9A84C",
+  gold: "#A96819",
   goldLight: "#E5C97A",
   goldWarm: "#FBF0D5",
   accent: "#C9A84C",
-  text: "#1B4332",
+  text: "#103B32",
   textSecondary: "#555555",
   textMuted: "#888888",
   border: "#E8DFC8", // Warm cream border
   borderSubtle: "#F0E8D7",
   danger: "#EF4444",
   success: "#10B981",
-  whatsapp: "#25D366",
+  whatsapp: WHATSAPP_BUTTON_COLORS.background,
   whatsappDark: "#128C7E",
 };
 
@@ -73,6 +91,6 @@ export const DarkTheme: ThemeType = {
   borderSubtle: "#1C3524",
   danger: "#F87171",
   success: "#34D399",
-  whatsapp: "#25D366",
+  whatsapp: WHATSAPP_BUTTON_COLORS.background,
   whatsappDark: "#128C7E",
 };

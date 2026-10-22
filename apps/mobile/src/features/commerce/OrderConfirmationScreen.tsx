@@ -1,6 +1,6 @@
-import React from "react";
+import { BUTTON_COLORS } from "../../constants/theme";
 import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import { Page, Card, Heading, Copy, Message } from "./components";
@@ -24,7 +24,7 @@ export function OrderConfirmationScreen({
             width: 64,
             height: 64,
             borderRadius: 32,
-            backgroundColor: "#1B4332",
+            backgroundColor: BUTTON_COLORS.background,
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -55,7 +55,13 @@ export function OrderConfirmationScreen({
             <Copy>
               {order.quote_pending
                 ? "Delivery charges and the final total are awaiting confirmation. No payment has been taken."
-                : "Your payment is awaiting verification. See Payment Methods in the menu for transfer details."}
+                : order.payment_status === "paid"
+                  ? "Your payment has been verified."
+                  : order.payment_status === "refunded"
+                    ? "Your payment is marked as refunded."
+                    : order.payment_status === "submitted"
+                      ? "Your payment is awaiting verification."
+                      : "Send your payment using your selected method. See Payment Methods for transfer details."}
             </Copy>
           </Card>
           <Card>

@@ -1,8 +1,9 @@
+import { BUTTON_OUTLINE, WHATSAPP_BUTTON_COLORS } from "../constants/theme";
 import { Field } from "../features/commerce/components";
 import { addressErrors } from "../features/commerce/validateFields";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { useInfoDialog } from "../components/InfoDialog";
-import { Text } from "../components/DesignPrimitives";
+import { Text, PriceText } from "../components/DesignPrimitives";
 import React, { useState } from "react";
 import {
   View,
@@ -13,24 +14,24 @@ import {
   Linking,
 } from "react-native";
 import { TouchableOpacity } from "../components/AppTouchable";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Header } from "../components/Header";
 import { useMobileStore } from "../services/storeService";
 import {
   formatPKR,
   generateWhatsAppMessage,
   createWhatsAppUrl,
-  DEFAULT_WHATSAPP_PHONE,
 } from "@packages/utils";
 import { Product, ProductVariant } from "@packages/types";
 import { ProductArtwork } from "../components/ProductArtwork";
 import { firebaseAuth } from "../services/firebase";
+import { cartIssue } from "../features/commerce/cart";
 
 interface WhatsAppOrderScreenProps {
   initialProduct?: Product;
   initialVariant?: ProductVariant;
   onBack: () => void;
-  onOrderSuccess?: () => void;
   onRequireSignIn: () => void;
 }
 
@@ -38,18 +39,23 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
   initialProduct,
   initialVariant,
   onBack,
-  onOrderSuccess,
   onRequireSignIn,
 }) => {
   const { showInfo, dialog } = useInfoDialog();
-  const { theme, products } = useMobileStore();
+  const { theme, products, settings } = useMobileStore();
 
-  const [currentProduct, setCurrentProduct] = useState<Product>(
+  const [selectedProduct, setCurrentProduct] = useState<Product>(
     initialProduct || products[0],
   );
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
+  const currentProduct =
+    products.find((product) => product.id === selectedProduct.id) ||
+    selectedProduct;
+  const [selectedSize, setSelectedVariant] = useState<ProductVariant>(
     initialVariant || currentProduct.variants[0],
   );
+  const selectedVariant =
+    currentProduct.variants.find((variant) => variant.id === selectedSize.id) ||
+    selectedSize;
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -62,7 +68,9 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const handleProductSelect = (p: Product) => {
     setCurrentProduct(p);
-    setSelectedVariant(p.variants[0]);
+    setSelectedVariant(
+      p.variants.find((variant) => variant.active) || p.variants[0],
+    );
     setShowProductDropdown(false);
   };
 
@@ -73,6 +81,14 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
 
   const form = useFormValidation();
   const handleSendOrder = async () => {
+    const issue = cartIssue(
+      [{ product: currentProduct, variant: selectedVariant, quantity }],
+      products,
+    );
+    if (issue) {
+      showInfo("Check your selection", issue);
+      return;
+    }
     if (!firebaseAuth?.currentUser || firebaseAuth.currentUser.isAnonymous) {
       onRequireSignIn();
       return;
@@ -102,7 +118,7 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
       giftMessage: isGift ? giftMessage : undefined,
     });
 
-    const url = createWhatsAppUrl(DEFAULT_WHATSAPP_PHONE, message);
+    const url = createWhatsAppUrl(settings.whatsapp_number, message);
 
     try {
       await Linking.openURL(url);
@@ -168,16 +184,16 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
             </Text>
 
             <View style={styles.priceRow}>
-              <Text style={[styles.salePrice, { color: theme.text }]}>
+              <PriceText style={[styles.salePrice, { color: theme.text }]}>
                 {formatPKR(
                   selectedVariant.sale_price || selectedVariant.regular_price,
                 )}
-              </Text>
+              </PriceText>
               {selectedVariant.sale_price &&
                 selectedVariant.sale_price < selectedVariant.regular_price && (
-                  <Text style={styles.regularPrice}>
+                  <PriceText style={styles.regularPrice}>
                     {formatPKR(selectedVariant.regular_price)}
-                  </Text>
+                  </PriceText>
                 )}
             </View>
           </View>
@@ -211,19 +227,25 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
                   { backgroundColor: theme.surface, borderColor: theme.border },
                 ]}
               >
-                {products.map((p) => (
-                  <TouchableOpacity
-                    key={p.id}
-                    onPress={() => handleProductSelect(p)}
-                    style={styles.dropdownMenuItem}
-                  >
-                    <Text
-                      style={[styles.dropdownMenuText, { color: theme.text }]}
+                {products
+                  .filter(
+                    (product) =>
+                      product.active &&
+                      product.variants.some((variant) => variant.active),
+                  )
+                  .map((p) => (
+                    <TouchableOpacity
+                      key={p.id}
+                      onPress={() => handleProductSelect(p)}
+                      style={styles.dropdownMenuItem}
                     >
-                      {p.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        style={[styles.dropdownMenuText, { color: theme.text }]}
+                      >
+                        {p.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
               </View>
             )}
           </View>
@@ -241,12 +263,12 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
               ]}
               activeOpacity={0.8}
             >
-              <Text style={[styles.dropdownValue, { color: theme.text }]}>
+              <PriceText style={[styles.dropdownValue, { color: theme.text }]}>
                 {selectedVariant.weight} –{" "}
                 {formatPKR(
                   selectedVariant.sale_price || selectedVariant.regular_price,
                 )}
-              </Text>
+              </PriceText>
               <Ionicons name="chevron-down" size={16} color={theme.textMuted} />
             </TouchableOpacity>
 
@@ -257,19 +279,22 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
                   { backgroundColor: theme.surface, borderColor: theme.border },
                 ]}
               >
-                {currentProduct.variants.map((v) => (
-                  <TouchableOpacity
-                    key={v.id}
-                    onPress={() => handleSizeSelect(v)}
-                    style={styles.dropdownMenuItem}
-                  >
-                    <Text
-                      style={[styles.dropdownMenuText, { color: theme.text }]}
+                {currentProduct.variants
+                  .filter((variant) => variant.active)
+                  .map((v) => (
+                    <TouchableOpacity
+                      key={v.id}
+                      onPress={() => handleSizeSelect(v)}
+                      style={styles.dropdownMenuItem}
                     >
-                      {v.weight} – {formatPKR(v.sale_price || v.regular_price)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <PriceText
+                        style={[styles.dropdownMenuText, { color: theme.text }]}
+                      >
+                        {v.weight} –{" "}
+                        {formatPKR(v.sale_price || v.regular_price)}
+                      </PriceText>
+                    </TouchableOpacity>
+                  ))}
               </View>
             )}
           </View>
@@ -407,13 +432,19 @@ export const WhatsAppOrderScreen: React.FC<WhatsAppOrderScreenProps> = ({
       >
         <TouchableOpacity
           onPress={handleSendOrder}
-          style={[styles.sendButton, { backgroundColor: theme.primary }]}
+          style={[
+            styles.sendButton,
+            {
+              ...BUTTON_OUTLINE,
+              backgroundColor: WHATSAPP_BUTTON_COLORS.background,
+            },
+          ]}
           activeOpacity={0.85}
         >
           <FontAwesome
             name="whatsapp"
             size={20}
-            color="#FFFFFF"
+            color={WHATSAPP_BUTTON_COLORS.text}
             style={{ marginRight: 8 }}
           />
           <Text style={styles.sendButtonText}>Send Order on WhatsApp</Text>
@@ -643,7 +674,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   sendButtonText: {
-    color: "#FFFFFF",
+    color: WHATSAPP_BUTTON_COLORS.text,
     fontSize: 14,
     fontWeight: "700",
   },

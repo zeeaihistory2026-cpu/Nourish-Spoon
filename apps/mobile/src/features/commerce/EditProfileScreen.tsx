@@ -1,5 +1,5 @@
 import { useFormValidation } from "../../hooks/useFormValidation";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, useWindowDimensions } from "react-native";
 import { updateProfile } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
@@ -96,7 +96,6 @@ export function EditProfileScreen({
             label="Full name"
             value={name}
             {...form.bind("name", setName)}
-            icon="create-outline"
             maxLength={80}
             autoComplete="name"
           />

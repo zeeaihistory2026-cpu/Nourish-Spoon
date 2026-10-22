@@ -15,14 +15,15 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.graphics.PathParser
-import androidx.core.content.res.ResourcesCompat
 import org.json.JSONArray
+import org.json.JSONObject
 
-/** Fixed gold mark with a one-second, letter-by-letter script wordmark. */
+/** Animated gold mark followed by smooth lettering from the product jar. */
 class NourishLogoView @JvmOverloads constructor(
   context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs) {
   private data class Stroke(val path: Path, val measure: PathMeasure, val width: Float)
+  private data class Letter(val index: Int, val path: Path)
   private val strokes: List<Stroke> = context.resources.openRawResource(R.raw.nourish_logo_strokes).use { stream ->
     val records = JSONArray(stream.bufferedReader().readText())
     List(records.length()) { index ->
@@ -39,16 +40,25 @@ class NourishLogoView @JvmOverloads constructor(
     strokeJoin = Paint.Join.ROUND
   }
   private val segment = Path()
-  private val wordmark = "Nourish Spoon"
-  private val wordmarkPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
-    color = Color.rgb(201, 168, 76)
-    typeface = requireNotNull(ResourcesCompat.getFont(context, R.font.nourish_launch_script))
-    textSize = 34f
-    isFakeBoldText = true
-    style = Paint.Style.FILL
+  private val wordmarkRecord = context.resources.openRawResource(R.raw.nourish_jar_wordmark).use {
+    JSONObject(it.bufferedReader().readText())
   }
-  // Anchor to the complete phrase, not the changing prefix, to prevent sideways movement.
-  private val wordmarkLeft = (224f - wordmarkPaint.measureText(wordmark)) / 2f
+  private val wordmarkLetters: List<Letter> = wordmarkRecord.getJSONArray("glyphs").let { records ->
+    List(records.length()) { index ->
+      val record = records.getJSONObject(index)
+      val path = requireNotNull(PathParser.createPathFromPathData(record.getString("path")))
+      path.fillType = Path.FillType.EVEN_ODD
+      Letter(record.getInt("index"), path)
+    }
+  }
+  private val wordmarkScale = 200f / wordmarkRecord.getDouble("width").toFloat()
+  private val wordmarkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    color = Color.rgb(178, 142, 53)
+    style = Paint.Style.FILL_AND_STROKE
+    strokeWidth = 0.1f
+    strokeJoin = Paint.Join.ROUND
+  }
+  private val wordmarkLength = 13 // "Nourish Spoon", including the space.
   private var visibleLetters = 0
   private var amount = 0f
   private var animator: ValueAnimator? = null
@@ -72,7 +82,7 @@ class NourishLogoView @JvmOverloads constructor(
       addUpdateListener { animation ->
         val elapsed = animation.animatedValue as Float
         amount = ease((elapsed / 1400f).coerceIn(0f, 1f))
-        visibleLetters = (((elapsed - 1400f) / 1000f) * wordmark.length).toInt().coerceIn(0, wordmark.length)
+        visibleLetters = (((elapsed - 1400f) / 1000f) * wordmarkLength).toInt().coerceIn(0, wordmarkLength)
         invalidate()
       }
       addListener(object : AnimatorListenerAdapter() {
@@ -85,7 +95,7 @@ class NourishLogoView @JvmOverloads constructor(
   private fun ease(progress: Float) = progress * progress * (3f - 2f * progress)
   private fun finish() {
     amount = 1f
-    visibleLetters = wordmark.length
+    visibleLetters = wordmarkLength
     complete = true
     invalidate()
     val callback = whenFinished
@@ -113,8 +123,13 @@ class NourishLogoView @JvmOverloads constructor(
       remaining -= length
     }
     if (visibleLetters > 0) {
-      // Keep the full shaping context as letters appear, preserving script joins and kerning.
-      canvas.drawTextRun(wordmark, 0, visibleLetters, 0, wordmark.length, wordmarkLeft, 224f, false, wordmarkPaint)
+      val wordmarkSave = canvas.save()
+      canvas.translate(12f, 201f)
+      canvas.scale(wordmarkScale, wordmarkScale)
+      for (letter in wordmarkLetters) {
+        if (letter.index < visibleLetters) canvas.drawPath(letter.path, wordmarkPaint)
+      }
+      canvas.restoreToCount(wordmarkSave)
     }
     canvas.restoreToCount(save)
   }

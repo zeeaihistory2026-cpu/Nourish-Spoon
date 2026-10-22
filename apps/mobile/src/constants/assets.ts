@@ -3,11 +3,14 @@
 // ==============================================================================
 
 export const ASSETS = {
+  panjeeriCardPhoto: require("../../assets/products/panjeeri-card-v2.png"),
+  energyBallsCardPhoto: require("../../assets/products/energy-balls-card-v2.png"),
+  categoryPanjeeri: require("../../assets/products/category-panjeeri.png"),
+  categoryEnergyBalls: require("../../assets/products/category-energy-balls.png"),
+  categoryGift: require("../../assets/products/category-gift.png"),
   comboCard: require("../../assets/products/combo-pack.png"),
-  logo: require("../../assets/website/logo-transparent.png"),
   energyBallsCard: require("../../assets/website/product-1-main.png"),
   panjeeriCard: require("../../assets/website/product-2-main.png"),
-  founderStoryHero: require("../../assets/design/founder.jpg"),
 
   // Icons
   iconBank: require("../../assets/icons/icon_bank.png"),
@@ -49,12 +52,7 @@ export const ASSETS = {
     raisins: require("../../assets/design/raisins.jpg"),
     figs: require("../../assets/design/figs.jpg"),
     coconut: require("../../assets/design/coconut.jpg"),
-    desiGhee: require("../../assets/design/desi_ghee.jpg"),
     cardamom: require("../../assets/design/cardamom.jpg"),
-    lotusSeeds: require("../../assets/design/lotus_seeds.jpg"),
-    pumpkinSeeds: require("../../assets/design/pumpkin_seeds.jpg"),
-    sunflowerSeeds: require("../../assets/design/sunflower_seeds.jpg"),
-    whiteSesameSeeds: require("../../assets/design/white_sesame_seeds.jpg"),
     semolina: require("../../assets/design/semolina.jpg"),
   },
 };

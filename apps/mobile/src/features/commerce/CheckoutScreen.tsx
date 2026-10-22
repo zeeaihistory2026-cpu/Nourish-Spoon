@@ -1,8 +1,8 @@
 import { useFormValidation } from "../../hooks/useFormValidation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Switch, Linking } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import { useMobileStore } from "../../services/storeService";
@@ -17,15 +17,26 @@ import {
   AccountGate,
 } from "./components";
 import { OrderItems, OrderTotals } from "./OrderSummary";
-import { SavingsCard, SavingsQuote } from "./SavingsCard";
+import { SavingsCard } from "./SavingsCard";
+import {
+  AppliedSavings,
+  discountInput,
+  savingsKey,
+  selectedSavings,
+} from "./checkoutSavings";
 import { useAccountData } from "./useAccountData";
 import { watchAddresses, placeOrder, commerceError } from "./service";
 import { useCheckoutField, clearCheckoutDraft } from "./checkoutDraft";
 import { addressErrors } from "./validateFields";
 import { firebaseAuth } from "../../services/firebase";
 import { formatPKR } from "@packages/utils";
+import { cartIssue } from "./cart";
+import { commerceEnabled } from "./availability";
+import { deliveryCharge } from "@packages/commerce/delivery";
 export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
-  const { cart, clearCart, theme, settings, paymentMethods } = useMobileStore();
+  const { cart, products, clearCart, theme, settings, paymentMethods } =
+    useMobileStore();
+  const issue = cartIssue(cart, products);
   const {
     user,
     items: addresses,
@@ -42,9 +53,10 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
   const [gift, setGift] = useCheckoutField("gift"),
     [giftMessage, setGiftMessage] = useCheckoutField("giftMessage");
   const [requestId] = useCheckoutField("requestId");
-  const [promoCode] = useCheckoutField("promoCode"),
-    [rewardPoints] = useCheckoutField("rewardPoints");
-  const [quote, setQuote] = useState<SavingsQuote | null>(null);
+  const [appliedSavings, setAppliedSavings] = useState<AppliedSavings | null>(
+    null,
+  );
+  const [checkingSavings, setCheckingSavings] = useState(false);
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -62,6 +74,15 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
       (item.variant.sale_price ?? item.variant.regular_price) * item.quantity,
   }));
   const subtotal = orderItems.reduce((sum, item) => sum + item.total_price, 0);
+  const checkoutItems = cart.map((item) => ({
+    product_id: item.product.id,
+    variant_id: item.variant.id,
+    quantity: item.quantity,
+  }));
+  const quote = selectedSavings(
+    appliedSavings,
+    savingsKey(checkoutItems, delivery, user?.uid),
+  );
   function validAddress() {
     const errors = addressErrors({ name, phone, city, line });
     if (
@@ -87,9 +108,9 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
     setStep((value) => Math.min(value + 1, 2));
   }
   async function submit() {
-    if (busy || !validAddress()) return;
-    if ((promoCode.trim() || Number(rewardPoints)) && !quote) {
-      setError("Apply your promo code or points before placing the order.");
+    if (busy || checkingSavings || !validAddress()) return;
+    if (issue) {
+      setError(issue);
       return;
     }
     if (!methods.some((method) => method.code === payment)) {
@@ -116,8 +137,7 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
         payment_method: payment,
         is_gift: gift,
         gift_message: giftMessage,
-        promo_code: promoCode.trim().toUpperCase(),
-        reward_points: Number(rewardPoints || 0),
+        ...discountInput(quote),
       });
       clearCart();
       clearCheckoutDraft();
@@ -129,6 +149,10 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
     }
   }
   async function whatsapp() {
+    if (issue) {
+      setError(issue);
+      return;
+    }
     if (!firebaseAuth?.currentUser || firebaseAuth.currentUser.isAnonymous) {
       navigation.navigate("Login");
       return;
@@ -351,15 +375,16 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
           )}
           {step === 2 && (
             <>
-              <SavingsCard
-                items={cart.map((item) => ({
-                  product_id: item.product.id,
-                  variant_id: item.variant.id,
-                  quantity: item.quantity,
-                }))}
-                delivery={delivery}
-                onQuote={setQuote}
-              />
+              {commerceEnabled && (
+                <SavingsCard
+                  items={checkoutItems}
+                  delivery={delivery}
+                  applied={appliedSavings}
+                  onQuote={setAppliedSavings}
+                  onApplying={setCheckingSavings}
+                  disabled={busy}
+                />
+              )}
               <Card>
                 <Heading>Delivery Details</Heading>
                 <Text style={{ fontWeight: "700" }}>{name}</Text>
@@ -391,29 +416,26 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
                   fee={
                     quote
                       ? quote.delivery_fee
-                      : delivery === "self_pickup"
-                        ? 0
-                        : null
+                      : deliveryCharge(subtotal, delivery)
                   }
                   total={
                     quote
                       ? quote.total
-                      : delivery === "self_pickup"
-                        ? subtotal
-                        : null
+                      : subtotal + deliveryCharge(subtotal, delivery)
                   }
                   promoDiscount={quote?.promo_discount}
                   rewardDiscount={quote?.reward_discount}
                 />
                 <Copy>
                   Prices and availability are verified when the order is
-                  submitted. Delivery charges may need confirmation.
+                  submitted. Delivery is Rs. 250, or free above Rs. 2,500 after
+                  discounts. Pickup is free.
                 </Copy>
               </Card>
               {!user && <AccountGate navigate={navigation.navigate} />}
             </>
           )}
-          {!!error && <Message>{error}</Message>}
+          {!!(error || issue) && <Message>{error || issue}</Message>}
           {step < 2 ? (
             <GreenButton
               title={step === 0 ? "Continue to Payment" : "Review Order"}
@@ -421,16 +443,30 @@ export function CheckoutScreen({ navigation }: { navigation: AppNavigation }) {
             />
           ) : (
             <>
-              <GreenButton
-                title={busy ? "Placing order…" : "Place Order"}
-                onPress={submit}
-                disabled={busy || !user}
-              />
+              {commerceEnabled && (
+                <GreenButton
+                  title={
+                    busy
+                      ? "Placing order…"
+                      : checkingSavings
+                        ? "Applying discount…"
+                        : "Place Order"
+                  }
+                  onPress={submit}
+                  disabled={busy || checkingSavings || !user || !!issue}
+                />
+              )}
+              {!commerceEnabled && (
+                <Copy>
+                  Send your order to our team on WhatsApp to confirm
+                  availability, delivery and payment.
+                </Copy>
+              )}
               <GreenButton
                 title="Send Cart on WhatsApp"
                 whatsapp
                 onPress={whatsapp}
-                disabled={busy}
+                disabled={busy || !!issue}
               />
             </>
           )}

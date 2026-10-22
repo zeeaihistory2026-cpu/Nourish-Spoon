@@ -54,12 +54,8 @@ function installNativeLaunch(projectRoot) {
   fs.copyFileSync(path.join(templates, "nourish_logo_strokes.json"), path.join(resource("raw"), "nourish_logo_strokes.json"));
   fs.copyFileSync(path.join(templates, "nourish_launch_logo_vector.xml"), path.join(resource("drawable"), "nourish_launch_logo_vector.xml"));
   fs.copyFileSync(
-    path.join(projectRoot, "assets/fonts/GreatVibes-Regular.ttf"),
-    path.join(resource("font"), "nourish_launch_script.ttf"),
-  );
-  fs.copyFileSync(
-    path.join(projectRoot, "assets/fonts/GreatVibes-OFL.txt"),
-    path.join(resource("raw"), "nourish_launch_script_license.txt"),
+    path.join(templates, "nourish_jar_wordmark.json"),
+    path.join(resource("raw"), "nourish_jar_wordmark.json"),
   );
   const base = `<resources><style name="Theme.Nourish.Launch" parent="AppTheme"><item name="android:windowBackground">@drawable/nourish_starting_window</item><item name="android:statusBarColor">#FDF6E3</item><item name="android:navigationBarColor">#FDF6E3</item><item name="android:windowLightStatusBar">true</item><item name="android:windowLightNavigationBar">true</item></style></resources>`;
   fs.writeFileSync(

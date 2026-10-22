@@ -1,24 +1,24 @@
-import React from "react";
+import { BUTTON_COLORS } from "../constants/theme";
 import { View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMobileStore } from "../services/storeService";
 import { Text } from "./DesignPrimitives";
-export type MobileTab = "Home" | "Products" | "Cart" | "Orders" | "More";
+import { MobileTab } from "../navigation/types";
 export function BottomTabBar({
-  currentTab,
   activeTab,
   onSelectTab,
-  navigation,
 }: {
-  currentTab?: MobileTab;
-  activeTab?: MobileTab;
-  onSelectTab?: (tab: MobileTab) => void;
-  navigation?: any;
+  activeTab: MobileTab;
+  onSelectTab: (tab: MobileTab) => void;
 }) {
   const { theme, cart } = useMobileStore();
-  const selected = activeTab || currentTab || "Home";
-  const tabs: { id: MobileTab; icon: any; active: any }[] = [
+  const selected = activeTab;
+  const tabs: {
+    id: MobileTab;
+    icon: React.ComponentProps<typeof Ionicons>["name"];
+    active: React.ComponentProps<typeof Ionicons>["name"];
+  }[] = [
     { id: "Home", icon: "home-outline", active: "home" },
     { id: "Products", icon: "bag-outline", active: "bag" },
     { id: "Cart", icon: "cart-outline", active: "cart" },
@@ -38,9 +38,7 @@ export function BottomTabBar({
           accessibilityRole="tab"
           accessibilityState={{ selected: selected === t.id }}
           accessibilityLabel={t.id}
-          onPress={() =>
-            onSelectTab ? onSelectTab(t.id) : navigation?.navigate(t.id)
-          }
+          onPress={() => onSelectTab(t.id)}
           style={styles.tab}
         >
           <Ionicons
@@ -54,7 +52,7 @@ export function BottomTabBar({
                 position: "absolute",
                 top: 0,
                 right: "23%",
-                backgroundColor: "#1B4332",
+                backgroundColor: BUTTON_COLORS.background,
                 borderRadius: 10,
                 minWidth: 16,
                 paddingHorizontal: 3,
@@ -79,6 +77,15 @@ export function BottomTabBar({
           >
             {t.id}
           </Text>
+          <View
+            style={{
+              height: 2,
+              width: 24,
+              marginTop: 5,
+              borderRadius: 2,
+              backgroundColor: selected === t.id ? theme.gold : "transparent",
+            }}
+          />
         </TouchableOpacity>
       ))}
     </View>
@@ -87,10 +94,12 @@ export function BottomTabBar({
 const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
-    borderTopWidth: 1,
-    paddingTop: 7,
-    paddingBottom: 5,
-    minHeight: 58,
+    borderTopWidth: 0,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 11,
+    paddingBottom: 7,
+    minHeight: 70,
   },
   tab: { flex: 1, alignItems: "center", justifyContent: "center" },
 });

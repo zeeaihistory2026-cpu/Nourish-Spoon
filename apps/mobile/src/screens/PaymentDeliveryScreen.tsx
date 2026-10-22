@@ -1,7 +1,6 @@
-import React from "react";
 import { View, Image } from "react-native";
 import { TouchableOpacity } from "../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useInfoDialog } from "../components/InfoDialog";
 import { Text } from "../components/DesignPrimitives";
 import { Page, Card, Copy } from "../features/commerce/components";
@@ -53,7 +52,7 @@ export function PaymentDeliveryScreen({
           action: () =>
             showInfo(
               method.title,
-              `${method.description}\n\nEstimated time: ${method.estimated_time}\nFee: ${method.fee == null ? "Confirm with Nourish Spoon" : method.fee === 0 ? "Free" : `Rs. ${method.fee}`}`,
+              `${method.description}\n\nEstimated time: ${method.estimated_time}\nDelivery: ${method.code === "self_pickup" ? "Free pickup" : "Rs. 250. Free when the product total after discounts exceeds Rs. 2,500."}`,
             ),
         }));
   return (

@@ -1,44 +1,88 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Image,
   Modal,
   ScrollView,
   Share,
   StyleSheet,
+  Text,
   useWindowDimensions,
   View,
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { TouchableOpacity } from "../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
 import { Header } from "../components/Header";
-import { Text } from "../components/DesignPrimitives";
+import { GreenButton } from "../components/DesignPrimitives";
+import {
+  CustomerReview,
+  CustomerReviewCard,
+  ReviewMedia,
+  REVIEW_FONTS,
+} from "../components/CustomerReviewCard";
+import { AppNavigation } from "../navigation/types";
 import { useMobileStore } from "../services/storeService";
-import { WEBSITE_REVIEWS, WebsiteReview } from "../data/websiteReviews";
+import { WEBSITE_REVIEWS } from "../data/websiteReviews";
 
 export function CustomerReviewsScreen({
   onBack,
   navigation,
 }: {
   onBack?: () => void;
-  navigation?: any;
+  navigation?: AppNavigation;
 }) {
-  const { theme, reviews } = useMobileStore();
+  const { theme, reviews, products } = useMobileStore();
   const { height } = useWindowDimensions();
   const [category, setCategory] = useState("all");
   const [voted, setVoted] = useState<Record<string, boolean>>({});
-  const [screenshot, setScreenshot] = useState<WebsiteReview | null>(null);
+  const [media, setMedia] = useState<ReviewMedia | null>(null);
+  const published: CustomerReview[] = reviews
+    .filter(
+      (review) =>
+        review.status === "approved" &&
+        !WEBSITE_REVIEWS.some((website) => website.id === review.id),
+    )
+    .map((review) => {
+      const productCategory = products.find(
+        (product) => product.id === review.product_id,
+      )?.category;
+      return {
+        id: review.id,
+        name: review.customer_name,
+        location: review.location,
+        rating: review.rating,
+        productName: review.product_name,
+        comment: review.comment,
+        verified: review.verified,
+        helpful: review.helpful_count || 0,
+        category:
+          (productCategory === "combos"
+            ? "both"
+            : productCategory?.replaceAll("_", "-")) ||
+          (/panjeeri|panjiri/i.test(review.product_name)
+            ? "panjeeri"
+            : /energy|ladoos?/i.test(review.product_name)
+              ? "energy-balls"
+              : "both"),
+        photoId: review.has_photo ? review.id : undefined,
+      };
+    });
+  const allReviews: CustomerReview[] = [...published, ...WEBSITE_REVIEWS];
   const filters = [
-    { id: "all", title: "All" },
-    { id: "energy-balls", title: "Energy Balls" },
+    { id: "all", title: `All Reviews (${allReviews.length})` },
     { id: "panjeeri", title: "Panjeeri" },
+    { id: "energy-balls", title: "Energy Balls" },
+    { id: "both", title: "Both Products" },
+    { id: "photos", title: "With Photo" },
   ];
-  const visible = WEBSITE_REVIEWS.filter(
+  const visible = allReviews.filter(
     (review) =>
       category === "all" ||
-      review.category === category ||
-      review.category === "both",
+      (category === "photos"
+        ? !!(review.photoId || review.screenshotSource)
+        : review.category === category ||
+          (category !== "both" && review.category === "both")),
   );
-  const share = async (review: WebsiteReview) => {
+  const share = async (review: CustomerReview) => {
     try {
       await Share.share({
         message: `${review.comment}\n— ${review.name}, ${review.productName}\nhttps://nourishspoon.com/testimonials.html`,
@@ -62,8 +106,14 @@ export function CustomerReviewsScreen({
           Real Experiences. Real Love.
         </Text>
         <Text style={[s.intro, { color: theme.textSecondary }]}>
-          Customer feedback from Nourish Spoon’s website.
+          Feedback from our customers and verified app purchases.
         </Text>
+        {navigation && (
+          <GreenButton
+            title="Review a delivered order"
+            onPress={() => navigation.navigate("Orders")}
+          />
+        )}
         <View style={s.filters}>
           {filters.map((filter) => (
             <TouchableOpacity
@@ -75,242 +125,81 @@ export function CustomerReviewsScreen({
               style={[
                 s.filter,
                 {
-                  borderColor: theme.gold,
+                  borderColor: theme.border,
                   backgroundColor:
                     category === filter.id ? "#1B4332" : theme.surface,
                 },
               ]}
             >
               <Text
-                style={{
-                  color: category === filter.id ? "#fff" : theme.text,
-                  fontSize: 12,
-                  fontWeight: "700",
-                }}
+                style={[
+                  s.filterText,
+                  { color: category === filter.id ? "#fff" : theme.text },
+                ]}
               >
                 {filter.title}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
-        {reviews
-          .filter(
-            (review) =>
-              review.status === "approved" &&
-              !WEBSITE_REVIEWS.some((website) => website.id === review.id) &&
-              (category === "all" ||
-                (category === "panjeeri"
-                  ? review.product_name.includes("Panjeeri")
-                  : !review.product_name.includes("Panjeeri"))),
-          )
-          .map((review) => (
-            <View
-              key={review.id}
-              style={[
-                s.card,
-                {
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                  borderTopColor: theme.gold,
-                },
-              ]}
-            >
-              <Text style={{ fontSize: 16, fontWeight: "700" }}>
-                {review.customer_name} · {review.rating}★
-              </Text>
-              <Text style={{ fontSize: 12, color: theme.primary }}>
-                Verified purchase · {review.product_name}
-              </Text>
-              <Text style={[s.comment, { color: theme.textSecondary }]}>
-                {review.comment}
-              </Text>
-            </View>
-          ))}
         {visible.map((review) => (
-          <View
+          <CustomerReviewCard
             key={review.id}
-            style={[
-              s.card,
-              {
-                backgroundColor: theme.surface,
-                borderColor: theme.border,
-                borderTopColor: theme.gold,
-              },
-            ]}
-          >
-            <View style={s.author}>
-              <View style={[s.avatar, { backgroundColor: "#1B4332" }]}>
-                <Text
-                  style={{ color: "#fff", fontWeight: "700", fontSize: 21 }}
-                >
-                  {review.name[0]}
-                </Text>
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text
-                  style={{ color: theme.text, fontWeight: "700", fontSize: 16 }}
-                >
-                  {review.name}
-                </Text>
-                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
-                  {review.location}
-                </Text>
-              </View>
-              {review.verified && (
-                <View style={s.verified}>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={14}
-                    color={theme.primary}
-                  />
-                  <Text style={{ color: theme.primary, fontSize: 11 }}>
-                    Verified
-                  </Text>
-                </View>
-              )}
-            </View>
-            <View style={s.stars}>
-              {Array.from({ length: 5 }, (_, i) => (
-                <Ionicons
-                  key={i}
-                  name={i < review.rating ? "star" : "star-outline"}
-                  color={theme.gold}
-                  size={16}
-                />
-              ))}
-            </View>
-            <View style={[s.tag, { backgroundColor: theme.goldWarm }]}>
-              <Text style={{ fontSize: 11, color: theme.primary }}>
-                {review.productName}
-              </Text>
-            </View>
-            <Text style={[s.headline, { color: theme.text }]}>
-              {review.headline}
-            </Text>
-            <Text style={[s.comment, { color: theme.textSecondary }]}>
-              {review.comment}
-            </Text>
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={`View screenshot from ${review.name} for ${review.productName}`}
-              onPress={() => setScreenshot(review)}
-              style={[
-                s.proof,
-                {
-                  borderColor: theme.border,
-                  backgroundColor: theme.surfaceWarm,
-                },
-              ]}
-            >
-              <Image
-                source={review.screenshotSource}
-                style={s.thumb}
-                resizeMode="cover"
-              />
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{ color: theme.gold, fontSize: 9, letterSpacing: 1 }}
-                >
-                  WHATSAPP SCREENSHOT
-                </Text>
-                <Text
-                  style={{
-                    color: theme.text,
-                    fontWeight: "700",
-                    fontSize: 12,
-                    marginTop: 3,
-                  }}
-                >
-                  View Screenshot
-                </Text>
-              </View>
-              <Ionicons name="expand-outline" size={18} color={theme.primary} />
-            </TouchableOpacity>
-            <View style={[s.footer, { borderColor: theme.border }]}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={`Helpful review by ${review.name}: ${review.helpful + (voted[review.id] ? 1 : 0)}`}
-                accessibilityState={{ selected: !!voted[review.id] }}
-                onPress={() =>
-                  setVoted((prev) => ({
-                    ...prev,
-                    [review.id]: !prev[review.id],
-                  }))
-                }
-                style={s.action}
-              >
-                <Ionicons
-                  name={voted[review.id] ? "thumbs-up" : "thumbs-up-outline"}
-                  size={17}
-                  color={theme.primary}
-                />
-                <Text style={{ color: theme.primary, fontSize: 12 }}>
-                  Helpful ({review.helpful + (voted[review.id] ? 1 : 0)})
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={`Share review by ${review.name}`}
-                onPress={() => share(review)}
-                style={s.action}
-              >
-                <Ionicons
-                  name="share-outline"
-                  size={18}
-                  color={theme.primary}
-                />
-                <Text style={{ color: theme.primary, fontSize: 12 }}>
-                  Share
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            review={review}
+            theme={theme}
+            voted={!!voted[review.id]}
+            onVote={() =>
+              setVoted((previous) => ({
+                ...previous,
+                [review.id]: !previous[review.id],
+              }))
+            }
+            onShare={() => share(review)}
+            onOpenMedia={setMedia}
+          />
         ))}
+        {!visible.length && (
+          <Text style={[s.intro, { color: theme.textSecondary }]}>
+            No approved reviews in this category yet.
+          </Text>
+        )}
       </ScrollView>
       <Modal
-        visible={!!screenshot}
+        visible={!!media}
         transparent
-        animationType="none"
-        onRequestClose={() => setScreenshot(null)}
+        animationType="fade"
+        onRequestClose={() => setMedia(null)}
       >
         <View style={s.overlay}>
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Dismiss review screenshot"
-            onPress={() => setScreenshot(null)}
+            accessibilityLabel="Dismiss review photo"
+            onPress={() => setMedia(null)}
             style={StyleSheet.absoluteFill}
           />
           <View
             accessibilityViewIsModal
             style={[s.modal, { backgroundColor: theme.surface }]}
           >
-            <View style={s.author}>
-              <Text
-                style={{
-                  flex: 1,
-                  color: theme.text,
-                  fontFamily: "serif",
-                  fontWeight: "700",
-                  fontSize: 22,
-                }}
-              >
-                {screenshot?.name}’s Review
+            <View style={s.modalHeading}>
+              <Text style={[s.modalTitle, { color: theme.text }]}>
+                {media?.name}’s Review
               </Text>
               <TouchableOpacity
                 accessibilityRole="button"
-                accessibilityLabel="Close review screenshot"
-                onPress={() => setScreenshot(null)}
+                accessibilityLabel="Close review photo"
+                onPress={() => setMedia(null)}
                 style={s.close}
               >
                 <Ionicons name="close" size={24} color={theme.text} />
               </TouchableOpacity>
             </View>
-            {screenshot && (
+            {media && (
               <Image
-                source={screenshot.screenshotSource}
+                source={media.source}
                 style={{ width: "100%", height: height * 0.62 }}
                 resizeMode="contain"
-                accessibilityLabel={`Published WhatsApp feedback from ${screenshot.name}`}
+                accessibilityLabel={`Full review image from ${media.name}`}
               />
             )}
           </View>
@@ -323,83 +212,44 @@ export function CustomerReviewsScreen({
 const s = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 20 },
   eyebrow: {
+    fontFamily: REVIEW_FONTS.bold,
     fontSize: 11,
-    fontWeight: "700",
     letterSpacing: 1.5,
     textAlign: "center",
     marginTop: 14,
   },
   heading: {
-    fontFamily: "serif",
+    fontFamily: REVIEW_FONTS.display,
     fontSize: 27,
-    fontWeight: "700",
+    lineHeight: 37,
     textAlign: "center",
     marginTop: 5,
+    paddingBottom: 5,
   },
   intro: {
+    fontFamily: REVIEW_FONTS.regular,
     fontSize: 13,
-    lineHeight: 20,
+    lineHeight: 21,
     textAlign: "center",
     marginTop: 5,
     marginBottom: 16,
   },
-  filters: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  filter: {
-    flex: 1,
-    minHeight: 40,
-    borderWidth: 1,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  card: {
-    borderWidth: 1,
-    borderTopWidth: 3,
-    borderRadius: 16,
-    padding: 16,
+  filters: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 24,
     marginBottom: 16,
   },
-  author: { flexDirection: "row", alignItems: "center", gap: 10 },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  filter: {
+    minHeight: 40,
+    paddingHorizontal: 14,
+    borderWidth: 1.5,
+    borderRadius: 99,
     alignItems: "center",
     justifyContent: "center",
   },
-  verified: { flexDirection: "row", alignItems: "center", gap: 3 },
-  stars: { flexDirection: "row", gap: 2, marginTop: 12, marginBottom: 10 },
-  tag: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 12,
-  },
-  headline: {
-    fontFamily: "serif",
-    fontWeight: "700",
-    fontSize: 20,
-    lineHeight: 25,
-    marginTop: 12,
-  },
-  comment: { fontSize: 13, lineHeight: 21, marginTop: 8, marginBottom: 14 },
-  proof: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 8,
-  },
-  thumb: { width: 50, height: 58, borderRadius: 6 },
-  footer: {
-    borderTopWidth: 1,
-    marginTop: 14,
-    paddingTop: 4,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  action: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 6 },
+  filterText: { fontFamily: REVIEW_FONTS.bold, fontSize: 12 },
   overlay: {
     flex: 1,
     backgroundColor: "#00000090",
@@ -412,6 +262,13 @@ const s = StyleSheet.create({
     maxWidth: 520,
     width: "100%",
     alignSelf: "center",
+  },
+  modalHeading: { flexDirection: "row", alignItems: "center", gap: 10 },
+  modalTitle: {
+    fontFamily: REVIEW_FONTS.display,
+    flex: 1,
+    fontSize: 22,
+    lineHeight: 30,
   },
   close: {
     width: 44,

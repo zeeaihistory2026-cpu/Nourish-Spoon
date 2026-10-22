@@ -1,21 +1,50 @@
 # Architecture
 
-The mobile app keeps navigation and presentation separate from account/commerce services. Shared catalogue normalization accepts the live project's older camelCase product schema and the newer typed schema without substituting bundled prices for server prices. A bundled website snapshot permits browsing before connectivity is available. The server remains authoritative when placing orders.
+Nourish Spoon has one customer app, one admin dashboard and one shared Firebase database. The canonical source is this repository. The standalone dashboard repository is an export for Vercel deployment, not a second independently maintained backend.
 
-Cart and favorites persist locally with Zustand/AsyncStorage. Accounts persist through Firebase Auth; account subscriptions clear their data when the signed-in UID changes. Owner-only addresses and notifications reside under user documents. Orders are read with a customer UID query and sorted locally, avoiding a composite index requirement. Approved reviews are public; pending reviews remain private to the reviewer and owner.
+## Source boundaries
 
-Callable checkout uses an account-scoped idempotency key and a Firestore transaction. It reads current product prices, aggregate legacy stock or variant stock, address and delivery settings. Unknown fees remain an unconfirmed quote rather than becoming free delivery. Concurrent checkout cannot oversell known inventory. Cancellation restores inventory once. Order stages cannot skip forward or reopen a completed order. Customers cannot mark themselves paid or dispatched.
+| Location | Responsibility |
+| --- | --- |
+| `apps/mobile/src/application` | Startup, session lifecycle, navigation and screen composition |
+| `apps/mobile/src/screens` | Storefront, account, brand and information screens |
+| `apps/mobile/src/features/commerce` | Basket, checkout, order history, tracking, rewards and receipts |
+| `apps/mobile/src/components` | Shared presentation and website-style review cards |
+| `apps/mobile/src/services` | Firebase client, subscriptions, scoped persistence, photos and push registration |
+| `apps/mobile/plugins` | Repeatable native Firebase and launch configuration |
+| `apps/admin/src/app` | Next.js pages and authenticated server routes |
+| `apps/admin/src/components` | Dashboard presentation and forms |
+| `apps/admin/src/lib` | Server authorization, record adapters, financial calculations and PDFs |
+| `functions/src` | Shared transactional order, stock, reward and review operations; callable transport |
+| `packages` | Shared catalogue normalization, delivery policy, types and utilities |
+| `tooling` | Isolated tests and optional artwork/preview tools |
 
-The owner dashboard uses Firebase directly for owner-managed catalogue and settings documents, and protected functions for order changes. Reviews require a delivered order containing the reviewed product and are moderated before publication. Notifications are in-app records written by an order-update trigger.
+## Accounts and data
 
-Native social authentication uses a Firebase-hosted provider popup and an expiring, one-use authorization code. The app redeems it with a secret verifier matching a SHA-256 challenge. Neither OAuth access tokens nor Firebase custom tokens travel in the deep link. Live provider configuration is an external deployment requirement.
+Login is mandatory for customer destinations. Public catalogue and approved-review reads can warm during launch, but they do not grant guest access. A validated, previously server-verified catalogue cache supplies the initial display while Firestore refreshes it. Bundled prices and unverified cached snapshots cannot unlock checkout prices. Final ordering always uses current server records.
 
-Android launch uses a native centered transparent logo overlay before React is ready. It is removed when the app logo has successfully loaded; both stages show the same contained logo on cream. No food image or launch text is shown. App typography loads locally before normal screens.
+Orders, addresses, notifications, reward balances and profile media are account-scoped. Subscriptions and account state clear when the signed-in UID changes. Reviews become public only after dashboard approval. The shared database contract and exact collection names are documented in [the backend contract](../apps/admin/docs/SHARED_BACKEND.md).
 
-No signing keys, service-account keys, Google/Apple private provider credentials or GitHub tokens belong in the repository. The generated Functions catalogue adapter is produced from the canonical shared ESM source during build rather than maintained as a duplicate.
+## Checkout and fulfilment
 
-Commerce screens share page/card/field primitives and receipt item/totals components. Orders list history, OrderDetails holds the receipt/reorder/review flow, OrderTracking holds fulfilment and TCS, and OrderConfirmation is entered only after the server accepts checkout. Fulfilment timestamps are written by the owner function on actual status changes; legacy missing times are not synthesized.
+Android calls the dashboard's authenticated `/api/shop/{action}` routes with a Firebase ID token. Anonymous tokens are rejected. Browser customers additionally require an allowed origin. The server uses the same transaction modules as the callable transport, so both apps share product IDs, orders, stock, offers and rewards.
 
-Checkout drafts live in a dedicated memory-only Zustand store, separate from persisted cart/favourites. They preserve navigation to sign-in and payment instructions, retain the request ID on retries, and clear on completion or account change. Personal destinations belong in More; the drawer owns shop and business information.
+An account-scoped request ID prevents duplicate orders and reservations. Transactions recalculate product prices, optional coupon/points deductions and delivery. Delivery is Rs. 250 unless the product amount after discounts exceeds Rs. 2,500; pickup is free. Known stock cannot be oversold. Cancellation restores inventory once. Payment verification and fulfilment remain server-controlled.
 
-Mobile TypeScript explicitly includes source/shared packages and excludes generated preview bundles to prevent exported JavaScript from entering type checking.
+Admins may move an order forward to preparation, out for delivery or delivered without first entering tracking. Supplied TCS numbers are validated and may be added later. Completed and cancelled orders cannot be reopened. Saved status timestamps represent actual changes; missing historical times are not invented.
+
+Referral links are accepted before the customer's first order. Paid delivery settles earned points and referral rewards once. Refunds/cancellations reverse eligible wallet changes through the ledger. Coupon and wallet previews do not authorize a final discount; placement validates them again.
+
+## Reviews, notifications and documents
+
+One review is allowed per delivered order/product. Optional compressed JPEGs live in separate media documents. Pending feedback remains private; approved purchase reviews and the published website testimonials use the same mobile card. Profile thumbnails are private to their account.
+
+Order transactions create customer inbox records. Dashboard announcements create inbox messages and submit FCM notifications to registered Android installations. Logout unregisters the installation from the old account. An FCM acknowledgement means the service accepted the message, not that the phone displayed it. Admin new-order alerts have their own bell, toast and read cursor.
+
+Customer-owned receipt PDFs use saved item amounts, discount, delivery and total. PAID is shown only for saved paid status. Dashboard revenue and weekly/monthly reports count saved paid-order totals independently of delivery. Refunded/unpaid orders are excluded. Pakistan calendar boundaries are shared by the KPI, graph and PDF. Historical paid records without a payment date use their order date, with that limitation disclosed.
+
+## Native and deployment sources
+
+The native launch mark and jar lettering are vector paths. Expo plugin templates are authoritative; native copies and Android/Expo version numbers are checked by the repository audit. Text fonts load locally. Private signing keys, Firebase Admin credentials and device tokens never belong in Git or the APK.
+
+`functions/scripts/build.js` generates shared catalogue/delivery adapters. `scripts/export-dashboard.mjs` exports the Next.js app and required transaction modules into a standalone checkout. Generated deployment copies must be regenerated from the canonical source rather than edited independently.

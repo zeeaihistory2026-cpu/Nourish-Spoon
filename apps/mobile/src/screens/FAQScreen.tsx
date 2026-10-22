@@ -1,28 +1,19 @@
+import { BUTTON_COLORS, BUTTON_OUTLINE } from "../constants/theme";
 import { Header } from "../components/Header";
-import { FontAwesome } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Text } from "../components/DesignPrimitives";
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  SafeAreaView,
-  StatusBar,
-  Linking,
-} from "react-native";
+import { View, StyleSheet, ScrollView, StatusBar, Linking } from "react-native";
 import { TouchableOpacity } from "../components/AppTouchable";
-import { useStore } from "../services/storeService";
-import { ASSETS } from "../constants/assets";
-import { BottomTabBar } from "../components/BottomTabBar";
+import { useMobileStore } from "../services/storeService";
+import { AppNavigation } from "../navigation/types";
 
 interface FAQScreenProps {
-  navigation: any;
+  navigation: AppNavigation;
 }
 
 export const FAQScreen: React.FC<FAQScreenProps> = ({ navigation }) => {
-  const { currentTheme, faqs, settings } = useStore();
-  const colors = currentTheme;
+  const { theme: colors, faqs, settings } = useMobileStore();
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(
@@ -433,7 +424,8 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "#25D366",
+    ...BUTTON_OUTLINE,
+    backgroundColor: BUTTON_COLORS.background,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -464,7 +456,8 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: "#073B21",
+    ...BUTTON_OUTLINE,
+    backgroundColor: BUTTON_COLORS.background,
     alignItems: "center",
     justifyContent: "center",
   },

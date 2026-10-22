@@ -1,7 +1,6 @@
 import { commerceEnabled } from "./availability";
-import React from "react";
 import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import { Page, Card, Heading, Copy, Message, AccountGate } from "./components";

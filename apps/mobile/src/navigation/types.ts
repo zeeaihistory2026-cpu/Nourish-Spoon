@@ -1,5 +1,22 @@
 import { Product, ProductVariant } from "@packages/types";
-import { MenuSection } from "../components/BurgerMenu";
+export type MenuSection = "payment" | "delivery";
+export type MenuDestination =
+  | MenuSection
+  | "home"
+  | "products"
+  | "panjeeri"
+  | "energy_balls"
+  | "combos"
+  | "story"
+  | "reviews";
+export type MobileTab = "Home" | "Products" | "Cart" | "Orders" | "More";
+export const MAIN_TABS: readonly MobileTab[] = [
+  "Home",
+  "Products",
+  "Cart",
+  "Orders",
+  "More",
+];
 export type AppScreen =
   | "splash"
   | "onboarding"
@@ -38,10 +55,9 @@ export type RouteParams = {
   category?: string;
   profile?: { uid: string; fullName: string; phone?: string };
 };
+export type AppRoute = { name: AppScreen; params?: RouteParams };
 export type AppNavigation = {
   navigate: (name: AppScreen, params?: RouteParams) => void;
   goBack: () => void;
   openMenu: () => void;
-  push: (name: AppScreen, params?: RouteParams) => void;
-  replace: (name: AppScreen) => void;
 };

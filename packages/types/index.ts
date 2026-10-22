@@ -36,6 +36,7 @@ export type NutritionFact = {
 
 export type Product = {
   inventory_mode?: 'per_variant';
+  legacy_stock?: number | null;
   id: string;
   name: string;
   slug: string;
@@ -132,6 +133,8 @@ export type Order = {
 
 export type Review = {
   id: string;
+  order_id?: string;
+  has_photo?: boolean;
   product_id?: string;
   customer_name: string;
   customer_avatar?: string | null;
@@ -143,7 +146,7 @@ export type Review = {
   screenshot_url?: string | null;
   verified: boolean;
   helpful_count: number;
-  status: 'approved' | 'pending' | 'hidden';
+  status: 'approved' | 'pending' | 'hidden' | 'removed';
   is_featured: boolean;
   review_date: string;
 };

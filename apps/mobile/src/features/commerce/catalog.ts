@@ -51,16 +51,37 @@ export function mergeCatalogueDocuments(
   return products.sort((a, b) => a.sort_order - b.sort_order);
 }
 export function subscribeCatalogue() {
-  if (!db) return () => {};
+  if (useMobileStore.getState().catalogueStatus === "error")
+    useMobileStore.setState({ catalogueStatus: "loading" });
+  const fail = () => {
+    if (useMobileStore.getState().catalogueStatus !== "ready")
+      useMobileStore.setState({ catalogueStatus: "error" });
+  };
+  if (!db) {
+    fail();
+    return () => {};
+  }
+  // Disk-verified prices remain available during refresh. An arbitrary Firestore
+  // cache snapshot cannot unlock prices on a first launch.
+  const timeout = setTimeout(fail, 12000);
   const products = onSnapshot(
     collection(db, "products"),
+    { includeMetadataChanges: true },
     (snapshot) => {
-      if (snapshot.empty) return;
+      if (snapshot.metadata.fromCache) return;
+      clearTimeout(timeout);
+      if (snapshot.empty) {
+        useMobileStore.getState().setProducts([]);
+        return;
+      }
       useMobileStore
         .getState()
         .setProducts(mergeCatalogueDocuments(snapshot.docs));
     },
-    () => {},
+    () => {
+      clearTimeout(timeout);
+      fail();
+    },
   );
   const reviews = onSnapshot(
     query(collection(db, "reviews"), where("status", "==", "approved")),
@@ -77,6 +98,7 @@ export function subscribeCatalogue() {
     () => {},
   );
   return () => {
+    clearTimeout(timeout);
     products();
     reviews();
   };

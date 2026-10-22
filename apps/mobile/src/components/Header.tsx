@@ -1,7 +1,7 @@
-import React from "react";
+import { BUTTON_COLORS } from "../constants/theme";
 import { View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMobileStore } from "../services/storeService";
 import { Text, Botanical, Brand } from "./DesignPrimitives";
 interface HeaderProps {
@@ -9,31 +9,40 @@ interface HeaderProps {
   showBack?: boolean;
   onBack?: () => void;
   onMenu?: () => void;
-  onNotification?: () => void;
   onSearch?: () => void;
   onCart?: () => void;
-  rightAction?: "bell" | "search" | "cart" | "none";
+  rightAction?: "search" | "cart" | "none";
+  premium?: boolean;
 }
 export function Header({
   title,
   showBack,
   onBack,
   onMenu,
-  onNotification,
   onSearch,
   onCart,
-  rightAction = "bell",
+  rightAction = "none",
+  premium = false,
 }: HeaderProps) {
   const { theme, cart } = useMobileStore();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   return (
-    <View style={[styles.header, { height: title ? 65 : 72 }]}>
+    <View
+      style={[
+        styles.header,
+        { minHeight: title ? 65 : premium ? 82 : 72 },
+        premium && { backgroundColor: theme.background },
+      ]}
+    >
       {title && <Botanical />}
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={showBack ? "Go back" : "Open menu"}
         onPress={showBack ? onBack : onMenu}
-        style={[styles.circle, { backgroundColor: theme.surface }]}
+        style={[
+          styles.circle,
+          { backgroundColor: premium ? theme.surfaceWarm : theme.surface },
+        ]}
       >
         <Ionicons
           name={showBack ? "chevron-back" : "menu"}
@@ -44,7 +53,7 @@ export function Header({
       {title ? (
         <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
       ) : (
-        <Brand website />
+        <Brand website large={premium} />
       )}
       {rightAction === "none" ? (
         <View style={{ width: 44 }} />
@@ -52,29 +61,16 @@ export function Header({
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={
-            rightAction === "search"
-              ? "Search products"
-              : rightAction === "cart"
-                ? "Open cart"
-                : "Notifications"
+            rightAction === "search" ? "Search products" : "Open cart"
           }
-          onPress={
-            rightAction === "search"
-              ? onSearch
-              : rightAction === "cart"
-                ? onCart
-                : onNotification
-          }
-          style={[styles.circle, { backgroundColor: theme.surface }]}
+          onPress={rightAction === "search" ? onSearch : onCart}
+          style={[
+            styles.circle,
+            { backgroundColor: premium ? theme.surfaceWarm : theme.surface },
+          ]}
         >
           <Ionicons
-            name={
-              rightAction === "search"
-                ? "search"
-                : rightAction === "cart"
-                  ? "bag-outline"
-                  : "notifications-outline"
-            }
+            name={rightAction === "search" ? "search" : "bag-outline"}
             size={23}
             color={theme.text}
           />
@@ -92,6 +88,7 @@ export function Header({
 }
 const styles = StyleSheet.create({
   header: {
+    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -115,7 +112,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 0,
-    backgroundColor: "#1B4332",
+    backgroundColor: BUTTON_COLORS.background,
     minWidth: 17,
     height: 17,
     paddingHorizontal: 3,

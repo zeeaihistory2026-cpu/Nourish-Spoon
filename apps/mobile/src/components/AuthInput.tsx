@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useEffect, useRef } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import {
   Animated,
   View,
@@ -8,9 +8,10 @@ import {
   Platform,
 } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Text } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
+import { useFieldShake } from "../hooks/useFieldShake";
 
 type Props = TextInputProps & {
   label: string;
@@ -38,24 +39,7 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
   const { theme: c } = useMobileStore();
   const [focused, setFocused] = useState(false);
   const [visible, setVisible] = useState(false);
-  const offset = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (!error || reduceMotion) return;
-    const animation = Animated.sequence(
-      [-5, 5, -4, 4, 0].map((value) =>
-        Animated.timing(offset, {
-          toValue: value,
-          duration: 40,
-          useNativeDriver: Platform.OS !== "web",
-        }),
-      ),
-    );
-    animation.start();
-    return () => {
-      animation.stop();
-      offset.setValue(0);
-    };
-  }, [error, validationTick, reduceMotion, offset]);
+  const offset = useFieldShake(error, validationTick, reduceMotion);
   useEffect(() => {
     if (Platform.OS !== "web" || document.getElementById("nourish-auth-white"))
       return;

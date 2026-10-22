@@ -27,11 +27,19 @@ service cloud.firestore {
         allow read: if signedIn() && request.auth.uid == uid;
         allow update: if signedIn() && request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) && request.resource.data.read is bool;
       }
+      match /media/{id} { allow read: if signedIn() && request.auth.uid == uid; allow write: if false; }
     }
     match /products/{id} { allow read: if true; allow write: if admin(); }
     match /faqs/{id} { allow read: if true; allow write: if admin(); }
     match /settings/{id} { allow read: if true; allow write: if admin(); }
-    match /reviews/{id} { allow read: if resource.data.status == 'approved' || admin() || (signedIn() && resource.data.customer_uid == request.auth.uid); allow write: if admin(); }
+    match /reviews/{id} {
+      allow read: if resource.data.status == 'approved' || admin() || (signedIn() && resource.data.customer_uid == request.auth.uid);
+      allow write: if admin();
+      match /media/{photoId} {
+        allow read: if get(/databases/$(database)/documents/reviews/$(id)).data.status == 'approved' || admin() || (signedIn() && get(/databases/$(database)/documents/reviews/$(id)).data.customer_uid == request.auth.uid);
+        allow write: if false;
+      }
+    }
     match /orders/{id} { allow read: if admin() || (signedIn() && resource.data.customer_uid == request.auth.uid); allow write: if false; }
     match /rewardWallets/{uid} {
       allow read: if admin() || (signedIn() && request.auth.uid == uid);

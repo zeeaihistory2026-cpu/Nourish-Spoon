@@ -10,6 +10,7 @@ import * as AuthSDK from "firebase/auth";
 import {
   getFirestore,
   doc,
+  getDoc,
   setDoc,
   serverTimestamp,
   connectFirestoreEmulator,
@@ -126,4 +127,22 @@ export function accountError(error: { code?: string; message?: string }) {
     messages[error.code || ""] ||
     "Could not complete sign-in. Please try again."
   );
+}
+
+/** Existing Auth accounts may predate the customer directory. Backfill on login. */
+export async function ensureCustomerProfile(user: {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+}) {
+  if (!db || !user.email) return;
+  const ref = doc(db, "users", user.uid);
+  if (!(await getDoc(ref)).exists())
+    await saveCustomerProfile(
+      user.uid,
+      user.displayName || user.email.split("@")[0],
+      user.email,
+      user.phoneNumber || "",
+    );
 }

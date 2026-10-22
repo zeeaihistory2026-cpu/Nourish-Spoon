@@ -1,3 +1,4 @@
+import { BUTTON_COLORS, BUTTON_OUTLINE } from "../constants/theme";
 import React from "react";
 import {
   Image,
@@ -9,21 +10,12 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, Brand } from "./DesignPrimitives";
 import { useMobileStore } from "../services/storeService";
 
-export type MenuSection = "payment" | "delivery";
-export type MenuDestination =
-  | MenuSection
-  | "home"
-  | "products"
-  | "panjeeri"
-  | "energy_balls"
-  | "combos"
-  | "story"
-  | "reviews";
+import { MenuDestination } from "../navigation/types";
 const groups: {
   label: string;
   items: {
@@ -265,7 +257,8 @@ export function BurgerMenu({
                   minHeight: 32,
                   paddingHorizontal: 10,
                   borderRadius: 8,
-                  backgroundColor: "#1B4332",
+                  ...BUTTON_OUTLINE,
+                  backgroundColor: BUTTON_COLORS.background,
                   flexDirection: "row",
                   alignItems: "center",
                   gap: 6,

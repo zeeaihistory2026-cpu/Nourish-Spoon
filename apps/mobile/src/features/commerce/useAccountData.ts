@@ -9,14 +9,20 @@ export function useAccountData<T>(
   ) => () => void,
 ) {
   const [user, setUser] = useState<User | null>(
-    firebaseAuth?.currentUser || null,
+    firebaseAuth?.currentUser && !firebaseAuth.currentUser.isAnonymous
+      ? firebaseAuth.currentUser
+      : null,
   );
   const [items, setItems] = useState<T[]>([]),
     [error, setError] = useState(""),
-    [loading, setLoading] = useState(false);
+    [loading, setLoading] = useState(!!firebaseAuth?.currentUser);
   useEffect(
     () =>
-      firebaseAuth ? onAuthStateChanged(firebaseAuth, setUser) : undefined,
+      firebaseAuth
+        ? onAuthStateChanged(firebaseAuth, (user) =>
+            setUser(user && !user.isAnonymous ? user : null),
+          )
+        : undefined,
     [],
   );
   useEffect(() => {
@@ -24,17 +30,24 @@ export function useAccountData<T>(
     setError("");
     setLoading(!!user);
     if (!user) return;
+    let active = true;
     try {
-      return watch(
+      const stop = watch(
         (items) => {
+          if (!active) return;
           setItems(items);
           setLoading(false);
         },
         (error) => {
+          if (!active) return;
           setError(commerceError(error));
           setLoading(false);
         },
       );
+      return () => {
+        active = false;
+        stop();
+      };
     } catch (error) {
       setError(commerceError(error));
       setLoading(false);

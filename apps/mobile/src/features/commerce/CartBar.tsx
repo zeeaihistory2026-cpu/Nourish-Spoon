@@ -1,14 +1,14 @@
-import React from "react";
+import { BUTTON_COLORS, BUTTON_OUTLINE } from "../../constants/theme";
 import { View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
-import { Text } from "../../components/DesignPrimitives";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Text, PriceText } from "../../components/DesignPrimitives";
 import { useMobileStore } from "../../services/storeService";
 import { formatPKR } from "@packages/utils";
 
 /** A separate layout row keeps the cart shortcut clear of content and navigation. */
 export function CartBar({ onOpen }: { onOpen: () => void }) {
-  const { cart, theme } = useMobileStore();
+  const { cart, theme, catalogueStatus } = useMobileStore();
   const count = cart.reduce((total, item) => total + item.quantity, 0);
   const subtotal = cart.reduce(
     (total, item) =>
@@ -16,7 +16,7 @@ export function CartBar({ onOpen }: { onOpen: () => void }) {
       (item.variant.sale_price ?? item.variant.regular_price) * item.quantity,
     0,
   );
-  if (!count) return null;
+  if (!count || catalogueStatus !== "ready") return null;
   return (
     <View
       style={[
@@ -38,7 +38,7 @@ export function CartBar({ onOpen }: { onOpen: () => void }) {
           <Text style={s.label}>
             {count} {count === 1 ? "item" : "items"}
           </Text>
-          <Text style={s.subtotal}>{formatPKR(subtotal)}</Text>
+          <PriceText style={s.subtotal}>{formatPKR(subtotal)}</PriceText>
         </View>
         <Text style={s.label}>View Cart</Text>
         <Ionicons name="arrow-forward" size={19} color="#fff" />
@@ -53,7 +53,8 @@ const s = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: "#1B4332",
+    ...BUTTON_OUTLINE,
+    backgroundColor: BUTTON_COLORS.background,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,

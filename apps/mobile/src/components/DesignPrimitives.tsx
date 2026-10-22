@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Text as NativeText,
   TextProps,
@@ -9,9 +8,15 @@ import {
   ViewStyle,
 } from "react-native";
 import { TouchableOpacity } from "./AppTouchable";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useMobileStore } from "../services/storeService";
+import { Product } from "@packages/types";
+import {
+  BUTTON_COLORS,
+  BUTTON_OUTLINE,
+  WHATSAPP_BUTTON_COLORS,
+} from "../constants/theme";
 
 export function Text({ style, ...props }: TextProps) {
   const defaultColor = useMobileStore((state) => state.theme.text);
@@ -38,6 +43,27 @@ export function Text({ style, ...props }: TextProps) {
         { color: defaultColor },
         style,
         { fontFamily, fontWeight: "normal" },
+      ]}
+    />
+  );
+}
+
+/** Matches the website's product detail price: Jost, 16px, bold. */
+export function PriceText({ style, ...props }: TextProps) {
+  const color = useMobileStore((state) => state.theme.gold);
+  return (
+    <Text
+      {...props}
+      style={[
+        { color },
+        style,
+        {
+          fontFamily: "Jost_700Bold",
+          fontSize: 16,
+          lineHeight: 22,
+          fontWeight: "700",
+          fontStyle: "normal",
+        },
       ]}
     />
   );
@@ -106,23 +132,28 @@ export function Brand({
         <Image
           source={require("../../assets/website/logo-transparent.png")}
           resizeMode="contain"
-          style={{ width: 38, height: 38, tintColor: "#C9A84C" }}
+          style={{
+            width: large ? 46 : 38,
+            height: large ? 46 : 38,
+            tintColor: "#BE8A28",
+          }}
         />
-        <View>
+        <View style={{ flexShrink: 1, minWidth: 0 }}>
           <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
             style={{
               fontFamily: "serif",
-              fontSize: 22,
-              lineHeight: 25,
+              fontSize: large ? 24 : 22,
+              lineHeight: large ? 28 : 25,
               fontWeight: "700",
               color: textColor || theme.text,
             }}
           >
             Nourish Spoon™
           </Text>
-          <Text
-            style={{ fontFamily: "serif", fontSize: 14, color: theme.gold }}
-          >
+          <Text style={{ fontSize: large ? 11 : 12, color: theme.gold }}>
             Crafted with Love
           </Text>
         </View>
@@ -177,7 +208,7 @@ export function GreenButton({
   disabled = false,
   style,
 }: GreenButtonProps) {
-  const { theme } = useMobileStore();
+  const colors = whatsapp ? WHATSAPP_BUTTON_COLORS : BUTTON_COLORS;
   return (
     <TouchableOpacity
       accessibilityRole="button"
@@ -186,17 +217,18 @@ export function GreenButton({
       disabled={disabled}
       activeOpacity={0.85}
       style={[
-        { borderRadius: 8, overflow: "hidden", opacity: disabled ? 0.6 : 1 },
+        {
+          borderRadius: 16,
+          ...BUTTON_OUTLINE,
+          overflow: "hidden",
+          opacity: disabled ? 0.6 : 1,
+        },
         style,
       ]}
     >
-      <LinearGradient
-        colors={
-          whatsapp ? [theme.whatsapp, theme.whatsapp] : ["#1B4332", "#1B4332"]
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
         style={{
+          backgroundColor: colors.background,
           minHeight: 47,
           flexDirection: "row",
           justifyContent: "center",
@@ -205,13 +237,15 @@ export function GreenButton({
           gap: 9,
         }}
       >
-        {whatsapp && <FontAwesome name="whatsapp" size={25} color="#fff" />}
+        {whatsapp && (
+          <FontAwesome name="whatsapp" size={25} color={colors.text} />
+        )}
         <Text
           numberOfLines={1}
           adjustsFontSizeToFit
           minimumFontScale={0.85}
           style={{
-            color: "#fff",
+            color: colors.text,
             fontSize: 16,
             fontWeight: "700",
             flexShrink: 1,
@@ -221,13 +255,21 @@ export function GreenButton({
         >
           {title}
         </Text>
-        <Ionicons name="arrow-forward" size={23} color="#fff" />
-      </LinearGradient>
+        <Ionicons name="arrow-forward" size={23} color={colors.text} />
+      </View>
     </TouchableOpacity>
   );
 }
 
-export function Rating({ product, compact = false, verified = false }: any) {
+export function Rating({
+  product,
+  compact = false,
+  verified = false,
+}: {
+  product: Pick<Product, "rating" | "review_count">;
+  compact?: boolean;
+  verified?: boolean;
+}) {
   const { theme } = useMobileStore();
   return (
     <View
@@ -243,7 +285,7 @@ export function Rating({ product, compact = false, verified = false }: any) {
         {[0, 1, 2, 3, 4].map((i) => (
           <Ionicons
             key={i}
-            name="star"
+            name={i < Math.round(product.rating) ? "star" : "star-outline"}
             color="#F7A500"
             size={compact ? 13 : 19}
           />

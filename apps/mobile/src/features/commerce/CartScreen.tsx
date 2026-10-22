@@ -1,30 +1,23 @@
 import { commerceEnabled } from "./availability";
-import { useCheckoutField } from "./checkoutDraft";
-import React from "react";
 import { View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "../../components/AppTouchable";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import { useMobileStore } from "../../services/storeService";
-import { Text, GreenButton } from "../../components/DesignPrimitives";
+import {
+  Text,
+  GreenButton,
+  PriceText,
+} from "../../components/DesignPrimitives";
 import { ProductArtwork } from "../../components/ProductArtwork";
 import { formatPKR } from "@packages/utils";
 import { Page, Card, Heading, Copy } from "./components";
+import { cartIssue } from "./cart";
+import { EmptyState } from "../../components/EmptyState";
 export function CartScreen({ navigation }: { navigation: AppNavigation }) {
   const { cart, products, updateQuantity, removeFromCart, theme } =
     useMobileStore();
-  const [, setPromo] = useCheckoutField("promoCode");
-  const unavailable = cart.some(
-    (item) =>
-      !products.some(
-        (product) =>
-          product.id === item.product.id &&
-          product.active &&
-          product.variants.some(
-            (variant) => variant.id === item.variant.id && variant.active,
-          ),
-      ),
-  );
+  const issue = cartIssue(cart, products);
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cart.reduce(
     (sum, item) =>
@@ -39,14 +32,13 @@ export function CartScreen({ navigation }: { navigation: AppNavigation }) {
       back={navigation.goBack}
     >
       {!cart.length ? (
-        <Card>
-          <Heading>Your cart is empty</Heading>
-          <Copy>Choose some handmade goodness to get started.</Copy>
-          <GreenButton
-            title="Explore Products"
-            onPress={() => navigation.navigate("Products")}
-          />
-        </Card>
+        <EmptyState
+          icon="bag-outline"
+          title="Your cart is empty"
+          description="Choose some handmade goodness to get started."
+          action="Explore Products"
+          onAction={() => navigation.navigate("Products")}
+        />
       ) : (
         <>
           {cart.map((item) => (
@@ -100,7 +92,7 @@ export function CartScreen({ navigation }: { navigation: AppNavigation }) {
                 </View>
               </View>
               <View style={s.totalRow}>
-                <Text
+                <PriceText
                   style={{
                     fontSize: 17,
                     fontWeight: "700",
@@ -111,7 +103,7 @@ export function CartScreen({ navigation }: { navigation: AppNavigation }) {
                     (item.variant.sale_price ?? item.variant.regular_price) *
                       item.quantity,
                   )}
-                </Text>
+                </PriceText>
                 <TouchableOpacity
                   accessibilityRole="button"
                   accessibilityLabel={`Remove ${item.product.name}`}
@@ -127,58 +119,67 @@ export function CartScreen({ navigation }: { navigation: AppNavigation }) {
               </View>
             </Card>
           ))}
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="View PROMO10 offer at checkout"
-            onPress={() => {
-              setPromo("PROMO10");
-              navigation.navigate("Checkout");
-            }}
-            style={{
-              borderWidth: 1,
-              borderStyle: "dashed",
-              borderColor: theme.border,
-              borderRadius: 14,
-              padding: 14,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <Ionicons name="pricetag-outline" size={24} color={theme.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontWeight: "700", fontSize: 15 }}>
-                PROMO10 · 10% off products
-              </Text>
-              <Copy>
-                {commerceEnabled
-                  ? "Apply at checkout"
-                  : "Offer activation pending"}
-              </Copy>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={theme.primary} />
-          </TouchableOpacity>
+          {commerceEnabled && (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="View optional discounts at checkout"
+              onPress={() => {
+                navigation.navigate("Checkout");
+              }}
+              style={{
+                borderWidth: 1,
+                borderStyle: "dashed",
+                borderColor: theme.border,
+                borderRadius: 14,
+                padding: 14,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <Ionicons
+                name="pricetag-outline"
+                size={24}
+                color={theme.primary}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: "700", fontSize: 15 }}>
+                  Offers & reward points
+                </Text>
+                <Copy>
+                  {commerceEnabled
+                    ? "Optional · claim eligible savings at checkout"
+                    : "Offer activation pending"}
+                </Copy>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={theme.primary}
+              />
+            </TouchableOpacity>
+          )}
           <Card>
             <Heading>Order Summary</Heading>
             <View style={s.totalRow}>
               <Copy>Products ({count} items)</Copy>
-              <Text style={{ fontSize: 17, fontWeight: "700" }}>
+              <PriceText style={{ fontSize: 17, fontWeight: "700" }}>
                 {formatPKR(subtotal)}
-              </Text>
+              </PriceText>
             </View>
             <View style={s.totalRow}>
               <Copy>Delivery charges</Copy>
               <Text style={{ fontSize: 13 }}>Confirmed at checkout</Text>
             </View>
             <Copy>
-              {unavailable
-                ? "Remove unavailable recipes or sizes before checkout."
+              {issue
+                ? issue
                 : "We’ll check current prices and availability when you place your order."}
             </Copy>
           </Card>
           <GreenButton
             title="Proceed to Checkout"
-            disabled={unavailable}
+            disabled={!!issue}
             onPress={() => navigation.navigate("Checkout")}
           />
         </>

@@ -44,37 +44,26 @@ test("ignores client prices and calculates authoritative total", () =>
       ],
       subtotal: 2998,
       discount: 0,
-      delivery_fee: 250,
-      total: 3248,
+      delivery_fee: 0,
+      total: 2998,
       quote_pending: false,
     },
   ));
-test("unknown delivery fees cannot become a zero-fee confirmed total", () =>
+test("orders use the standard delivery policy even without old settings", () =>
   assert.equal(
     priceOrder(lines, products, {}, "tcs_nationwide", false).total,
-    null,
+    2998,
   ));
-test("free delivery applies only to configured eligible first orders", () => {
-  assert.equal(
-    priceOrder(
-      lines,
-      products,
-      { first_order_free_delivery: true },
-      "tcs_nationwide",
-      true,
-    ).delivery_fee,
-    0,
-  );
-  assert.equal(
-    priceOrder(
-      lines,
-      products,
-      { first_order_free_delivery: true },
-      "tcs_nationwide",
-      false,
-    ).delivery_fee,
-    null,
-  );
+test("shipping is 250 through Rs. 2500, free above it, and pickup is free", () => {
+  const { deliveryCharge } = require("../lib/delivery");
+  for (const method of ["tcs_nationwide", "sargodha_sameday"]) {
+    for (const total of [0, 2499, 2500])
+      assert.equal(deliveryCharge(total, method), 250);
+    assert.equal(deliveryCharge(2501, method), 0);
+  }
+  assert.equal(deliveryCharge(100, "self_pickup"), 0);
+  assert.throws(() => deliveryCharge(-1, "tcs_nationwide"));
+  assert.throws(() => deliveryCharge(100, "invalid"));
 });
 test("rejects overselling, duplicate lines, zero, fractional and excessive quantities", () => {
   for (const quantity of [0, -1, 1.5, 4, 21])
@@ -105,9 +94,11 @@ test("custom cities are accepted and malformed addresses rejected", () => {
     address({ name: "C", phone: "12", city: "X", line: "4" }),
   );
 });
-test("fulfilment cannot skip stages or reopen completed orders", () => {
+test("fulfilment permits forward stages but cannot go backwards or reopen completed orders", () => {
   statusChange("pending", "confirmed");
   statusChange("preparing", "cancelled");
-  assert.throws(() => statusChange("pending", "delivered"));
+  statusChange("pending", "delivered");
+  assert.throws(() => statusChange("preparing", "confirmed"));
+  assert.throws(() => statusChange("unknown", "confirmed"));
   assert.throws(() => statusChange("delivered", "pending"));
 });

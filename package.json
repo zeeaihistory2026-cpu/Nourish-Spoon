@@ -1,0 +1,15 @@
+{
+  "name": "nourish-spoon",
+  "private": true,
+  "scripts": {
+    "audit:repo": "node scripts/audit-repository.mjs",
+    "audit:assets": "node scripts/audit-assets.mjs",
+    "typecheck": "npm --prefix apps/mobile run typecheck && npm --prefix apps/admin run typecheck",
+    "test": "npm --prefix functions test && node --test tooling/catalogue.test.cjs tooling/profile.test.cjs tooling/shopping.test.cjs tooling/reviews.test.cjs tooling/financial.test.cjs tooling/repository.test.cjs",
+    "check": "npm run audit:repo && npm run typecheck && npm run audit:assets && npm test && npm --prefix apps/admin run test:runtime && npm --prefix functions run test:runtime && npm --prefix apps/admin run build",
+    "test:integration": "node tooling/node_modules/firebase-tools/lib/bin/firebase.js emulators:exec --only auth,firestore,functions --project demo-nourish-spoon --non-interactive \"node tooling/run-commerce-qa.cjs\""
+  },
+  "engines": {
+    "node": "22.x || 24.x"
+  }
+}

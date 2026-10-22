@@ -1,8 +1,10 @@
 import { Text } from "./DesignPrimitives";
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useMobileStore } from "../services/storeService";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface TrustBadgesProps {
   variant?: "home" | "product";
@@ -15,48 +17,76 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({
 
   if (variant === "home")
     return (
-      <View
+      <LinearGradient
+        colors={["#456B54", "#153F30", "#3F622E"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={{
           flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 10,
-          justifyContent: "center",
-          paddingVertical: 14,
+          borderRadius: 20,
+          paddingVertical: 17,
+          paddingHorizontal: 8,
         }}
       >
         {[
-          "No Preservatives",
-          "100% Natural",
-          "Small Batch",
-          "Airtight Packed",
-        ].map((title) => (
+          {
+            title: "100%",
+            detail: "Natural ingredients",
+            icon: "leaf-outline",
+          },
+          {
+            title: "Handcrafted",
+            detail: "Family recipes",
+            icon: "heart-outline",
+          },
+          { title: "Small batch", detail: "Freshness", icon: "flower-outline" },
+          {
+            title: "No",
+            detail: "Preservatives",
+            icon: "shield-checkmark-outline",
+          },
+        ].map((badge, index) => (
           <View
-            key={title}
+            key={badge.title}
+            accessible
+            accessibilityLabel={`${badge.title} ${badge.detail}`}
             style={{
-              width: "46%",
+              flex: 1,
+              minWidth: 0,
               flexDirection: "row",
               alignItems: "center",
-              gap: 6,
+              gap: 5,
+              paddingHorizontal: 5,
+              borderRightWidth: index < 3 ? 1 : 0,
+              borderColor: "#FFFFFF40",
             }}
           >
-            <View
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: theme.primary,
-              }}
-            >
-              <Ionicons name="checkmark" size={12} color="#fff" />
+            <Ionicons
+              name={badge.icon as React.ComponentProps<typeof Ionicons>["name"]}
+              size={21}
+              color="#FFFDF5"
+            />
+            <View style={{ flex: 1 }}>
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
+                style={{ fontSize: 9, lineHeight: 14, color: "#FFFDF5" }}
+              >
+                {badge.title}
+              </Text>
+              <Text
+                numberOfLines={badge.detail.includes(" ") ? 2 : 1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+                style={{ fontSize: 8, lineHeight: 12, color: "#EAEDE2" }}
+              >
+                {badge.detail}
+              </Text>
             </View>
-            <Text style={{ fontSize: 12, color: theme.primary, flexShrink: 1 }}>
-              {title}
-            </Text>
           </View>
         ))}
-      </View>
+      </LinearGradient>
     );
 
   const badges = [

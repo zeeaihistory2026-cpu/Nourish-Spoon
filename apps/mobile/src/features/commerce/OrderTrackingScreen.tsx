@@ -1,6 +1,6 @@
-import React from "react";
+import { BUTTON_COLORS } from "../../constants/theme";
 import { View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { AppNavigation } from "../../navigation/types";
 import { Text, GreenButton } from "../../components/DesignPrimitives";
 import { useMobileStore } from "../../services/storeService";
@@ -29,7 +29,7 @@ export function OrderTrackingScreen({
         <>
           <View
             style={{
-              backgroundColor: "#1B4332",
+              backgroundColor: BUTTON_COLORS.background,
               borderRadius: 14,
               padding: 16,
               flexDirection: "row",

@@ -12,7 +12,6 @@ type Draft = {
   step: number;
   requestId: string;
   promoCode: string;
-  rewardPoints: string;
 };
 const initial = (): Draft => ({
   name: "",
@@ -25,7 +24,6 @@ const initial = (): Draft => ({
   giftMessage: "",
   step: 0,
   promoCode: "",
-  rewardPoints: "",
   requestId: `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`,
 });
 // Memory only: retain checkout across sign-in/instructions, never persist address data to disk.
