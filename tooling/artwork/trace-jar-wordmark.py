@@ -1,4 +1,4 @@
-"""Outline the existing jar-artwork wordmark as Android/SVG vector paths."""
+"""Trace the supplied brand lettering without changing the native logo animation."""
 from collections import defaultdict
 import json
 from pathlib import Path
@@ -8,16 +8,16 @@ from PIL import Image
 from fit_brand_curves import smooth_closed_outline
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / "apps/mobile/assets/website/product-2-main.png"
-BOX = (115, 120, 308, 151)
-FACTOR = 4
+SOURCE = ROOT / "docs/design/references/originals/launch-wordmark-reference.jpeg"
+BOX = (220, 525, 1040, 650)
+FACTOR = 2
 
 
 image = Image.open(SOURCE).convert("RGB").crop(BOX)
 image = image.resize((image.width * FACTOR, image.height * FACTOR), Image.Resampling.BICUBIC)
 ink = {
     (x, y) for y in range(image.height) for x in range(image.width)
-    if (lambda r, g, b: r - g > 20 and g - b > 15 and r < 200 and g < 160 and b < 115)(*image.getpixel((x, y)))
+    if (lambda r, g, b: r - b > 25 and g - b > 15 and r < 225 and g < 210)(*image.getpixel((x, y)))
 }
 assert ink, "No wordmark ink found"
 edges = defaultdict(set)
@@ -53,10 +53,6 @@ while edges:
     area = abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(loop, loop[1:]))) / 2
     if area >= FACTOR * FACTOR * 0.15:
         loops.append(loop)
-
-# The crop also catches the bottom of the separate monogram above the lettering.
-# Its isolated contour ends before any of the wordmark's letter bodies begin.
-loops = [loop for loop in loops if max(y for x, y in loop) > 6 * FACTOR]
 
 left = min(x for loop in loops for x, y in loop)
 top = min(y for loop in loops for x, y in loop)
@@ -107,7 +103,7 @@ glyphs = []
 for index, letter in enumerate(letters):
     glyphs.append({"index": index if index < 7 else index + 1, "path": " ".join(outline(loop) for loop in [letter, *details[id(letter)]])})
 
-record = {"source": "assets/website/product-2-main.png", "sourceBox": list(BOX), "width": width, "height": height, "glyphs": glyphs}
+record = {"source": str(SOURCE.relative_to(ROOT)).replace("\\", "/"), "sourceBox": list(BOX), "width": width, "height": height, "glyphs": glyphs}
 template = ROOT / "apps/mobile/plugins/android-launch/nourish_jar_wordmark.json"
 template.write_text(json.dumps(record, separators=(",", ":")), encoding="utf-8")
 resource = ROOT / "apps/mobile/android/app/src/main/res/raw/nourish_jar_wordmark.json"

@@ -41,11 +41,13 @@ export function BottomTabBar({
           onPress={() => onSelectTab(t.id)}
           style={styles.tab}
         >
-          <Ionicons
-            name={selected === t.id ? t.active : t.icon}
-            size={24}
-            color={selected === t.id ? theme.primary : theme.textSecondary}
-          />
+          <View style={{ width: 32, height: 24, alignItems: "center" }}>
+            <Ionicons
+              name={selected === t.id ? t.active : t.icon}
+              size={24}
+              color={selected === t.id ? theme.primary : theme.textSecondary}
+            />
+          </View>
           {t.id === "Cart" && cart.length > 0 && (
             <View
               style={{

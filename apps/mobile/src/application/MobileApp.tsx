@@ -1,5 +1,8 @@
 import { View, StatusBar, Platform, KeyboardAvoidingView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { CartBar } from "../features/commerce/CartBar";
 import { BottomTabBar } from "../components/BottomTabBar";
 import { BurgerMenu } from "../components/BurgerMenu";
@@ -9,10 +12,12 @@ import { activeTabFor, menuDestinationFor } from "../navigation/routes";
 
 export function MobileApp() {
   const app = useAppController();
+  const insets = useSafeAreaInsets();
   const { theme, dialog, screen, route, routes, menuOpen, setMenuOpen, nav } =
     app;
   const activeTab = activeTabFor(routes);
   const hideTabs = ["splash", "onboarding", "Login", "Signup"].includes(screen);
+  const orderDetails = screen === "OrderDetails";
   if (!app.fontsReady)
     return <View style={{ flex: 1, backgroundColor: "#FDF6E3" }} />;
   return (
@@ -27,16 +32,37 @@ export function MobileApp() {
       }}
       edges={["top", "bottom"]}
     >
+      {orderDetails && (
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: insets.top,
+            backgroundColor: "#003E31",
+          }}
+        />
+      )}
       {dialog}
       <StatusBar
         barStyle={
-          screen === "splash"
-            ? "dark-content"
-            : theme.isDark
-              ? "light-content"
-              : "dark-content"
+          orderDetails
+            ? "light-content"
+            : screen === "splash"
+              ? "dark-content"
+              : theme.isDark
+                ? "light-content"
+                : "dark-content"
         }
-        backgroundColor={screen === "splash" ? "#FDF6E3" : theme.background}
+        backgroundColor={
+          orderDetails
+            ? "#003E31"
+            : screen === "splash"
+              ? "#FDF6E3"
+              : theme.background
+        }
       />
       <KeyboardAvoidingView
         style={{ flex: 1 }}

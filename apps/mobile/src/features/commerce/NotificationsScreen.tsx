@@ -2,14 +2,14 @@ import { AppNavigation } from "../../navigation/types";
 import { useState } from "react";
 import { Page, Card, Heading, Copy, Message, AccountGate } from "./components";
 import { GreenButton } from "../../components/DesignPrimitives";
-import { useAccountData } from "./useAccountData";
-import { watchNotices, markNotice, commerceError } from "./service";
+import { useNotificationInbox } from "./NotificationInbox";
+import { markNotice, commerceError } from "./service";
 export function NotificationsScreen({
   navigation,
 }: {
   navigation: AppNavigation;
 }) {
-  const { user, items, error, loading } = useAccountData(watchNotices),
+  const { user, items, error, loading } = useNotificationInbox(),
     [message, setMessage] = useState("");
   return (
     <Page title="Notifications" back={navigation.goBack}>

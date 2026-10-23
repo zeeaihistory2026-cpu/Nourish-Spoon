@@ -19,14 +19,14 @@ interface Props {
     variant?: ProductVariant,
     quantity?: number,
   ) => void;
-  onOpenCart: () => void;
+  onOpenNotifications: () => void;
   onOpenCategory: (category: string) => void;
 }
 export function HomeScreen({
   onSelectProduct,
   onOpenMenu,
   onAddToCart,
-  onOpenCart,
+  onOpenNotifications,
   onOpenCategory,
 }: Props) {
   const theme = useMobileStore((state) => state.theme);
@@ -72,8 +72,8 @@ export function HomeScreen({
       <Header
         premium
         onMenu={onOpenMenu}
-        onCart={onOpenCart}
-        rightAction="cart"
+        onNotifications={onOpenNotifications}
+        rightAction="notifications"
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

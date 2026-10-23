@@ -1,12 +1,14 @@
 # Android release
 
-Current verified release: **1.0.0, Android build 29**, package `com.nourishspoon.app`.
+Current verified release: **1.0.0, Android build 30**, package `com.nourishspoon.app`.
 
-[Download the current release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.0-build29).
+[Download the current release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.0-build30).
 
-APK SHA-256: `9ef4c1eaefc3fa7302292ae9f36bf4f64a67a7dfe02727f1a1b9504d68e282b9`.
+APK SHA-256: `bdb28ea8dae67b3a5ec27b8f393bf5f4c34a7d1e1b2eeb8df50ebb01b1868beb`.
 
-The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It was installed over the existing app through USB without uninstalling, and an identical APK was saved in the phone's Downloads folder.
+The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It uses the existing release certificate and a higher internal build number. No phone was detected during this release, so USB installation is pending.
+
+This build updates the script wordmark beneath the unchanged native logo animation, the compact profile layout, the top notification bell, Refer & Earn and Order Details. Orders remains in the bottom bar. More contains Track Order, My Points, Wishlist, Saved Addresses, Refer & Earn, Reviews, Help & Support and Dark Mode. The new release includes individual previews; the earlier full screen guides remain archived with build 29.
 
 ## Build and update compatibility
 

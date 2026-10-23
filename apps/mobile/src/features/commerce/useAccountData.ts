@@ -13,7 +13,10 @@ export function useAccountData<T>(
       ? firebaseAuth.currentUser
       : null,
   );
-  const [items, setItems] = useState<T[]>([]),
+  const [snapshot, setSnapshot] = useState<{ uid: string | null; items: T[] }>({
+      uid: null,
+      items: [],
+    }),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(!!firebaseAuth?.currentUser);
   useEffect(
@@ -26,7 +29,7 @@ export function useAccountData<T>(
     [],
   );
   useEffect(() => {
-    setItems([]);
+    setSnapshot({ uid: null, items: [] });
     setError("");
     setLoading(!!user);
     if (!user) return;
@@ -35,7 +38,7 @@ export function useAccountData<T>(
       const stop = watch(
         (items) => {
           if (!active) return;
-          setItems(items);
+          setSnapshot({ uid: user.uid, items });
           setLoading(false);
         },
         (error) => {
@@ -53,5 +56,10 @@ export function useAccountData<T>(
       setLoading(false);
     }
   }, [user?.uid, watch]);
+  // Never show the previous account's data while an auth change is rendering.
+  const items =
+    snapshot.uid === user?.uid && user?.uid === firebaseAuth?.currentUser?.uid
+      ? snapshot.items
+      : [];
   return { user, items, error, loading };
 }

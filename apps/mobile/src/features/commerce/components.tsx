@@ -7,6 +7,7 @@ import {
   TextInputProps,
   StyleSheet,
   Animated,
+  Image,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFieldShake } from "../../hooks/useFieldShake";
@@ -21,24 +22,47 @@ export function Page({
   children,
   subtitle,
   validationTick,
+  validationPosition = "top",
+  botanical = false,
 }: {
   title: string;
   back: () => void;
   children: React.ReactNode;
   subtitle?: string;
   validationTick?: number;
+  validationPosition?: "top" | "bottom";
+  botanical?: boolean;
 }) {
   const { theme } = useMobileStore();
   const scroll = useRef<ScrollView>(null);
   useEffect(() => {
     if (!validationTick) return;
-    const frame = requestAnimationFrame(() =>
-      scroll.current?.scrollTo({ y: 0, animated: false }),
-    );
+    const frame = requestAnimationFrame(() => {
+      if (validationPosition === "bottom")
+        scroll.current?.scrollToEnd({ animated: true });
+      else scroll.current?.scrollTo({ y: 0, animated: false });
+    });
     return () => cancelAnimationFrame(frame);
-  }, [validationTick]);
+  }, [validationTick, validationPosition]);
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
+      {botanical && (
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+          <Image
+            source={require("../../../assets/design/botanical.png")}
+            resizeMode="contain"
+            accessible={false}
+            style={{
+              position: "absolute",
+              right: -30,
+              top: 62,
+              width: 135,
+              height: 195,
+              opacity: theme.isDark ? 0.13 : 0.45,
+            }}
+          />
+        </View>
+      )}
       <Header showBack onBack={back} rightAction="none" />
       <ScrollView
         ref={scroll}

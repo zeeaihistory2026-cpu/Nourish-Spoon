@@ -86,7 +86,7 @@ export function ScreenContent({
           onSelectProduct={select}
           onOpenMenu={nav.openMenu}
           onAddToCart={addToCart}
-          onOpenCart={() => nav.navigate("Cart")}
+          onOpenNotifications={() => nav.navigate("Notifications")}
           onOpenCategory={(category) => nav.navigate("Products", { category })}
         />
       )}

@@ -6,7 +6,13 @@ import { Text, PriceText } from "../../components/DesignPrimitives";
 import { ProductArtwork } from "../../components/ProductArtwork";
 import { useMobileStore } from "../../services/storeService";
 import { Copy } from "./components";
-export function OrderItems({ items }: { items: PurchaseItem[] }) {
+export function OrderItems({
+  items,
+  detailed = false,
+}: {
+  items: PurchaseItem[];
+  detailed?: boolean;
+}) {
   const { products, theme } = useMobileStore();
   return (
     <>
@@ -28,9 +34,9 @@ export function OrderItems({ items }: { items: PurchaseItem[] }) {
           >
             <View
               style={{
-                width: 56,
-                height: 56,
-                borderRadius: 8,
+                width: detailed ? 80 : 56,
+                height: detailed ? 80 : 56,
+                borderRadius: detailed ? 12 : 8,
                 overflow: "hidden",
                 backgroundColor: theme.surfaceWarm,
                 alignItems: "center",
@@ -44,21 +50,34 @@ export function OrderItems({ items }: { items: PurchaseItem[] }) {
               )}
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={{ fontSize: 14, fontWeight: "700" }}>
+              <Text
+                style={{
+                  fontSize: detailed ? 15 : 14,
+                  lineHeight: 22,
+                  fontWeight: "700",
+                }}
+              >
                 {item.product_name}
               </Text>
               <Copy>
                 {item.variant_weight} · ×{item.quantity}
               </Copy>
+              {detailed && (
+                <PriceText style={{ alignSelf: "flex-end" }}>
+                  {formatPKR(item.total_price)}
+                </PriceText>
+              )}
             </View>
-            <PriceText
-              style={{
-                fontSize: 14,
-                color: theme.isDark ? theme.gold : "#805025",
-              }}
-            >
-              {formatPKR(item.total_price)}
-            </PriceText>
+            {!detailed && (
+              <PriceText
+                style={{
+                  fontSize: 14,
+                  color: theme.isDark ? theme.gold : "#805025",
+                }}
+              >
+                {formatPKR(item.total_price)}
+              </PriceText>
+            )}
           </View>
         );
       })}
@@ -71,12 +90,16 @@ export function OrderTotals({
   total,
   promoDiscount = 0,
   rewardDiscount = 0,
+  showTotal = true,
+  amountColor,
 }: {
   subtotal: number;
   fee: number | null;
   total: number | null;
   promoDiscount?: number;
   rewardDiscount?: number;
+  showTotal?: boolean;
+  amountColor?: string;
 }) {
   const { theme } = useMobileStore();
   return (
@@ -89,7 +112,9 @@ export function OrderTotals({
         }}
       >
         <Copy>Products subtotal</Copy>
-        <PriceText>{formatPKR(subtotal)}</PriceText>
+        <PriceText style={{ color: amountColor || theme.gold }}>
+          {formatPKR(subtotal)}
+        </PriceText>
       </View>
       {!!promoDiscount && (
         <View
@@ -100,7 +125,15 @@ export function OrderTotals({
           }}
         >
           <Copy>Promo discount</Copy>
-          <PriceText>− {formatPKR(promoDiscount)}</PriceText>
+          <PriceText
+            style={
+              amountColor
+                ? { color: theme.isDark ? theme.primary : "#00894C" }
+                : undefined
+            }
+          >
+            − {formatPKR(promoDiscount)}
+          </PriceText>
         </View>
       )}
       {!!rewardDiscount && (
@@ -112,7 +145,15 @@ export function OrderTotals({
           }}
         >
           <Copy>Points discount</Copy>
-          <PriceText>− {formatPKR(rewardDiscount)}</PriceText>
+          <PriceText
+            style={
+              amountColor
+                ? { color: theme.isDark ? theme.primary : "#00894C" }
+                : undefined
+            }
+          >
+            − {formatPKR(rewardDiscount)}
+          </PriceText>
         </View>
       )}
       <View
@@ -123,23 +164,27 @@ export function OrderTotals({
         }}
       >
         <Copy>Delivery charges</Copy>
-        <PriceText>{fee == null ? "Awaiting quote" : formatPKR(fee)}</PriceText>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          gap: 8,
-          padding: 12,
-          borderRadius: 8,
-          backgroundColor: theme.surfaceWarm,
-        }}
-      >
-        <Text style={{ fontWeight: "700", fontSize: 16 }}>Total Amount</Text>
-        <PriceText style={{ fontWeight: "700", fontSize: 16 }}>
-          {total == null ? "To be confirmed" : formatPKR(total)}
+        <PriceText style={{ color: amountColor || theme.gold }}>
+          {fee == null ? "Awaiting quote" : formatPKR(fee)}
         </PriceText>
       </View>
+      {showTotal && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            gap: 8,
+            padding: 12,
+            borderRadius: 8,
+            backgroundColor: theme.surfaceWarm,
+          }}
+        >
+          <Text style={{ fontWeight: "700", fontSize: 16 }}>Total Amount</Text>
+          <PriceText style={{ fontWeight: "700", fontSize: 16 }}>
+            {total == null ? "To be confirmed" : formatPKR(total)}
+          </PriceText>
+        </View>
+      )}
     </View>
   );
 }

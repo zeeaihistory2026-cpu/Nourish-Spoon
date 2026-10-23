@@ -66,11 +66,7 @@ function screen(ownReviews = []) {
         theme: { gold: "#A96819" },
       }),
     },
-    "./OrderSummary": {
-      OrderItems: "OrderItems",
-      OrderTotals: "OrderTotals",
-      statusLabel: String,
-    },
+    "./OrderDetailsView": { OrderDetailsView: "OrderDetailsView" },
   };
   const mod = new Module(file);
   mod.require = (name) =>

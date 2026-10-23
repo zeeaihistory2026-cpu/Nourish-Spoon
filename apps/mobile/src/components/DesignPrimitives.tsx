@@ -113,10 +113,12 @@ export function Brand({
   large = false,
   website = false,
   textColor,
+  taglineColor,
 }: {
   large?: boolean;
   website?: boolean;
   textColor?: string;
+  taglineColor?: string;
 }) {
   const { theme } = useMobileStore();
   if (website)
@@ -153,7 +155,12 @@ export function Brand({
           >
             Nourish Spoon™
           </Text>
-          <Text style={{ fontSize: large ? 11 : 12, color: theme.gold }}>
+          <Text
+            style={{
+              fontSize: large ? 11 : 12,
+              color: taglineColor || theme.gold,
+            }}
+          >
             Crafted with Love
           </Text>
         </View>

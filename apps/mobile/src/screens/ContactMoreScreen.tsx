@@ -95,12 +95,6 @@ export function ContactMoreScreen({
     requiresCommerce?: boolean;
   }[] = [
     {
-      title: "My Orders",
-      sub: "Track, manage and reorder",
-      icon: "receipt-outline",
-      action: () => navigation.navigate("Orders"),
-    },
-    {
       title: "My Points",
       requiresCommerce: true,
       sub: "Your rewards and points history",
@@ -133,10 +127,10 @@ export function ContactMoreScreen({
       action: () => navigation.navigate("TrackOrder"),
     },
     {
-      title: "Notifications",
-      sub: "Order and payment updates",
-      icon: "notifications-outline",
-      action: () => navigation.navigate("Notifications"),
+      title: "Reviews",
+      sub: "Read customer reviews and review delivered orders",
+      icon: "star-outline",
+      action: () => navigation.navigate("Reviews"),
     },
     {
       title: "Help & Support",
@@ -162,13 +156,28 @@ export function ContactMoreScreen({
         }
       },
     });
+  const quickTitles = [
+    "Track Order",
+    "My Points",
+    "My Wishlist",
+    "Saved Addresses",
+  ];
+  const visibleRows = rows.filter(
+    (row) => !row.requiresCommerce || commerceEnabled,
+  );
+  const quickRows = quickTitles.flatMap((title) =>
+    visibleRows.filter((row) => row.title === title),
+  );
+  const menuRows = visibleRows.filter(
+    (row) => !quickTitles.includes(row.title),
+  );
   return (
     <View style={{ flex: 1, backgroundColor: c.background }}>
       {dialog}
       <Header
         onMenu={navigation.openMenu}
-        rightAction="cart"
-        onCart={() => navigation.navigate("Cart")}
+        rightAction="notifications"
+        onNotifications={() => navigation.navigate("Notifications")}
       />
       <ScrollView
         contentContainerStyle={s.content}
@@ -190,9 +199,6 @@ export function ContactMoreScreen({
           <Text accessibilityRole="header" style={s.heading}>
             My Profile
           </Text>
-          <Text style={{ fontSize: 15, color: c.textSecondary, marginTop: 4 }}>
-            Manage your account and preferences.
-          </Text>
         </View>
         {account && (
           <View
@@ -210,15 +216,15 @@ export function ContactMoreScreen({
                 disabled={photoBusy}
                 accessibilityRole="button"
                 accessibilityLabel="Change profile photo"
-                style={{ width: 66, height: 66 }}
+                style={s.avatarButton}
               >
                 <View
                   style={[
                     s.avatar,
                     {
                       backgroundColor: "#C9A84C",
-                      borderWidth: 2,
                       borderColor: "#EAD6A0",
+                      borderWidth: 2,
                     },
                   ]}
                 >
@@ -226,17 +232,13 @@ export function ContactMoreScreen({
                     <Image
                       source={{ uri: photo }}
                       resizeMode="cover"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: 31,
-                      }}
+                      style={s.avatarPhoto}
                     />
                   ) : (
                     <Text
                       style={{
                         fontFamily: "serif",
-                        fontSize: 38,
+                        fontSize: 32,
                         color: "#FFFFFF",
                       }}
                     >
@@ -246,21 +248,7 @@ export function ContactMoreScreen({
                     </Text>
                   )}
                 </View>
-                <View
-                  style={{
-                    position: "absolute",
-                    right: -2,
-                    bottom: -2,
-                    width: 28,
-                    height: 28,
-                    borderRadius: 14,
-                    backgroundColor: "#FFFDF7",
-                    borderWidth: 1,
-                    borderColor: "#D7B56D",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
+                <View style={s.cameraBadge}>
                   {photoBusy ? (
                     <ActivityIndicator
                       size="small"
@@ -269,82 +257,95 @@ export function ContactMoreScreen({
                   ) : (
                     <Ionicons
                       name="camera"
-                      size={16}
+                      size={12}
                       color={BUTTON_COLORS.background}
                     />
                   )}
                 </View>
               </TouchableOpacity>
-              <View
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  gap: 8,
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <Text
-                  style={[
-                    s.name,
-                    {
-                      color: "#FFFFFF",
-                      flex: 1,
-                      minWidth: 0,
-                    },
-                  ]}
-                >
+              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <Text style={[s.name, { color: "#FFFFFF" }]}>
                   {account.displayName || "My account"}
                 </Text>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel="Edit Profile"
-                  onPress={() =>
-                    navigation.navigate("EditProfile", {
-                      profile: {
-                        uid: account.uid,
-                        fullName: account.displayName || "",
-                        phone,
-                      },
-                    })
-                  }
-                  style={{
-                    ...BUTTON_OUTLINE,
-                    backgroundColor: BUTTON_COLORS.background,
-                    borderRadius: 22,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 44,
-                    height: 44,
-                    flexShrink: 0,
-                  }}
+                <Text
+                  style={{ color: "#E4EFE9", fontSize: 12, lineHeight: 17 }}
                 >
-                  <Ionicons name="pencil-outline" size={20} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={{ gap: 5, paddingTop: 2 }}>
-              <View
-                style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
-              >
-                <Ionicons name="mail-outline" size={16} color="#DDECE4" />
-                <Text style={{ color: "#E4EFE9", fontSize: 13, flex: 1 }}>
                   {account.email}
                 </Text>
-              </View>
-              {!!phone && (
-                <View
-                  style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
-                >
-                  <Ionicons name="call-outline" size={16} color="#DDECE4" />
-                  <Text style={{ color: "#E4EFE9", fontSize: 13 }}>
+                {!!phone && (
+                  <Text
+                    style={{ color: "#E4EFE9", fontSize: 12, lineHeight: 17 }}
+                  >
                     {phone}
                   </Text>
-                </View>
-              )}
+                )}
+              </View>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Edit Profile"
+                onPress={() =>
+                  navigation.navigate("EditProfile", {
+                    profile: {
+                      uid: account.uid,
+                      fullName: account.displayName || "",
+                      phone,
+                    },
+                  })
+                }
+                style={[
+                  s.editButton,
+                  BUTTON_OUTLINE,
+                  { backgroundColor: BUTTON_COLORS.background },
+                ]}
+              >
+                <Ionicons name="pencil-outline" size={19} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
           </View>
         )}
+        <View style={s.quickGrid}>
+          {quickRows.map((row) => (
+            <TouchableOpacity
+              key={row.title}
+              accessibilityRole="button"
+              accessibilityLabel={row.title}
+              accessibilityHint={row.sub}
+              onPress={row.action}
+              style={[
+                s.quickCard,
+                { backgroundColor: c.surface, borderColor: c.border },
+              ]}
+            >
+              <View
+                style={[
+                  s.quickIcon,
+                  {
+                    backgroundColor: c.isDark
+                      ? c.surfaceWarm
+                      : row.title === "My Wishlist"
+                        ? "#FFF0F0"
+                        : row.title === "My Points"
+                          ? "#FFF5DC"
+                          : "#EDF6E9",
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={row.icon}
+                  size={23}
+                  color={
+                    row.title === "My Wishlist"
+                      ? "#E13C42"
+                      : row.title === "My Points"
+                        ? "#A46C0B"
+                        : c.primary
+                  }
+                />
+              </View>
+              <Text style={s.quickLabel}>{row.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         <View
           style={[
             s.group,
@@ -354,65 +355,53 @@ export function ContactMoreScreen({
             },
           ]}
         >
-          {rows
-            .filter((row) => !row.requiresCommerce || commerceEnabled)
-            .map((row, index) => (
-              <TouchableOpacity
-                key={row.title}
-                accessibilityRole="button"
-                accessibilityLabel={row.title}
-                accessibilityHint={row.sub}
-                onPress={row.action}
-                style={[
-                  s.row,
-                  {
-                    borderBottomWidth: index < rows.length - 1 ? 1 : 0,
-                    borderColor: c.isDark ? c.border : "#F3ECD8",
-                  },
-                ]}
+          {menuRows.map((row, index) => (
+            <TouchableOpacity
+              key={row.title}
+              accessibilityRole="button"
+              accessibilityLabel={row.title}
+              accessibilityHint={row.sub}
+              onPress={row.action}
+              style={[
+                s.row,
+                {
+                  borderBottomWidth: 1,
+                  borderColor: c.isDark ? c.border : "#F3ECD8",
+                },
+              ]}
+            >
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: c.isDark
+                    ? c.surfaceWarm
+                    : row.title === "My Wishlist"
+                      ? "#FFF0F0"
+                      : index % 3 === 1
+                        ? "#FFF5DC"
+                        : "#EDF6E9",
+                }}
               >
-                <View
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 12,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: c.isDark
-                      ? c.surfaceWarm
-                      : index === 3
-                        ? "#FFF0F0"
-                        : index % 3 === 1
-                          ? "#FFF5DC"
-                          : "#EDF6E9",
-                  }}
-                >
-                  <Ionicons
-                    name={row.icon}
-                    size={24}
-                    color={
-                      index === 3
-                        ? "#E13C42"
-                        : index % 3 === 1
-                          ? "#A46C0B"
-                          : c.primary
-                    }
-                  />
-                </View>
-                <Text style={s.label}>{row.title}</Text>
-                <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
-              </TouchableOpacity>
-            ))}
-        </View>
-        <View
-          style={[
-            s.group,
-            {
-              backgroundColor: c.surface,
-              borderColor: c.isDark ? c.border : "#EFE3C2",
-            },
-          ]}
-        >
+                <Ionicons
+                  name={row.icon}
+                  size={24}
+                  color={
+                    row.title === "My Wishlist"
+                      ? "#E13C42"
+                      : index % 3 === 1
+                        ? "#A46C0B"
+                        : c.primary
+                  }
+                />
+              </View>
+              <Text style={s.label}>{row.title}</Text>
+              <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
+            </TouchableOpacity>
+          ))}
           <View style={s.row}>
             <Ionicons name="moon-outline" size={22} color={c.primary} />
             <Text style={s.label}>Dark Mode</Text>
@@ -489,7 +478,7 @@ export function ContactMoreScreen({
                 flex: 1,
                 alignItems: "center",
                 justifyContent: "center",
-                minHeight: 64,
+                minHeight: 52,
                 gap: 4,
                 borderRadius: 14,
                 backgroundColor: c.surface,
@@ -511,8 +500,11 @@ export function ContactMoreScreen({
               s.row,
               s.group,
               {
-                borderColor: c.isDark ? c.border : "#FFD1CD",
-                backgroundColor: c.isDark ? c.surface : "#FFF3F1",
+                borderWidth: 0,
+                justifyContent: "center",
+                backgroundColor: "transparent",
+                paddingVertical: 8,
+                minHeight: 44,
               },
             ]}
           >
@@ -525,37 +517,64 @@ export function ContactMoreScreen({
   );
 }
 const s = StyleSheet.create({
-  content: { padding: 18, paddingBottom: 16, gap: 12 },
-  profileButton: {
-    flex: 1,
-    minHeight: 44,
-    paddingHorizontal: 12,
+  content: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 4, gap: 10 },
+  quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  quickCard: {
+    flexBasis: "46%",
+    flexGrow: 1,
+    minWidth: 0,
+    minHeight: 74,
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 12,
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
+  },
+  quickIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    borderWidth: 1.5,
-    borderRadius: 24,
+  },
+  quickLabel: { flex: 1, fontSize: 14, lineHeight: 19, fontWeight: "600" },
+  avatarButton: { width: 56, height: 56 },
+  avatarPhoto: { width: "100%", height: "100%", borderRadius: 28 },
+  cameraBadge: {
+    position: "absolute",
+    right: -2,
+    bottom: -2,
+    width: 23,
+    height: 23,
+    borderRadius: 12,
+    backgroundColor: "#FFFDF7",
+    borderWidth: 1,
+    borderColor: "#D7B56D",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  editButton: {
+    borderRadius: 22,
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   card: { padding: 16, gap: 12, borderRadius: 18, borderWidth: 1 },
   group: { borderRadius: 18, borderWidth: 1, overflow: "hidden" },
-  section: {
-    fontFamily: "serif",
-    fontWeight: "700",
-    fontSize: 23,
-    marginTop: 4,
-  },
   heading: {
     fontFamily: "serif",
     fontWeight: "700",
-    fontSize: 34,
-    lineHeight: 38,
+    fontSize: 32,
+    lineHeight: 36,
   },
   identity: { flexDirection: "row", gap: 12, alignItems: "center" },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -563,15 +582,15 @@ const s = StyleSheet.create({
     fontFamily: "serif",
     fontWeight: "700",
     fontSize: 21,
-    lineHeight: 25,
+    lineHeight: 24,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     gap: 13,
-    paddingVertical: 11,
+    paddingVertical: 8,
     paddingHorizontal: 16,
-    minHeight: 62,
+    minHeight: 50,
   },
   label: { flex: 1, fontSize: 15, lineHeight: 21 },
 });
