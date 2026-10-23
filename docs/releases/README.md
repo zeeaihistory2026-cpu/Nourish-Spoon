@@ -20,4 +20,4 @@ Release certificate SHA-256: `066eff75865521f7323cdcb57f313ec99d22d8acee34594099
 
 Keep one current verified APK download on GitHub. Upload and verify its size/checksum before removing superseded APK assets, checksum sidecars and empty preview-release entries. Preserve source history and distinct original brand/design media. Release history records earlier states; they are not instructions for the current app.
 
-Never commit APKs, AABs, private credentials, logs or build directories. `npm run audit:repo` enforces that boundary locally. The prepared [quality-check workflow](../../tooling/ci/README.md) needs GitHub workflow write permission before automatic checks can be enabled. Dated notes remain in [history](history/README.md).
+Never commit APKs, AABs, private credentials, logs or build directories. `npm run audit:repo` enforces that boundary locally and in the [GitHub Actions quality workflow](../../.github/workflows/quality.yml). Dated notes remain in [history](history/README.md).

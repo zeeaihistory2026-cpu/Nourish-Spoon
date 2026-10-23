@@ -16,7 +16,7 @@ Import traversal reached all 83 mobile and 95 dashboard source modules. No activ
 - Four regression tests exercise the audit, including deliberately staged APK and credential fixtures.
 - Editor configuration, Node version, current architecture, backend setup and release-retention documentation describe the actual project.
 - Dashboard export includes shared transactions and consistent repository hygiene files.
-- The GitHub Actions workflow is prepared in `tooling/ci`; publishing it to the active workflow directory was rejected by GitHub because the stored credential lacks workflow write permission. Local checks passed; automatic GitHub execution is pending.
+- GitHub initially rejected the workflow because the stored credential lacked workflow write permission. Browser authorization on 23 October 2026 enabled publishing the active workflow under `.github/workflows`. Local checks passed; consult the associated Actions run for the remote result.
 - Current installers and screen guides belong in GitHub Releases; source history and distinct original design media are preserved.
 
 ## Verification
