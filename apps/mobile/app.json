@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.nourishspoon.app"
     },
     "android": {
-      "versionCode": 30,
+      "versionCode": 31,
       "adaptiveIcon": {
         "foregroundImage": "./assets/website/logo-transparent.png",
         "backgroundColor": "#FDF6E3"

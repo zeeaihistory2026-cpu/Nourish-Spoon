@@ -9,6 +9,7 @@ import {
   setDoc,
   deleteDoc,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { db, firebaseAuth } from "../../services/firebase";
 import type { Review } from "@packages/types";
@@ -192,6 +193,22 @@ export async function markNotice(id: string) {
   await updateDoc(doc(database(), "users", uid(), "notifications", id), {
     read: true,
   });
+}
+/** Mark the unread snapshot; notifications arriving during the write stay unread. */
+export async function markNoticesRead(ids: string[]) {
+  const owner = uid();
+  const firestore = database();
+  const unique = [...new Set(ids)];
+  for (let start = 0; start < unique.length; start += 400) {
+    if (uid() !== owner)
+      throw new Error("Your account changed. Please try again.");
+    const batch = writeBatch(firestore);
+    for (const id of unique.slice(start, start + 400))
+      batch.update(doc(firestore, "users", owner, "notifications", id), {
+        read: true,
+      });
+    await batch.commit();
+  }
 }
 export type CheckoutInput = {
   promo_code?: string;
