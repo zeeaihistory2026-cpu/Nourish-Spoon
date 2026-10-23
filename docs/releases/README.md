@@ -6,7 +6,7 @@ Current verified release: **1.0.0, Android build 30**, package `com.nourishspoon
 
 APK SHA-256: `bdb28ea8dae67b3a5ec27b8f393bf5f4c34a7d1e1b2eeb8df50ebb01b1868beb`.
 
-The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It uses the existing release certificate and a higher internal build number. No phone was detected during this release, so USB installation is pending.
+The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It uses the existing release certificate and a higher internal build number. It was installed over the existing app through USB, preserving app data. The copy saved in the phone’s Downloads folder has the same verified checksum.
 
 This build updates the script wordmark beneath the unchanged native logo animation, the compact profile layout, the top notification bell, Refer & Earn and Order Details. Orders remains in the bottom bar. More contains Track Order, My Points, Wishlist, Saved Addresses, Refer & Earn, Reviews, Help & Support and Dark Mode. The new release includes individual previews; the earlier full screen guides remain archived with build 29.
 

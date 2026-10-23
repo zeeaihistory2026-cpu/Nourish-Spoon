@@ -1,6 +1,6 @@
 # Current delivery
 
-The current Android release is **1.0.0, build 30**. The signed APK passed update-compatibility checks against the existing release certificate. USB installation has not been verified for this build because no phone was detected.
+The current Android release is **1.0.0, build 30**. The signed APK passed update-compatibility checks and was installed over the existing app through USB without uninstalling. Its checksum-verified installer is also saved in the phone’s Downloads folder.
 
 Use the [release guide](docs/releases/README.md) for the download, checksum, signing identity and future update procedure. Use the [documentation index](docs/README.md) for architecture, backend contracts, deployment and design references.
 
