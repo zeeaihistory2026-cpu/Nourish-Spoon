@@ -47,11 +47,6 @@ const groups: {
     items: [
       { destination: "story", title: "Our Story", icon: "flower-outline" },
       {
-        destination: "reviews",
-        title: "Customer Reviews",
-        icon: "star-outline",
-      },
-      {
         destination: "delivery",
         title: "Delivery Information",
         icon: "car-outline",

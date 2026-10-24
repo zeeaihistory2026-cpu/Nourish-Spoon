@@ -602,7 +602,7 @@ export const BRAND_IDENTITY: BrandIdentity = {
   display_phone: "+92 304 6721962",
   email: "info@nourishspoon.com",
   business_hours: "Monday – Saturday, 8am – 11pm",
-  instagram: "@nourishspoon",
+  instagram: "@nourish_spoon",
   same_day_delivery_headline: "Same-day delivery in Sargodha",
   same_day_delivery_subtext: "Freshly made • Direct to your doorstep",
 };

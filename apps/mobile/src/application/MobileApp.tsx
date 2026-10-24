@@ -91,7 +91,6 @@ export function MobileApp() {
             nav.navigate("PaymentDelivery", { section });
           else if (section === "home") nav.navigate("Home");
           else if (section === "story") nav.navigate("About");
-          else if (section === "reviews") nav.navigate("Reviews");
           else
             nav.navigate("Products", {
               category: section === "products" ? "all" : section,

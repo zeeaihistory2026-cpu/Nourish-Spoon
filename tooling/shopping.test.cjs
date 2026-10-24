@@ -218,6 +218,7 @@ test("drawer highlights only supported categories and information destinations",
     "payment",
   );
   assert.equal(routes.menuDestinationFor({ name: "Checkout" }), undefined);
+  assert.equal(routes.menuDestinationFor({ name: "Reviews" }), undefined);
 });
 const product = {
   id: "p",

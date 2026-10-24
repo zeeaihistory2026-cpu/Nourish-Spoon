@@ -27,6 +27,7 @@ import { AppNavigation } from "../navigation/types";
 import { commerceEnabled } from "../features/commerce/availability";
 import { choosePhoto, useRemotePhoto } from "../services/photos";
 import { call, commerceError } from "../features/commerce/service";
+import { SOCIAL_PROFILES } from "../constants/socialProfiles";
 
 export function ContactMoreScreen({
   navigation,
@@ -371,39 +372,36 @@ export function ContactMoreScreen({
               ]}
             >
               <View
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 12,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: c.isDark
-                    ? c.surfaceWarm
-                    : row.title === "My Wishlist"
-                      ? "#FFF0F0"
+                style={[
+                  s.rowIcon,
+                  {
+                    backgroundColor: c.isDark
+                      ? c.surfaceWarm
                       : index % 3 === 1
                         ? "#FFF5DC"
                         : "#EDF6E9",
-                }}
+                  },
+                ]}
               >
                 <Ionicons
                   name={row.icon}
                   size={24}
-                  color={
-                    row.title === "My Wishlist"
-                      ? "#E13C42"
-                      : index % 3 === 1
-                        ? "#A46C0B"
-                        : c.primary
-                  }
+                  color={index % 3 === 1 ? "#A46C0B" : c.primary}
                 />
               </View>
               <Text style={s.label}>{row.title}</Text>
               <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
             </TouchableOpacity>
           ))}
-          <View style={s.row}>
-            <Ionicons name="moon-outline" size={22} color={c.primary} />
+          <View style={[s.row, s.themeRow]}>
+            <View
+              style={[
+                s.rowIcon,
+                { backgroundColor: c.isDark ? c.surfaceWarm : "#EDF6E9" },
+              ]}
+            >
+              <Ionicons name="moon-outline" size={24} color={c.primary} />
+            </View>
             <Text style={s.label}>Dark Mode</Text>
             <TouchableOpacity
               accessibilityRole="switch"
@@ -441,56 +439,60 @@ export function ContactMoreScreen({
             </TouchableOpacity>
           </View>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 10,
-            justifyContent: "center",
-            paddingVertical: 4,
-          }}
-        >
-          {[
+        <ProfileLinkSection
+          title="Contact Us"
+          onOpen={open}
+          links={[
             {
               label: "WhatsApp",
-              icon: "logo-whatsapp" as const,
+              icon: "logo-whatsapp",
               color: "#25D366",
+              background: "#EDF9EF",
               url: `https://wa.me/${settings.whatsapp_number.replace(/\D/g, "")}`,
             },
             {
-              label: "Call",
-              icon: "call-outline" as const,
+              label: "Phone",
+              icon: "call-outline",
               color: c.isDark ? "#60A5FA" : "#2563EB",
+              background: "#EEF3FF",
               url: `tel:${settings.whatsapp_number}`,
             },
             {
               label: "Email",
-              icon: "mail-outline" as const,
+              icon: "mail-outline",
               color: c.isDark ? "#FF7A70" : "#EA4335",
+              background: "#FFF1EE",
               url: `mailto:${settings.contact_email}`,
             },
-          ].map((item) => (
-            <TouchableOpacity
-              key={item.label}
-              accessibilityRole="button"
-              accessibilityLabel={item.label}
-              onPress={() => open(item.url)}
-              style={{
-                flex: 1,
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: 52,
-                gap: 4,
-                borderRadius: 14,
-                backgroundColor: c.surface,
-                borderWidth: 1,
-                borderColor: c.border,
-              }}
-            >
-              <Ionicons name={item.icon} size={22} color={item.color} />
-              <Text style={{ fontSize: 12 }}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+          ]}
+        />
+        <ProfileLinkSection
+          title="Follow Us"
+          onOpen={open}
+          links={[
+            {
+              label: "Facebook",
+              icon: "logo-facebook",
+              color: c.isDark ? "#60A5FA" : "#1877F2",
+              background: "#EEF3FF",
+              url: SOCIAL_PROFILES.facebook,
+            },
+            {
+              label: "TikTok",
+              icon: "logo-tiktok",
+              color: c.isDark ? "#FFFDF7" : "#111111",
+              background: "#F4F2EE",
+              url: SOCIAL_PROFILES.tiktok,
+            },
+            {
+              label: "Instagram",
+              icon: "logo-instagram",
+              color: c.isDark ? "#F389C6" : "#C13584",
+              background: "#FFF0F6",
+              url: SOCIAL_PROFILES.instagram,
+            },
+          ]}
+        />
         {account && (
           <TouchableOpacity
             accessibilityRole="button"
@@ -516,7 +518,88 @@ export function ContactMoreScreen({
     </View>
   );
 }
+type ProfileLink = {
+  label: string;
+  icon: React.ComponentProps<typeof Ionicons>["name"];
+  color: string;
+  background: string;
+  url: string;
+};
+function ProfileLinkSection({
+  title,
+  links,
+  onOpen,
+}: {
+  title: string;
+  links: ProfileLink[];
+  onOpen: (url: string) => void;
+}) {
+  const theme = useMobileStore((state) => state.theme);
+  return (
+    <View style={s.linkSection}>
+      <Text accessibilityRole="header" style={s.sectionHeading}>
+        {title}
+      </Text>
+      <View
+        style={[
+          s.group,
+          { backgroundColor: theme.surface, borderColor: theme.border },
+        ]}
+      >
+        {links.map((link, index) => (
+          <TouchableOpacity
+            key={link.label}
+            accessibilityRole="link"
+            accessibilityLabel={link.label}
+            accessibilityState={{ disabled: !link.url }}
+            disabled={!link.url}
+            onPress={() => onOpen(link.url)}
+            style={[
+              s.row,
+              {
+                borderBottomWidth: index < links.length - 1 ? 1 : 0,
+                borderColor: theme.isDark ? theme.border : "#F3ECD8",
+              },
+            ]}
+          >
+            <View
+              style={[
+                s.rowIcon,
+                {
+                  backgroundColor: theme.isDark
+                    ? theme.surfaceWarm
+                    : link.background,
+                },
+              ]}
+            >
+              <Ionicons name={link.icon} size={24} color={link.color} />
+            </View>
+            <Text style={s.label}>{link.label}</Text>
+            <Ionicons name="chevron-forward" size={17} color="#C9BFA4" />
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
 const s = StyleSheet.create({
+  themeRow: { minHeight: 56, paddingVertical: 6 },
+  rowIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  linkSection: { gap: 8, paddingTop: 2 },
+  sectionHeading: {
+    fontFamily: "serif",
+    fontWeight: "700",
+    fontSize: 23,
+    lineHeight: 27,
+    paddingLeft: 4,
+  },
   content: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 4, gap: 10 },
   quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   quickCard: {

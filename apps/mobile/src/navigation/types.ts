@@ -7,8 +7,7 @@ export type MenuDestination =
   | "panjeeri"
   | "energy_balls"
   | "combos"
-  | "story"
-  | "reviews";
+  | "story";
 export type MobileTab = "Home" | "Products" | "Cart" | "Orders" | "More";
 export const MAIN_TABS: readonly MobileTab[] = [
   "Home",

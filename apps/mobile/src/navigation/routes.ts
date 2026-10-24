@@ -45,8 +45,6 @@ export function menuDestinationFor(
       return "home";
     case "About":
       return "story";
-    case "Reviews":
-      return "reviews";
     case "PaymentDelivery":
       return route.params?.section;
     case "Products": {
