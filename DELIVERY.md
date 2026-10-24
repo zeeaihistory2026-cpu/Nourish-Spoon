@@ -1,6 +1,6 @@
 # Current delivery
 
-The current Android release is **1.0.0, build 31**. The signed APK passed update-compatibility checks. Android confirmed build 31 installed over the existing app without uninstalling. The installed APK and its copy in the phone’s Downloads folder both match the verified public download checksum.
+The current Android release is **1.0.0, build 32**. The signed APK uses the existing release certificate and was installed over the existing app without uninstalling. The installed APK and its Downloads copy match the verified public download.
 
 Use the [release guide](docs/releases/README.md) for the download, checksum, signing identity and future update procedure. Use the [documentation index](docs/README.md) for architecture, backend contracts, deployment and design references.
 

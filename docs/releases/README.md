@@ -1,14 +1,14 @@
 # Android release
 
-Current verified release: **1.0.0, Android build 31**, package `com.nourishspoon.app`.
+Current verified release: **1.0.0, Android build 32**, package `com.nourishspoon.app`.
 
-[Download the current release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.0-build31).
+[Download the current release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.0-build32).
 
-APK SHA-256: `5cf77a94f082be127dc0bf3f3526ab782e76c56207489dcdfbfb3f0c0b43f98f`.
+APK SHA-256: `bde7be299d296182882a63953a159ba3e88b7cc1fbd795bcf529aa33389715c4`.
 
-The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It uses the existing release certificate and a higher internal build number. Android confirmed build 31 installed over the existing app through USB. The installed APK, Downloads copy and public download have the same verified checksum.
+The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. The signed APK uses the existing release certificate and was installed over the existing app without uninstalling. The installed APK and its Downloads copy match the verified public download.
 
-Build 31 matches the notification reference using the app’s forest green, cream and gold colors. It adds a live current-order card, truthful historical activity, unread count and account-scoped Mark all read. Announcements stay visible. Narrow layouts, dark mode, empty inbox and order navigation were checked with isolated data. The build 30 release retains profile, referral, order-details and logo previews; full screen guides remain archived with build 29.
+Build 32 applies the approved More screen with aligned Dark Mode, Contact Us rows and matching Follow Us rows. Facebook and Instagram open the owner-provided brand profiles. TikTok keeps the same design with its destination deferred and no status text. Reviews remains in More and is removed from the burger menu. Notification previews remain in build 31, earlier profile/referral/order/logo previews in build 30 and full screen guides in build 29.
 
 ## Build and update compatibility
 
