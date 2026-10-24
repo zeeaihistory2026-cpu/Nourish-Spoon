@@ -1,14 +1,14 @@
 # Android release
 
-Current verified release: **1.0.0, Android build 30**, package `com.nourishspoon.app`.
+Current verified release: **1.0.0, Android build 31**, package `com.nourishspoon.app`.
 
-[Download the current release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.0-build30).
+[Download the current release](https://github.com/zeeaihistory2026-cpu/Nourish-Spoon/releases/tag/v1.0.0-build31).
 
-APK SHA-256: `bdb28ea8dae67b3a5ec27b8f393bf5f4c34a7d1e1b2eeb8df50ebb01b1868beb`.
+APK SHA-256: `5cf77a94f082be127dc0bf3f3526ab782e76c56207489dcdfbfb3f0c0b43f98f`.
 
-The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It uses the existing release certificate and a higher internal build number. It was installed over the existing app through USB, preserving app data. The copy saved in the phone’s Downloads folder has the same verified checksum.
+The APK passed archive integrity, signing, production-endpoint, bundled-source and 16 KB alignment checks. It uses the existing release certificate and a higher internal build number. Android confirmed build 31 installed over the existing app through USB. The installed APK, Downloads copy and public download have the same verified checksum.
 
-This build updates the script wordmark beneath the unchanged native logo animation, the compact profile layout, the top notification bell, Refer & Earn and Order Details. Orders remains in the bottom bar. More contains Track Order, My Points, Wishlist, Saved Addresses, Refer & Earn, Reviews, Help & Support and Dark Mode. The new release includes individual previews; the earlier full screen guides remain archived with build 29.
+Build 31 matches the notification reference using the app’s forest green, cream and gold colors. It adds a live current-order card, truthful historical activity, unread count and account-scoped Mark all read. Announcements stay visible. Narrow layouts, dark mode, empty inbox and order navigation were checked with isolated data. The build 30 release retains profile, referral, order-details and logo previews; full screen guides remain archived with build 29.
 
 ## Build and update compatibility
 
